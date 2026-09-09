@@ -133,7 +133,7 @@ NODE_ENV=development
 EOF_BACKEND-MANUAL
 ```
 
-![](images/7-02.png)
+![](images/7.png)
 
 **Sugerencia de commit (issue):**
 
@@ -170,7 +170,7 @@ npm install @nestjs/config @nestjs/swagger @nestjs/jwt @nestjs/passport @nestjs/
   class-validator class-transformer bcrypt reflect-metadata express compression helmet
 ```
 
-![](images/8-01.png)
+![](images/8.png)
 
 **Sugerencia de commit (issue):**
 
@@ -249,7 +249,7 @@ freePort(port);
 EOF_BACKEND_IA
 ```
 
-![](images/11-01.png)
+![](images/11.png)
 
 **Sugerencia de commit (issue):**
 
@@ -465,7 +465,7 @@ cp .env.example .env
 # Cambia solo el bloque del motor que uses. Mantén DB_*_NAME=tecnogua_ia
 ```
 
-![](images/clipboard-578041211.png)
+![](images/clipboard-1741613277.png)
 
 **Sugerencia de commit (issue):**
 
@@ -980,6 +980,8 @@ git add .
 git commit -m "chore: add database.types helpers"
 ```
 
+![](images/clipboard-208981934.png)
+
 #### 5.3 — database.config.ts
 
 Factory registerAs opcional para namespace `database` (complementa environment).
@@ -988,7 +990,7 @@ Factory registerAs opcional para namespace `database` (complementa environment).
 
 ``` bash
 mkdir -p src/config/database
-cat > src/config/database/database.config.ts <<'EOF_BACKEND_IA'
+cat > src/config/database/database.config.ts <<'EOF_BACKEND-MANUAL'
 import { registerAs } from '@nestjs/config';
 import { resolveDialectCredentials } from '../environment/db-env';
 import { DatabaseDialect } from '../environment/env.interface';
@@ -1018,8 +1020,10 @@ export const databaseConfig = registerAs(DATABASE_CONFIG_NAME, () => {
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
   };
 });
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3184977877.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1027,6 +1031,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add database.config registerAs"
 ```
+
+![](images/clipboard-2179650542.png)
 
 #### 5.4 — database.module.ts / providers
 
@@ -1037,7 +1043,7 @@ Los providers quedan vacíos a propósito.
 
 ``` bash
 mkdir -p src/config/database
-cat > src/config/database/database.module.ts <<'EOF_BACKEND_IA'
+cat > src/config/database/database.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { databaseConfig } from './database.config';
@@ -1047,8 +1053,10 @@ import { databaseConfig } from './database.config';
   exports: [ConfigModule],
 })
 export class DatabaseConfigModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1389564626.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1056,6 +1064,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add DatabaseConfigModule"
 ```
+
+![](images/clipboard-2339922141.png)
 
 #### 5.5 — database.providers.ts
 
@@ -1065,10 +1075,12 @@ Placeholder de providers de config/database.
 
 ``` bash
 mkdir -p src/config/database
-cat > src/config/database/database.providers.ts <<'EOF_BACKEND_IA'
+cat > src/config/database/database.providers.ts <<'EOF_BACKEND-MANUAL'
 export const DATABASE_PROVIDERS = [];
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2702010513.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1076,6 +1088,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "chore: add empty DATABASE_PROVIDERS"
 ```
+
+![](images/clipboard-698992048.png)
 
 #### 5.6 — Opciones Sequelize por dialecto
 
@@ -1085,7 +1099,7 @@ Arma host/port/user/password/logging con el bloque del motor seleccionado por DB
 
 ``` bash
 mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.options.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/sequelize/sequelize.options.ts <<'EOF_BACKEND-MANUAL'
 import { SequelizeOptions } from 'sequelize-typescript';
 import { resolveDialectCredentials } from '../../../config/environment/db-env';
 import { DatabaseDialect } from '../../../config/environment/env.interface';
@@ -1134,8 +1148,10 @@ export function getSequelizeOptions(
       return base;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-319561966.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1143,6 +1159,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add getSequelizeOptions multi-dialect"
 ```
+
+![](images/clipboard-2355117705.png)
 
 #### 5.7 — Factory Sequelize (sin modelos aún)
 
@@ -1153,7 +1171,7 @@ Crea la instancia Sequelize.
 
 ``` bash
 mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND-MANUAL'
 import { Sequelize } from 'sequelize-typescript';
 import { DatabaseDialect } from '../../../config/environment/env.interface';
 import { getSequelizeOptions } from './sequelize.options';
@@ -1211,8 +1229,10 @@ export async function createSequelizeInstance(
 
   return sequelize;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1405813579.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1220,6 +1240,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add createSequelizeInstance with empty ALL_MODELS"
 ```
+
+![](images/clipboard-1302337731.png)
 
 #### 5.8 — DatabaseSeederService (sin seeders aún)
 
@@ -1230,7 +1252,7 @@ Todavía no llama a ningún seeder de feature.
 
 ``` bash
 mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 
@@ -1256,8 +1278,10 @@ export class DatabaseSeederService implements OnModuleInit {
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1804917885.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1265,6 +1289,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add DatabaseSeederService scaffold"
 ```
+
+![](images/clipboard-1993233824.png)
 
 #### 5.9 — Módulo global Sequelize
 
@@ -1274,7 +1300,7 @@ Módulo `@Global()` que provee `SEQUELIZE_TOKEN` + ejecuta seeders.
 
 ``` bash
 mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.module.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/sequelize/sequelize.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module, Global } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Sequelize } from 'sequelize-typescript';
@@ -1302,8 +1328,10 @@ import { DatabaseSeederService } from '../seeders/database-seeder.service';
   exports: [SEQUELIZE_TOKEN],
 })
 export class SequelizeDatabaseModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1999698763.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1311,6 +1339,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add global SequelizeDatabaseModule"
 ```
+
+![](images/clipboard-1562411102.png)
 
 #### 5.10 — Verificar conexión a BD
 
@@ -1331,12 +1361,16 @@ npm run start:dev
 # Ctrl+C
 ```
 
+![](images/clipboard-3334775804.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "test: verify sequelize authenticates against tecnogua_ia"
 ```
+
+![](images/clipboard-4103294076.png)
 
 ------------------------------------------------------------------------
 
@@ -1355,15 +1389,17 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/app
-cat > src/config/app/app.constants.ts <<'EOF_BACKEND_IA'
+cat > src/config/app/app.constants.ts <<'EOF_BACKEND-MANUAL'
 export const APP_CONFIG_NAME = 'app';
 
 export const APP_DEFAULTS = {
   PORT: 3002,
   NODE_ENV: 'development',
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3039745944.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1371,6 +1407,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add app.constants.ts"
 ```
+
+![](images/clipboard-782325641.png)
 
 #### 6.2 — config/app/app.config.ts
 
@@ -1380,7 +1418,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/app
-cat > src/config/app/app.config.ts <<'EOF_BACKEND_IA'
+cat > src/config/app/app.config.ts <<'EOF_BACKEND-MANUAL'
 import { registerAs } from '@nestjs/config';
 import { APP_CONFIG_NAME, APP_DEFAULTS } from './app.constants';
 import { Environment } from '../environment/env.interface';
@@ -1389,8 +1427,10 @@ export const appConfig = registerAs(APP_CONFIG_NAME, () => ({
   port: parseInt(process.env.PORT || String(APP_DEFAULTS.PORT), 10),
   nodeEnv: (process.env.NODE_ENV as Environment) || APP_DEFAULTS.NODE_ENV,
 }));
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2530853294.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1398,6 +1438,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add app.config.ts"
 ```
+
+![](images/clipboard-2163278567.png)
 
 #### 6.3 — config/logger/logger.config.ts
 
@@ -1407,7 +1449,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/logger
-cat > src/config/logger/logger.config.ts <<'EOF_BACKEND_IA'
+cat > src/config/logger/logger.config.ts <<'EOF_BACKEND-MANUAL'
 import { LogLevel } from '@nestjs/common';
 
 export function getLoggerConfig(): { logLevels: LogLevel[] } {
@@ -1419,8 +1461,10 @@ export function getLoggerConfig(): { logLevels: LogLevel[] } {
       : ['log', 'error', 'warn'],
   };
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-976836977.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1428,6 +1472,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add logger.config.ts"
 ```
+
+![](images/clipboard-1061620373.png)
 
 #### 6.4 — config/logger/logger.module.ts
 
@@ -1437,7 +1483,7 @@ Módulo Nest del feature: cablea providers, tokens DI y controller.
 
 ``` bash
 mkdir -p src/config/logger
-cat > src/config/logger/logger.module.ts <<'EOF_BACKEND_IA'
+cat > src/config/logger/logger.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module, Global, Logger } from '@nestjs/common';
 
 @Global()
@@ -1446,8 +1492,10 @@ import { Module, Global, Logger } from '@nestjs/common';
   exports: [Logger],
 })
 export class LoggerModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-290476914.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1455,6 +1503,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: wire nest module logger.module.ts"
 ```
+
+![](images/clipboard-4109891322.png)
 
 #### 6.5 — config/jwt/jwt.constants.ts
 
@@ -1464,15 +1514,17 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/jwt
-cat > src/config/jwt/jwt.constants.ts <<'EOF_BACKEND_IA'
+cat > src/config/jwt/jwt.constants.ts <<'EOF_BACKEND-MANUAL'
 export const JWT_CONFIG_NAME = 'jwt';
 
 export const JWT_DEFAULTS = {
   EXPIRES_IN: '1d',
   REFRESH_EXPIRES_IN: '7d',
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3680197685.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1480,6 +1532,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add jwt.constants.ts"
 ```
+
+![](images/clipboard-18475342.png)
 
 #### 6.6 — config/jwt/jwt.config.ts
 
@@ -1489,7 +1543,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/jwt
-cat > src/config/jwt/jwt.config.ts <<'EOF_BACKEND_IA'
+cat > src/config/jwt/jwt.config.ts <<'EOF_BACKEND-MANUAL'
 import { registerAs } from '@nestjs/config';
 import { JWT_CONFIG_NAME, JWT_DEFAULTS } from './jwt.constants';
 
@@ -1500,8 +1554,10 @@ export const jwtConfig = registerAs(JWT_CONFIG_NAME, () => ({
   refreshExpiresIn:
     process.env.JWT_REFRESH_EXPIRES_IN || JWT_DEFAULTS.REFRESH_EXPIRES_IN,
 }));
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1214859187.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1509,6 +1565,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add jwt.config.ts"
 ```
+
+![](images/clipboard-1861731563.png)
 
 #### 6.7 — config/swagger/swagger.constants.ts
 
@@ -1518,14 +1576,16 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/swagger
-cat > src/config/swagger/swagger.constants.ts <<'EOF_BACKEND_IA'
+cat > src/config/swagger/swagger.constants.ts <<'EOF_BACKEND-MANUAL'
 export const SWAGGER_TITLE = 'Backend NestJS + Sequelize API';
 export const SWAGGER_DESCRIPTION =
   'API profesional con Clean Architecture / DDD, JWT y RBAC';
 export const SWAGGER_VERSION = '1.0';
 export const SWAGGER_PATH = 'api/docs';
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-103230403.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1533,6 +1593,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add swagger.constants.ts"
 ```
+
+![](images/clipboard-615197362.png)
 
 #### 6.8 — config/swagger/swagger.config.ts
 
@@ -1542,7 +1604,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/config/swagger
-cat > src/config/swagger/swagger.config.ts <<'EOF_BACKEND_IA'
+cat > src/config/swagger/swagger.config.ts <<'EOF_BACKEND-MANUAL'
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
@@ -1572,8 +1634,10 @@ export function setupSwagger(app: INestApplication): void {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(SWAGGER_PATH, app, document);
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2503213735.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1581,6 +1645,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add swagger.config.ts"
 ```
+
+![](images/clipboard-2524108379.png)
 
 #### 6.9 — common/enums/status.enum.ts
 
@@ -1590,13 +1656,15 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/enums
-cat > src/common/enums/status.enum.ts <<'EOF_BACKEND_IA'
+cat > src/common/enums/status.enum.ts <<'EOF_BACKEND-MANUAL'
 export enum Status {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1906682026.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1604,6 +1672,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add status.enum.ts"
 ```
+
+![](images/clipboard-3150077228.png)
 
 #### 6.10 — common/enums/http-method.enum.ts
 
@@ -1613,7 +1683,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/enums
-cat > src/common/enums/http-method.enum.ts <<'EOF_BACKEND_IA'
+cat > src/common/enums/http-method.enum.ts <<'EOF_BACKEND-MANUAL'
 export enum HttpMethod {
   GET = 'GET',
   POST = 'POST',
@@ -1621,8 +1691,10 @@ export enum HttpMethod {
   PATCH = 'PATCH',
   DELETE = 'DELETE',
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2124880393.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1630,6 +1702,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add http-method.enum.ts"
 ```
+
+![](images/clipboard-420644144.png)
 
 #### 6.11 — common/enums/sort-order.enum.ts
 
@@ -1639,13 +1713,15 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/enums
-cat > src/common/enums/sort-order.enum.ts <<'EOF_BACKEND_IA'
+cat > src/common/enums/sort-order.enum.ts <<'EOF_BACKEND-MANUAL'
 export enum SortOrder {
   ASC = 'ASC',
   DESC = 'DESC',
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2849857629.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1653,6 +1729,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add sort-order.enum.ts"
 ```
+
+![](images/clipboard-724392591.png)
 
 #### 6.12 — common/constants/app.constants.ts
 
@@ -1662,11 +1740,13 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/constants
-cat > src/common/constants/app.constants.ts <<'EOF_BACKEND_IA'
+cat > src/common/constants/app.constants.ts <<'EOF_BACKEND-MANUAL'
 export const APP_NAME = 'backend_ia';
 export const GLOBAL_PREFIX = 'api';
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2161395457.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1674,6 +1754,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add app.constants.ts"
 ```
+
+![](images/clipboard-798517239.png)
 
 #### 6.13 — common/constants/pagination.constants.ts
 
@@ -1683,12 +1765,14 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/constants
-cat > src/common/constants/pagination.constants.ts <<'EOF_BACKEND_IA'
+cat > src/common/constants/pagination.constants.ts <<'EOF_BACKEND-MANUAL'
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 100;
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1192256233.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1696,6 +1780,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add pagination.constants.ts"
 ```
+
+![](images/clipboard-509339628.png)
 
 #### 6.14 — common/exceptions/application.exception.ts
 
@@ -1705,7 +1791,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/exceptions
-cat > src/common/exceptions/application.exception.ts <<'EOF_BACKEND_IA'
+cat > src/common/exceptions/application.exception.ts <<'EOF_BACKEND-MANUAL'
 export class ApplicationException extends Error {
   public readonly timestamp: string;
 
@@ -1718,8 +1804,10 @@ export class ApplicationException extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2109757355.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1727,6 +1815,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add application.exception.ts"
 ```
+
+![](images/clipboard-2978790419.png)
 
 #### 6.15 — common/exceptions/domain.exception.ts
 
@@ -1736,7 +1826,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/exceptions
-cat > src/common/exceptions/domain.exception.ts <<'EOF_BACKEND_IA'
+cat > src/common/exceptions/domain.exception.ts <<'EOF_BACKEND-MANUAL'
 import { ApplicationException } from './application.exception';
 
 export class DomainException extends ApplicationException {
@@ -1744,8 +1834,10 @@ export class DomainException extends ApplicationException {
     super(message, 400);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2800848190.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1753,6 +1845,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add domain.exception.ts"
 ```
+
+![](images/clipboard-2857809295.png)
 
 #### 6.16 — common/exceptions/entity-not-found.exception.ts
 
@@ -1762,7 +1856,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/exceptions
-cat > src/common/exceptions/entity-not-found.exception.ts <<'EOF_BACKEND_IA'
+cat > src/common/exceptions/entity-not-found.exception.ts <<'EOF_BACKEND-MANUAL'
 import { ApplicationException } from './application.exception';
 
 export class EntityNotFoundException extends ApplicationException {
@@ -1770,8 +1864,10 @@ export class EntityNotFoundException extends ApplicationException {
     super(`${entityName} con ID ${identifier} no encontrado`, 404);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-170410535.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1779,6 +1875,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add entity-not-found.exception.ts"
 ```
+
+![](images/clipboard-1716263942.png)
 
 #### 6.17 — common/exceptions/validation.exception.ts
 
@@ -1788,7 +1886,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/exceptions
-cat > src/common/exceptions/validation.exception.ts <<'EOF_BACKEND_IA'
+cat > src/common/exceptions/validation.exception.ts <<'EOF_BACKEND-MANUAL'
 import { ApplicationException } from './application.exception';
 
 export class ValidationException extends ApplicationException {
@@ -1796,8 +1894,10 @@ export class ValidationException extends ApplicationException {
     super(message, 422);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3969718185.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1805,6 +1905,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add validation.exception.ts"
 ```
+
+![](images/clipboard-841037599.png)
 
 #### 6.18 — common/filters/global-exception.filter.ts
 
@@ -1814,7 +1916,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/filters
-cat > src/common/filters/global-exception.filter.ts <<'EOF_BACKEND_IA'
+cat > src/common/filters/global-exception.filter.ts <<'EOF_BACKEND-MANUAL'
 import {
   ExceptionFilter,
   Catch,
@@ -1852,8 +1954,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     });
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3833204160.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1861,6 +1965,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add global-exception.filter.ts"
 ```
+
+![](images/clipboard-2250939702.png)
 
 #### 6.19 — common/filters/sequelize-exception.filter.ts
 
@@ -1870,7 +1976,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/filters
-cat > src/common/filters/sequelize-exception.filter.ts <<'EOF_BACKEND_IA'
+cat > src/common/filters/sequelize-exception.filter.ts <<'EOF_BACKEND-MANUAL'
 import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -1916,8 +2022,10 @@ export class SequelizeExceptionFilter implements ExceptionFilter {
     });
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3386716468.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1925,6 +2033,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add sequelize-exception.filter.ts"
 ```
+
+![](images/clipboard-1920118937.png)
 
 #### 6.20 — common/interceptors/response.interceptor.ts
 
@@ -1934,7 +2044,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interceptors
-cat > src/common/interceptors/response.interceptor.ts <<'EOF_BACKEND_IA'
+cat > src/common/interceptors/response.interceptor.ts <<'EOF_BACKEND-MANUAL'
 import {
   Injectable,
   NestInterceptor,
@@ -1972,8 +2082,10 @@ export class ResponseInterceptor<T>
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-493623725.png)
 
 **Sugerencia de commit (issue):**
 
@@ -1981,6 +2093,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add response.interceptor.ts"
 ```
+
+![](images/clipboard-871210376.png)
 
 #### 6.21 — common/interceptors/logging.interceptor.ts
 
@@ -1990,7 +2104,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interceptors
-cat > src/common/interceptors/logging.interceptor.ts <<'EOF_BACKEND_IA'
+cat > src/common/interceptors/logging.interceptor.ts <<'EOF_BACKEND-MANUAL'
 import {
   Injectable,
   NestInterceptor,
@@ -2019,8 +2133,10 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3367451736.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2028,6 +2144,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add logging.interceptor.ts"
 ```
+
+![](images/clipboard-1853241578.png)
 
 #### 6.22 — common/interceptors/timeout.interceptor.ts
 
@@ -2037,7 +2155,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interceptors
-cat > src/common/interceptors/timeout.interceptor.ts <<'EOF_BACKEND_IA'
+cat > src/common/interceptors/timeout.interceptor.ts <<'EOF_BACKEND-MANUAL'
 import {
   Injectable,
   NestInterceptor,
@@ -2062,8 +2180,10 @@ export class TimeoutInterceptor implements NestInterceptor {
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2017469171.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2071,6 +2191,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add timeout.interceptor.ts"
 ```
+
+![](images/clipboard-2058807044.png)
 
 #### 6.23 — common/pipes/validation.pipe.ts
 
@@ -2080,7 +2202,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/pipes
-cat > src/common/pipes/validation.pipe.ts <<'EOF_BACKEND_IA'
+cat > src/common/pipes/validation.pipe.ts <<'EOF_BACKEND-MANUAL'
 import {
   PipeTransform,
   Injectable,
@@ -2116,8 +2238,10 @@ export class CustomValidationPipe implements PipeTransform<any> {
     return !types.includes(metatype);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3460867102.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2125,6 +2249,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add validation.pipe.ts"
 ```
+
+![](images/clipboard-1471015425.png)
 
 #### 6.24 — common/pipes/parse-positive-int.pipe.ts
 
@@ -2134,7 +2260,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/pipes
-cat > src/common/pipes/parse-positive-int.pipe.ts <<'EOF_BACKEND_IA'
+cat > src/common/pipes/parse-positive-int.pipe.ts <<'EOF_BACKEND-MANUAL'
 import {
   PipeTransform,
   Injectable,
@@ -2155,8 +2281,10 @@ export class ParsePositiveIntPipe implements PipeTransform<string, number> {
     return parsed;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-709565960.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2164,6 +2292,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add parse-positive-int.pipe.ts"
 ```
+
+![](images/clipboard-4161734090.png)
 
 #### 6.25 — common/decorators/public.decorator.ts
 
@@ -2173,13 +2303,15 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/decorators
-cat > src/common/decorators/public.decorator.ts <<'EOF_BACKEND_IA'
+cat > src/common/decorators/public.decorator.ts <<'EOF_BACKEND-MANUAL'
 import { SetMetadata } from '@nestjs/common';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2663228116.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2187,6 +2319,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add public.decorator.ts"
 ```
+
+![](images/clipboard-79965876.png)
 
 #### 6.26 — common/decorators/roles.decorator.ts
 
@@ -2196,13 +2330,15 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/decorators
-cat > src/common/decorators/roles.decorator.ts <<'EOF_BACKEND_IA'
+cat > src/common/decorators/roles.decorator.ts <<'EOF_BACKEND-MANUAL'
 import { SetMetadata } from '@nestjs/common';
 
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3261431075.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2210,6 +2346,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add roles.decorator.ts"
 ```
+
+![](images/clipboard-2936053399.png)
 
 #### 6.27 — common/decorators/current-user.decorator.ts
 
@@ -2219,7 +2357,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/decorators
-cat > src/common/decorators/current-user.decorator.ts <<'EOF_BACKEND_IA'
+cat > src/common/decorators/current-user.decorator.ts <<'EOF_BACKEND-MANUAL'
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const CurrentUser = createParamDecorator(
@@ -2229,8 +2367,10 @@ export const CurrentUser = createParamDecorator(
     return data ? user?.[data] : user;
   },
 );
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2540618841.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2238,6 +2378,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add current-user.decorator.ts"
 ```
+
+![](images/clipboard-665147001.png)
 
 #### 6.28 — common/decorators/resource.decorator.ts
 
@@ -2247,14 +2389,16 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/decorators
-cat > src/common/decorators/resource.decorator.ts <<'EOF_BACKEND_IA'
+cat > src/common/decorators/resource.decorator.ts <<'EOF_BACKEND-MANUAL'
 import { SetMetadata } from '@nestjs/common';
 
 export const RESOURCE_KEY = 'resource';
 export const ResourceMeta = (path: string, method: string) =>
   SetMetadata(RESOURCE_KEY, { path, method });
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-352503540.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2262,6 +2406,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add resource.decorator.ts"
 ```
+
+![](images/clipboard-4284503964.png)
 
 #### 6.29 — common/interfaces/authenticated-user.interface.ts
 
@@ -2271,15 +2417,17 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interfaces
-cat > src/common/interfaces/authenticated-user.interface.ts <<'EOF_BACKEND_IA'
+cat > src/common/interfaces/authenticated-user.interface.ts <<'EOF_BACKEND-MANUAL'
 export interface AuthenticatedUser {
   id: number;
   email: string;
   username: string;
   roles: string[];
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-916223575.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2287,6 +2435,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add authenticated-user.interface.ts"
 ```
+
+![](images/clipboard-1827933629.png)
 
 #### 6.30 — common/interfaces/pagination.interface.ts
 
@@ -2296,7 +2446,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interfaces
-cat > src/common/interfaces/pagination.interface.ts <<'EOF_BACKEND_IA'
+cat > src/common/interfaces/pagination.interface.ts <<'EOF_BACKEND-MANUAL'
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -2308,8 +2458,10 @@ export interface PaginatedResult<T> {
   items: T[];
   meta: PaginationMeta;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3369734213.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2317,6 +2469,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add pagination.interface.ts"
 ```
+
+![](images/clipboard-572049404.png)
 
 #### 6.31 — common/interfaces/api-response.interface.ts
 
@@ -2326,15 +2480,17 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/interfaces
-cat > src/common/interfaces/api-response.interface.ts <<'EOF_BACKEND_IA'
+cat > src/common/interfaces/api-response.interface.ts <<'EOF_BACKEND-MANUAL'
 export interface ApiResponseBody<T> {
   statusCode: number;
   message: string;
   data: T;
   timestamp: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-450713621.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2342,6 +2498,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add api-response.interface.ts"
 ```
+
+![](images/clipboard-4137500015.png)
 
 #### 6.32 — common/types/nullable.type.ts
 
@@ -2351,10 +2509,12 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/types
-cat > src/common/types/nullable.type.ts <<'EOF_BACKEND_IA'
+cat > src/common/types/nullable.type.ts <<'EOF_BACKEND-MANUAL'
 export type Nullable<T> = T | null;
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1607485928.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2362,6 +2522,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add nullable.type.ts"
 ```
+
+![](images/clipboard-1023798286.png)
 
 #### 6.33 — common/types/optional.type.ts
 
@@ -2371,10 +2533,12 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/types
-cat > src/common/types/optional.type.ts <<'EOF_BACKEND_IA'
+cat > src/common/types/optional.type.ts <<'EOF_BACKEND-MANUAL'
 export type Optional<T> = T | undefined;
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-897443535.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2382,6 +2546,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add optional.type.ts"
 ```
+
+![](images/clipboard-2479393298.png)
 
 #### 6.34 — common/utils/pagination.util.ts
 
@@ -2391,7 +2557,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/utils
-cat > src/common/utils/pagination.util.ts <<'EOF_BACKEND_IA'
+cat > src/common/utils/pagination.util.ts <<'EOF_BACKEND-MANUAL'
 import {
   DEFAULT_LIMIT,
   DEFAULT_PAGE,
@@ -2422,8 +2588,10 @@ export function buildPaginatedResult<T>(
     },
   };
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-132519964.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2431,6 +2599,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add pagination.util.ts"
 ```
+
+![](images/clipboard-975705332.png)
 
 #### 6.35 — common/utils/date.util.ts
 
@@ -2440,7 +2610,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/utils
-cat > src/common/utils/date.util.ts <<'EOF_BACKEND_IA'
+cat > src/common/utils/date.util.ts <<'EOF_BACKEND-MANUAL'
 export function addDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
@@ -2469,8 +2639,10 @@ export function parseDurationToMs(duration: string): number {
       return 24 * 60 * 60 * 1000;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1105676335.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2478,6 +2650,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add date.util.ts"
 ```
+
+![](images/clipboard-250091262.png)
 
 #### 6.36 — common/utils/string.util.ts
 
@@ -2487,7 +2661,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/common/utils
-cat > src/common/utils/string.util.ts <<'EOF_BACKEND_IA'
+cat > src/common/utils/string.util.ts <<'EOF_BACKEND-MANUAL'
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
@@ -2495,8 +2669,10 @@ export function normalizeEmail(email: string): string {
 export function isBlank(value?: string | null): boolean {
   return !value || value.trim().length === 0;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1968143508.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2504,6 +2680,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add string.util.ts"
 ```
+
+![](images/clipboard-405590318.png)
 
 #### 6.37 — infrastructure/security/hashing/password-hasher.interface.ts
 
@@ -2513,15 +2691,17 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/infrastructure/security/hashing
-cat > src/infrastructure/security/hashing/password-hasher.interface.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/security/hashing/password-hasher.interface.ts <<'EOF_BACKEND-MANUAL'
 export const PASSWORD_HASHER = 'PASSWORD_HASHER';
 
 export interface IPasswordHasher {
   hash(plain: string): Promise<string>;
   compare(plain: string, hashed: string): Promise<boolean>;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3262108131.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2529,6 +2709,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add password-hasher.interface.ts"
 ```
+
+![](images/clipboard-670500222.png)
 
 #### 6.38 — infrastructure/security/hashing/bcrypt-password-hasher.service.ts
 
@@ -2538,7 +2720,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/infrastructure/security/hashing
-cat > src/infrastructure/security/hashing/bcrypt-password-hasher.service.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/security/hashing/bcrypt-password-hasher.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { IPasswordHasher } from './password-hasher.interface';
@@ -2555,8 +2737,10 @@ export class BcryptPasswordHasherService implements IPasswordHasher {
     return bcrypt.compare(plain, hashed);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1183343421.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2564,6 +2748,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add bcrypt-password-hasher.service.ts"
 ```
+
+![](images/clipboard-1558136400.png)
 
 #### 6.39 — infrastructure/security/tokens/token.interface.ts
 
@@ -2573,7 +2759,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/infrastructure/security/tokens
-cat > src/infrastructure/security/tokens/token.interface.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/security/tokens/token.interface.ts <<'EOF_BACKEND-MANUAL'
 export const TOKEN_SERVICE = 'TOKEN_SERVICE';
 
 export interface TokenPayload {
@@ -2596,8 +2782,10 @@ export interface ITokenService {
   verifyRefreshToken(token: string): Promise<TokenPayload>;
   issueTokens(payload: TokenPayload): Promise<IssuedTokens>;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2154541371.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2605,6 +2793,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add token.interface.ts"
 ```
+
+![](images/clipboard-296283903.png)
 
 #### 6.40 — infrastructure/security/tokens/token.service.ts
 
@@ -2614,7 +2804,7 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/infrastructure/security/tokens
-cat > src/infrastructure/security/tokens/token.service.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/security/tokens/token.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -2673,8 +2863,10 @@ export class TokenService implements ITokenService {
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-151444158.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2682,6 +2874,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add token.service.ts"
 ```
+
+![](images/clipboard-1102423966.png)
 
 #### 6.41 — infrastructure/security/security.module.ts
 
@@ -2691,7 +2885,7 @@ Módulo Nest del feature: cablea providers, tokens DI y controller.
 
 ``` bash
 mkdir -p src/infrastructure/security
-cat > src/infrastructure/security/security.module.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/security/security.module.ts <<'EOF_BACKEND-MANUAL'
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -2736,8 +2930,10 @@ import { TokenService } from './tokens/token.service';
   ],
 })
 export class SecurityModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2013009675.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2745,6 +2941,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: wire nest module security.module.ts"
 ```
+
+![](images/clipboard-581304813.png)
 
 #### 6.42 — Actualizar main.ts (bootstrap completo)
 
@@ -2754,7 +2952,7 @@ Prefix global, filters, interceptors, pipes, Swagger y manejo amigable de EADDRI
 
 ``` bash
 mkdir -p src
-cat > src/main.ts <<'EOF_BACKEND_IA'
+cat > src/main.ts <<'EOF_BACKEND-MANUAL'
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
@@ -2809,8 +3007,10 @@ async function bootstrap() {
   }
 }
 bootstrap();
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3243682950.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2818,6 +3018,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: harden main.ts bootstrap with swagger and global pipes"
 ```
+
+![](images/clipboard-2220642581.png)
 
 #### 6.43 — Actualizar app.module.ts (base sin features ni guards)
 
@@ -2828,7 +3030,7 @@ Business/Auth y guards llegan en fases posteriores.
 
 ``` bash
 mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+cat > src/app.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { envConfig } from './config/environment/env.config';
@@ -2857,8 +3059,10 @@ import { AppService } from './app.service';
   ],
 })
 export class AppModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1820358377.png)
 
 **Sugerencia de commit (issue):**
 
@@ -2866,6 +3070,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: wire AppModule with config database security logger"
 ```
+
+![](images/clipboard-2392177866.png)
 
 #### 6.44 — Verificar bootstrap transversal
 
@@ -2878,12 +3084,18 @@ npm run start:dev
 # Ctrl+C
 ```
 
+![](images/clipboard-3623020568.png)
+
+![](images/clipboard-2850738805.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "test: verify base infrastructure bootstrap"
 ```
+
+![](images/clipboard-14153832.png)
 
 ------------------------------------------------------------------------
 
@@ -3008,12 +3220,16 @@ export class Client {
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-3834508799.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add domain entity client.entity.ts"
 ```
+
+![](images/clipboard-2645702767.png)
 
 #### 7.2 — features/business/clients/domain/exceptions/client-email-already-exists.exception.ts
 
@@ -3034,6 +3250,8 @@ export class ClientEmailAlreadyExistsException extends DomainException {
 }
 EOF_BACKEND_IA
 ```
+
+![](images/clipboard-3782637411.png)
 
 **Sugerencia de commit (issue):**
 
