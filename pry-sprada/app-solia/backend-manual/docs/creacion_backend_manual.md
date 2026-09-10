@@ -3099,125 +3099,104 @@ git commit -m "test: verify base infrastructure bootstrap"
 
 ------------------------------------------------------------------------
 
-## FASE 7 — `06_BUSINESS_CLIENTS`
+## FASE 7 — `06_BUSINESS_member`
 
-### Business — Clients (patrón completo CA)
+### Business — member (socio completo CA)
 
 > **Objetivo de la fase:** Primera entidad de negocio.
 > Orden lógico: dominio → infraestructura → aplicación → presentación → módulo → cableado → verificación.
 
-#### 7.1 — features/business/clients/domain/entities/client.entity.ts
+#### 7.1 — features/business/clients/domain/entities/member.entity.ts
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
 Aquí viven las reglas del negocio.
 
-**Archivo:** `src/features/business/clients/domain/entities/client.entity.ts`
+**Archivo:** `src/features/business/member/domain/entities/member.entity.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/domain/entities
-cat > src/features/business/clients/domain/entities/client.entity.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { isValidEmail } from '../validators/client-email.validator';
-import { isValidPhone } from '../validators/client-phone.validator';
+mkdir -p src/features/business/members/domain/entities
+cat > src/features/business/members/domain/entities/member.entity.ts <<'EOF'
+import { Status } from '../../../../../common/enums/status.enum.js';
 
-export interface ClientProps {
+export interface MemberProps {
   id?: number;
   name: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  password?: string;
+  description?: string;
+  isActive?: boolean;
   status?: Status;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export class Client {
+export class Member {
   id?: number;
   name: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  password?: string;
+  description?: string;
+  isActive: boolean;
   status: Status;
   createdAt?: Date;
   updatedAt?: Date;
 
-  private constructor(props: ClientProps) {
+  private constructor(props: MemberProps) {
     this.id = props.id;
     this.name = props.name;
-    this.address = props.address;
-    this.phone = props.phone;
-    this.email = props.email;
-    this.password = props.password;
+    this.description = props.description;
+    this.isActive = props.isActive ?? true;
     this.status = props.status ?? Status.ACTIVE;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
 
   static create(
-    props: Omit<ClientProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
-  ): Client {
+    props: Omit<
+      MemberProps,
+      'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+    >,
+  ): Member {
     if (!props.name?.trim()) {
-      throw new Error('El nombre del cliente es requerido');
+      throw new Error('El nombre del socio es requerido');
     }
 
-    if (props.email && !isValidEmail(props.email)) {
-      throw new Error('El email del cliente no es válido');
-    }
-
-    if (props.phone && !isValidPhone(props.phone)) {
-      throw new Error('El teléfono del cliente no es válido');
-    }
-
-    return new Client(props);
+    return new Member(props);
   }
 
-  static reconstitute(props: ClientProps): Client {
-    return new Client(props);
+  static reconstitute(props: MemberProps): Member {
+    return new Member(props);
   }
 
   update(
     props: Partial<
-      Omit<ClientProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>
+      Omit<
+        MemberProps,
+        'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+      >
     >,
   ): void {
     if (props.name !== undefined) {
       if (!props.name.trim()) {
-        throw new Error('El nombre del cliente es requerido');
+        throw new Error('El nombre del socio es requerido');
       }
+
       this.name = props.name;
     }
 
-    if (props.address !== undefined) {
-      this.address = props.address;
-    }
-
-    if (props.phone !== undefined) {
-      if (props.phone && !isValidPhone(props.phone)) {
-        throw new Error('El teléfono del cliente no es válido');
-      }
-      this.phone = props.phone;
-    }
-
-    if (props.email !== undefined) {
-      if (props.email && !isValidEmail(props.email)) {
-        throw new Error('El email del cliente no es válido');
-      }
-      this.email = props.email;
-    }
-
-    if (props.password !== undefined) {
-      this.password = props.password;
+    if (props.description !== undefined) {
+      this.description = props.description;
     }
   }
 
   deactivate(): void {
+    this.isActive = false;
     this.status = Status.INACTIVE;
   }
+
+  activate(): void {
+    this.isActive = true;
+    this.status = Status.ACTIVE;
+  }
 }
-EOF_BACKEND_IA
+EOF
 ```
 
 ![](images/clipboard-3834508799.png)
@@ -3226,29 +3205,29 @@ EOF_BACKEND_IA
 
 ``` bash
 git add .
-git commit -m "feat: add domain entity client.entity.ts"
+git commit -m "feat: add domain entity member.entity.ts"
 ```
 
 ![](images/clipboard-2645702767.png)
 
-#### 7.2 — features/business/clients/domain/exceptions/client-email-already-exists.exception.ts
+#### 7.2 — features/business/clients/domain/exceptions/member-email-already-exists.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/clients/domain/exceptions/client-email-already-exists.exception.ts`
+**Archivo:** `src/features/business/member/domain/exceptions/member-email-already-exists.exception.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/domain/exceptions
-cat > src/features/business/clients/domain/exceptions/client-email-already-exists.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
+mkdir -p src/features/business/members/domain/exceptions
+cat > src/features/business/members/domain/exceptions/member-already-exists.exception.ts <<'EOF'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
 
-export class ClientEmailAlreadyExistsException extends DomainException {
-  constructor(email: string) {
-    super(`El email '${email}' ya está registrado`);
+export class MemberAlreadyExistsException extends DomainException {
+  constructor(identifier: string) {
+    super(`El socio '${identifier}' ya está registrado`);
   }
 }
-EOF_BACKEND_IA
+EOF
 ```
 
 ![](images/clipboard-3782637411.png)
@@ -3257,122 +3236,85 @@ EOF_BACKEND_IA
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception client-email-already-exists.exception.ts"
+git commit -m "feat: add domain exception member-email-already-exists.exception.ts"
 ```
 
-#### 7.3 — features/business/clients/domain/exceptions/client-not-found.exception.ts
+![](images/clipboard-3773026608.png)
+
+#### 7.3 — features/business/member/domain/exceptions/member-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/clients/domain/exceptions/client-not-found.exception.ts`
+**Archivo:** `src/features/business/member/domain/exceptions/member-not-found.exception.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/domain/exceptions
-cat > src/features/business/clients/domain/exceptions/client-not-found.exception.ts <<'EOF_BACKEND_IA'
-import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception';
+mkdir -p src/features/business/members/domain/exceptions
+cat > src/features/business/members/domain/exceptions/member-not-found.exception.ts <<'EOF'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
 
-export class ClientNotFoundException extends EntityNotFoundException {
+export class MemberNotFoundException extends EntityNotFoundException {
   constructor(id: number) {
-    super('Cliente', id);
+    super('Socio', id);
   }
 }
-EOF_BACKEND_IA
+EOF
 ```
+
+![](images/clipboard-723327702.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception client-not-found.exception.ts"
+git commit -m "feat: add domain exception member-not-found.exception.ts"
 ```
 
-#### 7.4 — features/business/clients/domain/interfaces/client-repository.interface.ts
+![](images/clipboard-3381981807.png)
+
+#### 7.4 — features/business/member/domain/interfaces/member-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
 
-**Archivo:** `src/features/business/clients/domain/interfaces/client-repository.interface.ts`
+**Archivo:** `src/features/business/member/domain/interfaces/member-repository.interface.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/domain/interfaces
-cat > src/features/business/clients/domain/interfaces/client-repository.interface.ts <<'EOF_BACKEND_IA'
-import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface';
-import { Client } from '../entities/client.entity';
+mkdir -p src/features/business/members/domain/interfaces
+cat > src/features/business/members/domain/interfaces/member-repository.interface.ts <<'EOF'
+import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface.js';
+import { Member } from '../entities/member.entity.js';
 
-export const CLIENT_REPOSITORY = 'CLIENT_REPOSITORY';
+export const MEMBER_REPOSITORY = 'MEMBER_REPOSITORY';
 
-export interface ClientFindAllParams {
+export interface MemberFindAllParams {
   page?: number;
   limit?: number;
   search?: string;
 }
 
-export interface IClientRepository {
-  create(client: Client): Promise<Client>;
-  update(client: Client): Promise<Client>;
+export interface IMemberRepository {
+  create(member: Member): Promise<Member>;
+  update(member: Member): Promise<Member>;
   delete(id: number): Promise<void>;
-  findById(id: number): Promise<Client | null>;
-  findByEmail(email: string): Promise<Client | null>;
-  findAll(params: ClientFindAllParams): Promise<PaginatedResult<Client>>;
+  findById(id: number): Promise<Member | null>;
+  findAll(params: MemberFindAllParams): Promise<PaginatedResult<Member>>;
 }
-EOF_BACKEND_IA
+EOF
 ```
+
+![](images/clipboard-3777169941.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add repository port client-repository.interface.ts"
+git commit -m "feat: add repository port member-repository.interface.ts"git add .
 ```
 
-#### 7.5 — features/business/clients/domain/validators/client-email.validator.ts
+![](images/clipboard-933197103.png)
 
-Validador de dominio reutilizable (reglas independientes del framework HTTP).
-
-**Archivo:** `src/features/business/clients/domain/validators/client-email.validator.ts`
-
-``` bash
-mkdir -p src/features/business/clients/domain/validators
-cat > src/features/business/clients/domain/validators/client-email.validator.ts <<'EOF_BACKEND_IA'
-export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain validator client-email.validator.ts"
-```
-
-#### 7.6 — features/business/clients/domain/validators/client-phone.validator.ts
-
-Validador de dominio reutilizable (reglas independientes del framework HTTP).
-
-**Archivo:** `src/features/business/clients/domain/validators/client-phone.validator.ts`
-
-``` bash
-mkdir -p src/features/business/clients/domain/validators
-cat > src/features/business/clients/domain/validators/client-phone.validator.ts <<'EOF_BACKEND_IA'
-export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^[+]?[\d\s()-]{7,20}$/;
-  return phoneRegex.test(phone);
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain validator client-phone.validator.ts"
-```
-
-#### 7.7 — features/business/clients/infrastructure/persistence/models/client.model.ts
+#### 7.5 — features/business/clients/infrastructure/persistence/models/client.model.ts
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
@@ -3380,42 +3322,46 @@ Solo infraestructura: mapeo a tabla física.
 **Archivo:** `src/features/business/clients/infrastructure/persistence/models/client.model.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/infrastructure/persistence/models
-cat > src/features/business/clients/infrastructure/persistence/models/client.model.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/infrastructure/persistence/models
+
+cat > src/features/business/members/infrastructure/persistence/models/member.model.ts <<'EOF_BACKEND-MANUAL'
 import {
   AutoIncrement,
   Column,
   CreatedAt,
   DataType,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
+import { Status } from '../../../../../../common/enums/status.enum.js';
 
-@Table({ tableName: 'clients' })
-export class ClientModel extends Model {
+@Table({ tableName: 'members' })
+export class MemberModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
 
-  @Column({ type: DataType.STRING(150), allowNull: false })
+  @Column({
+    type: DataType.STRING(150),
+    allowNull: false,
+  })
   declare name: string;
 
-  @Column({ type: DataType.STRING(255), allowNull: true })
-  declare address: string | null;
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
+  declare description: string | null;
 
-  @Column({ type: DataType.STRING(30), allowNull: true })
-  declare phone: string | null;
-
-  @Column({ type: DataType.STRING(150), allowNull: true, unique: true })
-  declare email: string | null;
-
-  @Column({ type: DataType.STRING(255), allowNull: true })
-  declare password: string | null;
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare isActive: boolean;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
@@ -3429,12 +3375,11 @@ export class ClientModel extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @HasMany(() => require('../../../../sales/infrastructure/persistence/models/sale.model').SaleModel)
-  declare sales: unknown[];
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-29234632.png)
 
 **Sugerencia de commit (issue):**
 
@@ -3443,59 +3388,67 @@ git add .
 git commit -m "feat: add sequelize model client.model.ts"
 ```
 
-#### 7.8 — features/business/clients/infrastructure/persistence/repositories/client.repository.ts
+![](images/clipboard-3994986198.png)
+
+#### 7.6— features/business/member/infrastructure/persistence/repositories/member.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
-**Archivo:** `src/features/business/clients/infrastructure/persistence/repositories/client.repository.ts`
+**Archivo:** `src/features/business/members/infrastructure/persistence/repositories/member.repository.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/infrastructure/persistence/repositories
-cat > src/features/business/clients/infrastructure/persistence/repositories/client.repository.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/infrastructure/persistence/repositories
+
+cat > src/features/business/members/infrastructure/persistence/repositories/member.repository.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import { Op } from 'sequelize';
 import {
   buildPaginatedResult,
   normalizePagination,
-} from '../../../../../../common/utils/pagination.util';
-import { Client } from '../../../domain/entities/client.entity';
+} from '../../../../../../common/utils/pagination.util.js';
+import { Member } from '../../../domain/entities/member.entity.js';
 import {
-  ClientFindAllParams,
-  IClientRepository,
-} from '../../../domain/interfaces/client-repository.interface';
-import { ClientMapper } from '../../../application/mappers/client.mapper';
-import { ClientModel } from '../models/client.model';
+  MemberFindAllParams,
+  IMemberRepository,
+} from '../../../domain/interfaces/member-repository.interface.js';
+import { MemberMapper } from '../../../application/mappers/member.mapper.js';
+import { MemberModel } from '../models/member.model.js';
 
 @Injectable()
-export class ClientRepository implements IClientRepository {
-  async create(client: Client): Promise<Client> {
-    const model = await ClientModel.create(ClientMapper.toPersistence(client));
-    return ClientMapper.toDomain(model);
+export class MemberRepository implements IMemberRepository {
+  async create(member: Member): Promise<Member> {
+    const model = await MemberModel.create(
+      MemberMapper.toPersistence(member),
+    );
+
+    return MemberMapper.toDomain(model);
   }
 
-  async update(client: Client): Promise<Client> {
-    await ClientModel.update(ClientMapper.toPersistence(client), {
-      where: { id: client.id },
+  async update(member: Member): Promise<Member> {
+    await MemberModel.update(MemberMapper.toPersistence(member), {
+      where: { id: member.id },
     });
-    const updated = await ClientModel.findByPk(client.id!);
-    return ClientMapper.toDomain(updated!);
+
+    const updated = await MemberModel.findByPk(member.id!);
+
+    return MemberMapper.toDomain(updated!);
   }
 
   async delete(id: number): Promise<void> {
-    await ClientModel.destroy({ where: { id } });
+    await MemberModel.destroy({
+      where: { id },
+    });
   }
 
-  async findById(id: number): Promise<Client | null> {
-    const model = await ClientModel.findByPk(id);
-    return model ? ClientMapper.toDomain(model) : null;
+  async findById(id: number): Promise<Member | null> {
+    const model = await MemberModel.findByPk(id);
+
+    return model ? MemberMapper.toDomain(model) : null;
   }
 
-  async findByEmail(email: string): Promise<Client | null> {
-    const model = await ClientModel.findOne({ where: { email } });
-    return model ? ClientMapper.toDomain(model) : null;
-  }
-
-  async findAll(params: ClientFindAllParams) {
+  async findAll(
+    params: MemberFindAllParams,
+  ) {
     const { page, limit, offset } = normalizePagination(
       params.page,
       params.limit,
@@ -3504,13 +3457,21 @@ export class ClientRepository implements IClientRepository {
     const where = params.search
       ? {
           [Op.or]: [
-            { name: { [Op.like]: `%${params.search}%` } },
-            { email: { [Op.like]: `%${params.search}%` } },
+            {
+              name: {
+                [Op.like]: `%${params.search}%`,
+              },
+            },
+            {
+              description: {
+                [Op.like]: `%${params.search}%`,
+              },
+            },
           ],
         }
       : {};
 
-    const { rows, count } = await ClientModel.findAndCountAll({
+    const { rows, count } = await MemberModel.findAndCountAll({
       where,
       limit,
       offset,
@@ -3518,52 +3479,72 @@ export class ClientRepository implements IClientRepository {
     });
 
     return buildPaginatedResult(
-      rows.map((row) => ClientMapper.toDomain(row)),
+      rows.map((row) => MemberMapper.toDomain(row)),
       count,
       page,
       limit,
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-972469825.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize repository client.repository.ts"
+git commit -m "feat: add sequelize repository member.repository.ts"
 ```
 
-#### 7.9 — features/business/clients/infrastructure/persistence/migrations/create-clients-table.migration.ts
+![](images/clipboard-2730840850.png)
+
+#### 7.7 — features/business/members/infrastructure/persistence/migrations/create-member-table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
 
-**Archivo:** `src/features/business/clients/infrastructure/persistence/migrations/create-clients-table.migration.ts`
+**Archivo:** `src/features/business/members/infrastructure/persistence/migrations/create-clients-table.migration.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/infrastructure/persistence/migrations
-cat > src/features/business/clients/infrastructure/persistence/migrations/create-clients-table.migration.ts <<'EOF_BACKEND_IA'
-export const createClientsTableMigration = {
-  name: 'create-clients-table',
+mkdir -p src/features/business/members/infrastructure/persistence/migrations
+
+cat > src/features/business/members/infrastructure/persistence/migrations/create-members-table.migration.ts <<'EOF_BACKEND-MANUAL'
+export const createMembersTableMigration = {
+  name: 'create-members-table',
+
   async up(): Promise<void> {
     // Sequelize sync handles table creation in development.
-    // Production: CREATE TABLE clients (id, name, address, phone, email, password, status, createdAt, updatedAt)
+    // Production:
+    // CREATE TABLE members (
+    //   id,
+    //   name,
+    //   description,
+    //   isActive,
+    //   status,
+    //   createdAt,
+    //   updatedAt
+    // );
   },
+
   async down(): Promise<void> {
-    // Production: DROP TABLE clients
+    // Production: DROP TABLE members
   },
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2680601396.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add migration create-clients-table.migration.ts"
+git commit -m "chore: add migration create-members-table.migration.ts"
 ```
+
+![](images/clipboard-4075782145.png)
 
 #### 7.10 — features/business/clients/infrastructure/persistence/seeders/clients.seeder.ts
 
