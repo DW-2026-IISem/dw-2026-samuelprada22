@@ -8,9 +8,12 @@ import tedious from 'tedious';
 import oracledb from 'oracledb';
 
 import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
 
 export const ALL_MODELS = [
   MemberModel,
+  AccountModel,
+
 ];
 
 export async function createSequelizeInstance(
