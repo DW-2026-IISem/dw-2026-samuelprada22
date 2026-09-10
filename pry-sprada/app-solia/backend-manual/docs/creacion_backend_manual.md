@@ -3546,70 +3546,76 @@ git commit -m "chore: add migration create-members-table.migration.ts"
 
 ![](images/clipboard-4075782145.png)
 
-#### 7.10 — features/business/clients/infrastructure/persistence/seeders/clients.seeder.ts
+#### 7.8— features/business/members/infrastructure/persistence/seeders/member.sseeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
-**Archivo:** `src/features/business/clients/infrastructure/persistence/seeders/clients.seeder.ts`
+**Archivo:** `src/features/business/member/infrastructure/persistence/seeders/members.seeder.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/infrastructure/persistence/seeders
-cat > src/features/business/clients/infrastructure/persistence/seeders/clients.seeder.ts <<'EOF_BACKEND_IA'
-import { ClientModel } from '../models/client.model';
-import { BcryptPasswordHasherService } from '../../../../../../infrastructure/security/hashing/bcrypt-password-hasher.service';
-import { Status } from '../../../../../../common/enums/status.enum';
+mkdir -p src/features/business/members/infrastructure/persistence/seeders
 
-export async function seedClients(): Promise<void> {
-  const count = await ClientModel.count();
+cat > src/features/business/members/infrastructure/persistence/seeders/members.seeder.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../../common/enums/status.enum.js';
+import { MemberModel } from '../models/member.model.js';
+
+export async function seedMembers(): Promise<void> {
+  const count = await MemberModel.count();
+
   if (count > 0) {
     return;
   }
 
-  const hasher = new BcryptPasswordHasherService();
-
-  await ClientModel.bulkCreate([
+  await MemberModel.bulkCreate([
     {
       name: 'Juan Pérez',
-      address: 'Calle Principal 123',
-      phone: '+57 300 1234567',
-      email: 'juan.perez@example.com',
-      password: await hasher.hash('password123'),
+      description: 'Socio fundador de Solia',
+      isActive: true,
       status: Status.ACTIVE,
     },
     {
       name: 'María García',
-      address: 'Av. Central 456',
-      phone: '+57 310 9876543',
-      email: 'maria.garcia@example.com',
-      password: await hasher.hash('password123'),
+      description: 'Socia de Solia',
+      isActive: true,
       status: Status.ACTIVE,
     },
   ]);
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3388551780.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add seeder clients.seeder.ts"
+git commit -m "chore: add seeder members.seeder.ts"
 ```
 
-#### 7.11 — features/business/clients/application/dto/client-filter.dto.ts
+![](images/clipboard-1977971357.png)
+
+#### 7.9 — features/business/members/application/dto/member-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/clients/application/dto/client-filter.dto.ts`
+**Archivo:** `src/features/business/members/application/dto/member-filter.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/dto
-cat > src/features/business/clients/application/dto/client-filter.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/dto
+
+cat > src/features/business/members/application/dto/member-filter.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 
-export class ClientFilterDto {
+export class MemberFilterDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -3624,48 +3630,52 @@ export class ClientFilterDto {
   @IsPositive()
   limit?: number;
 
-  @ApiPropertyOptional({ example: 'juan' })
+  @ApiPropertyOptional({ example: 'Juan' })
   @IsOptional()
   @IsString()
   search?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1926387502.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto client-filter.dto.ts"
+git commit -m "feat: add dto member-filter.dto.ts"
 ```
 
-#### 7.12 — features/business/clients/application/dto/client-response.dto.ts
+![](images/clipboard-955650762.png)
+
+#### 7.10 — features/business/clients/application/dto/client-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
 **Archivo:** `src/features/business/clients/application/dto/client-response.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/dto
-cat > src/features/business/clients/application/dto/client-response.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/members/application/dto
 
-export class ClientResponseDto {
+cat > src/features/business/members/application/dto/member-response.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class MemberResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
   @ApiProperty({ example: 'Juan Pérez' })
   name: string;
 
-  @ApiPropertyOptional({ example: 'Calle Principal 123' })
-  address?: string;
+  @ApiPropertyOptional({
+    example: 'Socio fundador de Solia',
+  })
+  description?: string;
 
-  @ApiPropertyOptional({ example: '+57 300 1234567' })
-  phone?: string;
-
-  @ApiPropertyOptional({ example: 'juan.perez@example.com' })
-  email?: string;
+  @ApiProperty({ example: true })
+  isActive: boolean;
 
   @ApiProperty({ enum: Status, example: Status.ACTIVE })
   status: Status;
@@ -3676,165 +3686,160 @@ export class ClientResponseDto {
   @ApiProperty()
   updatedAt: Date;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1845332002.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto client-response.dto.ts"
+git commit -m "feat: add dto member-response.dto.ts"
 ```
 
-#### 7.13 — features/business/clients/application/dto/create-client.dto.ts
+![](images/clipboard-507885034.png)
+
+#### 7.11 — features/business/members/application/dto/create-member.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/clients/application/dto/create-client.dto.ts`
+**Archivo:** `src/features/business/members/application/dto/create-member.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/dto
-cat > src/features/business/clients/application/dto/create-client.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/dto
+
+cat > src/features/business/members/application/dto/create-member.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
-export class CreateClientDto {
+export class CreateMemberDto {
   @ApiProperty({ example: 'Juan Pérez' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(150)
   name: string;
 
-  @ApiPropertyOptional({ example: 'Calle Principal 123' })
+  @ApiPropertyOptional({
+    example: 'Socio fundador de Solia',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  address?: string;
-
-  @ApiPropertyOptional({ example: '+57 300 1234567' })
-  @IsOptional()
-  @IsString()
-  @MaxLength(30)
-  phone?: string;
-
-  @ApiPropertyOptional({ example: 'juan.perez@example.com' })
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(150)
-  email?: string;
-
-  @ApiPropertyOptional({ example: 'password123' })
-  @IsOptional()
-  @IsString()
-  @MinLength(6)
-  @MaxLength(255)
-  password?: string;
+  description?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1612173120.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto create-client.dto.ts"
+git commit -m "feat: add dto create-member.dto.ts"
 ```
 
-#### 7.14 — features/business/clients/application/dto/update-client.dto.ts
+![](images/clipboard-1625500858.png)
+
+#### 7.12— features/business/members/application/dto/update-member.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/clients/application/dto/update-client.dto.ts`
+**Archivo:** `src/features/business/members/application/dto/update-member.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/dto
-cat > src/features/business/clients/application/dto/update-client.dto.ts <<'EOF_BACKEND_IA'
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateClientDto } from './create-client.dto';
+mkdir -p src/features/business/members/application/dto
 
-export class UpdateClientDto extends PartialType(CreateClientDto) {}
-EOF_BACKEND_IA
+cat > src/features/business/members/application/dto/update-member.dto.ts <<'EOF_BACKEND-MANUAL'
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMemberDto } from './create-member.dto.js';
+
+export class UpdateMemberDto extends PartialType(CreateMemberDto) {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-573121135.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto update-client.dto.ts"
+git commit -m "feat: add dto update-member.dto.ts"
 ```
 
-#### 7.15 — features/business/clients/application/mappers/client.mapper.ts
+![](images/clipboard-2121487429.png)
+
+#### 7.13— features/business/members/application/mappers/member.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
-**Archivo:** `src/features/business/clients/application/mappers/client.mapper.ts`
+**Archivo:** `src/features/business/members/application/mappers/member.mapper.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/mappers
-cat > src/features/business/clients/application/mappers/client.mapper.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { Client } from '../../domain/entities/client.entity';
-import { ClientResponseDto } from '../dto/client-response.dto';
-import { ClientModel } from '../../infrastructure/persistence/models/client.model';
+mkdir -p src/features/business/members/application/mappers
 
-export class ClientMapper {
-  static toDomain(model: ClientModel): Client {
-    return Client.reconstitute({
+cat > src/features/business/members/application/mappers/member.mapper.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { Member } from '../../domain/entities/member.entity.js';
+import { MemberResponseDto } from '../dto/member-response.dto.js';
+import { MemberModel } from '../../infrastructure/persistence/models/member.model.js';
+
+export class MemberMapper {
+  static toDomain(model: MemberModel): Member {
+    return Member.reconstitute({
       id: model.id,
       name: model.name,
-      address: model.address ?? undefined,
-      phone: model.phone ?? undefined,
-      email: model.email ?? undefined,
-      password: model.password ?? undefined,
+      description: model.description ?? undefined,
+      isActive: model.isActive,
       status: model.status,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     });
   }
 
-  static toResponse(entity: Client): ClientResponseDto {
+  static toResponse(entity: Member): MemberResponseDto {
     return {
       id: entity.id!,
       name: entity.name,
-      address: entity.address,
-      phone: entity.phone,
-      email: entity.email,
+      description: entity.description,
+      isActive: entity.isActive,
       status: entity.status,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
     };
   }
 
-  static toPersistence(entity: Client): Partial<ClientModel> {
+  static toPersistence(entity: Member): Partial<MemberModel> {
     return {
       id: entity.id,
       name: entity.name,
-      address: entity.address ?? null,
-      phone: entity.phone ?? null,
-      email: entity.email ?? null,
-      password: entity.password ?? null,
+      description: entity.description ?? null,
+      isActive: entity.isActive,
       status: entity.status ?? Status.ACTIVE,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2917226540.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add mapper client.mapper.ts"
+git commit -m "feat: add mapper member.mapper.ts"
 ```
 
-#### 7.16 — features/business/clients/application/use-cases/create-client.use-case.ts
+![](images/clipboard-3927699561.png)
+
+#### 7.14 — features/business/clients/application/use-cases/create-client.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -3843,303 +3848,302 @@ El controller solo lo invoca.
 **Archivo:** `src/features/business/clients/application/use-cases/create-client.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/use-cases
-cat > src/features/business/clients/application/use-cases/create-client.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/use-cases
+
+cat > src/features/business/members/application/use-cases/create-member.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
+import { Member } from '../../domain/entities/member.entity.js';
 import {
-  type IPasswordHasher,
-  PASSWORD_HASHER,
-} from '../../../../../infrastructure/security/hashing/password-hasher.interface';
-import { ClientEmailAlreadyExistsException } from '../../domain/exceptions/client-email-already-exists.exception';
-import { Client } from '../../domain/entities/client.entity';
-import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../domain/interfaces/client-repository.interface';
-import { CreateClientDto } from '../dto/create-client.dto';
-import { ClientMapper } from '../mappers/client.mapper';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../domain/interfaces/member-repository.interface.js';
+import { CreateMemberDto } from '../dto/create-member.dto.js';
+import { MemberMapper } from '../mappers/member.mapper.js';
 
 @Injectable()
-export class CreateClientUseCase {
+export class CreateMemberUseCase {
   constructor(
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
-    @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: IPasswordHasher,
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
-  async execute(dto: CreateClientDto) {
-    if (dto.email) {
-      const existing = await this.clientRepository.findByEmail(dto.email);
-      if (existing) {
-        throw new ClientEmailAlreadyExistsException(dto.email);
-      }
-    }
-
-    let password = dto.password;
-    if (password) {
-      password = await this.passwordHasher.hash(password);
-    }
-
-    const client = Client.create({
+  async execute(dto: CreateMemberDto) {
+    const member = Member.create({
       name: dto.name,
-      address: dto.address,
-      phone: dto.phone,
-      email: dto.email,
-      password,
+      description: dto.description,
     });
 
-    const created = await this.clientRepository.create(client);
-    return ClientMapper.toResponse(created);
+    const created = await this.memberRepository.create(member);
+
+    return MemberMapper.toResponse(created);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-800057584.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case create-client.use-case.ts"
+git commit -m "feat: add use case create-member.use-case.ts"
 ```
 
-#### 7.17 — features/business/clients/application/use-cases/delete-client.use-case.ts
+![](images/clipboard-3583006010.png)
+
+#### 7.15— features/business/members/application/use-cases/delete-member.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/clients/application/use-cases/delete-client.use-case.ts`
+**Archivo:** `src/features/business/members/application/use-cases/delete-member.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/use-cases
-cat > src/features/business/clients/application/use-cases/delete-client.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/use-cases
+
+cat > src/features/business/members/application/use-cases/delete-member.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientNotFoundException } from '../../domain/exceptions/client-not-found.exception';
+import { MemberNotFoundException } from '../../domain/exceptions/member-not-found.exception.js';
 import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../domain/interfaces/client-repository.interface';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../domain/interfaces/member-repository.interface.js';
 
 @Injectable()
-export class DeleteClientUseCase {
+export class DeleteMemberUseCase {
   constructor(
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
   async execute(id: number): Promise<void> {
-    const client = await this.clientRepository.findById(id);
-    if (!client) {
-      throw new ClientNotFoundException(id);
+    const member = await this.memberRepository.findById(id);
+
+    if (!member) {
+      throw new MemberNotFoundException(id);
     }
 
-    await this.clientRepository.delete(id);
+    await this.memberRepository.delete(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2674782032.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case delete-client.use-case.ts"
+git commit -m "feat: add use case delete-member.use-case.ts"
 ```
 
-#### 7.18 — features/business/clients/application/use-cases/get-client.use-case.ts
+![](images/clipboard-3250277998.png)
+
+#### 7.16 — features/business/members/application/use-cases/get-member.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/clients/application/use-cases/get-client.use-case.ts`
+**Archivo:** `src/features/business/members/application/use-cases/get-member.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/use-cases
-cat > src/features/business/clients/application/use-cases/get-client.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/use-cases
+
+cat > src/features/business/members/application/use-cases/delete-member.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientNotFoundException } from '../../domain/exceptions/client-not-found.exception';
+import { MemberNotFoundException } from '../../domain/exceptions/member-not-found.exception.js';
 import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../domain/interfaces/client-repository.interface';
-import { ClientMapper } from '../mappers/client.mapper';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../domain/interfaces/member-repository.interface.js';
 
 @Injectable()
-export class GetClientUseCase {
+export class DeleteMemberUseCase {
   constructor(
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
-  async execute(id: number) {
-    const client = await this.clientRepository.findById(id);
-    if (!client) {
-      throw new ClientNotFoundException(id);
+  async execute(id: number): Promise<void> {
+    const member = await this.memberRepository.findById(id);
+
+    if (!member) {
+      throw new MemberNotFoundException(id);
     }
 
-    return ClientMapper.toResponse(client);
+    await this.memberRepository.delete(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1934391169.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case get-client.use-case.ts"
+git commit -m "feat: add use case delete-member.use-case.ts"
 ```
 
-#### 7.19 — features/business/clients/application/use-cases/list-clients.use-case.ts
+![](images/clipboard-1732071438.png)
+
+#### 7.17 — features/business/members/application/use-cases/list-member.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/clients/application/use-cases/list-clients.use-case.ts`
+**Archivo:** `src/features/business/members/application/use-cases/list-members.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/use-cases
-cat > src/features/business/clients/application/use-cases/list-clients.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/use-cases
+
+cat > src/features/business/members/application/use-cases/list-members.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../domain/interfaces/client-repository.interface';
-import { ClientFilterDto } from '../dto/client-filter.dto';
-import { ClientMapper } from '../mappers/client.mapper';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../domain/interfaces/member-repository.interface.js';
+import { MemberFilterDto } from '../dto/member-filter.dto.js';
+import { MemberMapper } from '../mappers/member.mapper.js';
 
 @Injectable()
-export class ListClientsUseCase {
+export class ListMembersUseCase {
   constructor(
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
-  async execute(filter: ClientFilterDto) {
-    const result = await this.clientRepository.findAll(filter);
+  async execute(filter: MemberFilterDto) {
+    const result = await this.memberRepository.findAll(filter);
+
     return {
-      items: result.items.map((client) => ClientMapper.toResponse(client)),
+      items: result.items.map((member) =>
+        MemberMapper.toResponse(member),
+      ),
       meta: result.meta,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-828874533.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case list-clients.use-case.ts"
+git commit -m "feat: add use case list-members.use-case.ts"
 ```
 
-#### 7.20 — features/business/clients/application/use-cases/update-client.use-case.ts
+#### 7.18 — features/business/members/application/use-cases/update-member.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/clients/application/use-cases/update-client.use-case.ts`
+**Archivo:** `src/features/business/members/application/use-cases/update-member.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/application/use-cases
-cat > src/features/business/clients/application/use-cases/update-client.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/application/use-cases
+
+cat > src/features/business/members/application/use-cases/update-member.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
+import { MemberNotFoundException } from '../../domain/exceptions/member-not-found.exception.js';
 import {
-  type IPasswordHasher,
-  PASSWORD_HASHER,
-} from '../../../../../infrastructure/security/hashing/password-hasher.interface';
-import { ClientEmailAlreadyExistsException } from '../../domain/exceptions/client-email-already-exists.exception';
-import { ClientNotFoundException } from '../../domain/exceptions/client-not-found.exception';
-import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../domain/interfaces/client-repository.interface';
-import { UpdateClientDto } from '../dto/update-client.dto';
-import { ClientMapper } from '../mappers/client.mapper';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../domain/interfaces/member-repository.interface.js';
+import { UpdateMemberDto } from '../dto/update-member.dto.js';
+import { MemberMapper } from '../mappers/member.mapper.js';
 
 @Injectable()
-export class UpdateClientUseCase {
+export class UpdateMemberUseCase {
   constructor(
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
-    @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: IPasswordHasher,
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
-  async execute(id: number, dto: UpdateClientDto) {
-    const client = await this.clientRepository.findById(id);
-    if (!client) {
-      throw new ClientNotFoundException(id);
+  async execute(id: number, dto: UpdateMemberDto) {
+    const member = await this.memberRepository.findById(id);
+
+    if (!member) {
+      throw new MemberNotFoundException(id);
     }
 
-    if (dto.email && dto.email !== client.email) {
-      const existing = await this.clientRepository.findByEmail(dto.email);
-      if (existing) {
-        throw new ClientEmailAlreadyExistsException(dto.email);
-      }
-    }
+    member.update({
+      name: dto.name,
+      description: dto.description,
+    });
 
-    const updateData = { ...dto };
-    if (dto.password) {
-      updateData.password = await this.passwordHasher.hash(dto.password);
-    }
+    const updated = await this.memberRepository.update(member);
 
-    client.update(updateData);
-    const updated = await this.clientRepository.update(client);
-    return ClientMapper.toResponse(updated);
+    return MemberMapper.toResponse(updated);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-828874533.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case update-client.use-case.ts"
+git commit -m "feat: add use case update-member.use-case.ts"
 ```
 
-#### 7.21 — features/business/clients/presentation/http/serializers/client.serializer.ts
+![](images/clipboard-2389619733.png)
+
+#### 7.19 — features/business/members/presentation/http/serializers/member.serializer.ts
 
 Serializer de presentación (forma estable de la respuesta HTTP).
 
-**Archivo:** `src/features/business/clients/presentation/http/serializers/client.serializer.ts`
+**Archivo:** `src/features/business/members/presentation/http/serializers/member.serializer.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/presentation/http/serializers
-cat > src/features/business/clients/presentation/http/serializers/client.serializer.ts <<'EOF_BACKEND_IA'
-import { Client } from '../../../domain/entities/client.entity';
-import { ClientResponseDto } from '../../../application/dto/client-response.dto';
-import { ClientMapper } from '../../../application/mappers/client.mapper';
+mkdir -p src/features/business/members/presentation/http/serializers
 
-export class ClientSerializer {
-  static serialize(entity: Client): ClientResponseDto {
-    return ClientMapper.toResponse(entity);
+cat > src/features/business/members/presentation/http/serializers/member.serializer.ts <<'EOF_BACKEND-MANUAL'
+import { Member } from '../../../domain/entities/member.entity.js';
+import { MemberResponseDto } from '../../../application/dto/member-response.dto.js';
+import { MemberMapper } from '../../../application/mappers/member.mapper.js';
+
+export class MemberSerializer {
+  static serialize(entity: Member): MemberResponseDto {
+    return MemberMapper.toResponse(entity);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4158570851.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add serializer client.serializer.ts"
+git commit -m "feat: add serializer member.serializer.ts"
 ```
 
-#### 7.22 — features/business/clients/presentation/http/controllers/clients.controller.ts
+![](images/clipboard-1262819661.png)
+
+#### 7.20 — features/business/clients/presentation/http/controllers/clients.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
 **Archivo:** `src/features/business/clients/presentation/http/controllers/clients.controller.ts`
 
 ``` bash
-mkdir -p src/features/business/clients/presentation/http/controllers
-cat > src/features/business/clients/presentation/http/controllers/clients.controller.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members/presentation/http/controllers
+
+cat > src/features/business/members/presentation/http/controllers/members.controller.ts <<'EOF_BACKEND-MANUAL'
 import {
   Body,
   Controller,
@@ -4159,143 +4163,155 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe';
-import { CreateClientDto } from '../../../application/dto/create-client.dto';
-import { UpdateClientDto } from '../../../application/dto/update-client.dto';
-import { ClientFilterDto } from '../../../application/dto/client-filter.dto';
-import { ClientResponseDto } from '../../../application/dto/client-response.dto';
-import { CreateClientUseCase } from '../../../application/use-cases/create-client.use-case';
-import { UpdateClientUseCase } from '../../../application/use-cases/update-client.use-case';
-import { DeleteClientUseCase } from '../../../application/use-cases/delete-client.use-case';
-import { GetClientUseCase } from '../../../application/use-cases/get-client.use-case';
-import { ListClientsUseCase } from '../../../application/use-cases/list-clients.use-case';
+import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe.js';
+import { CreateMemberDto } from '../../../application/dto/create-member.dto.js';
+import { UpdateMemberDto } from '../../../application/dto/update-member.dto.js';
+import { MemberFilterDto } from '../../../application/dto/member-filter.dto.js';
+import { MemberResponseDto } from '../../../application/dto/member-response.dto.js';
+import { CreateMemberUseCase } from '../../../application/use-cases/create-member.use-case.js';
+import { UpdateMemberUseCase } from '../../../application/use-cases/update-member.use-case.js';
+import { DeleteMemberUseCase } from '../../../application/use-cases/delete-member.use-case.js';
+import { GetMemberUseCase } from '../../../application/use-cases/get-member.use-case.js';
+import { ListMembersUseCase } from '../../../application/use-cases/list-members.use-case.js';
 
-@ApiTags('Clients')
-@Controller('clients')
-export class ClientsController {
+@ApiTags('Members')
+@Controller('members')
+export class MembersController {
   constructor(
-    private readonly createClientUseCase: CreateClientUseCase,
-    private readonly updateClientUseCase: UpdateClientUseCase,
-    private readonly deleteClientUseCase: DeleteClientUseCase,
-    private readonly getClientUseCase: GetClientUseCase,
-    private readonly listClientsUseCase: ListClientsUseCase,
+    private readonly createMemberUseCase: CreateMemberUseCase,
+    private readonly updateMemberUseCase: UpdateMemberUseCase,
+    private readonly deleteMemberUseCase: DeleteMemberUseCase,
+    private readonly getMemberUseCase: GetMemberUseCase,
+    private readonly listMembersUseCase: ListMembersUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear un cliente' })
-  @ApiCreatedResponse({ type: ClientResponseDto })
-  create(@Body() dto: CreateClientDto) {
-    return this.createClientUseCase.execute(dto);
+  @ApiOperation({ summary: 'Crear un socio' })
+  @ApiCreatedResponse({ type: MemberResponseDto })
+  create(@Body() dto: CreateMemberDto) {
+    return this.createMemberUseCase.execute(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar clientes' })
-  @ApiOkResponse({ type: [ClientResponseDto] })
-  findAll(@Query() filter: ClientFilterDto) {
-    return this.listClientsUseCase.execute(filter);
+  @ApiOperation({ summary: 'Listar socios' })
+  @ApiOkResponse({ type: [MemberResponseDto] })
+  findAll(@Query() filter: MemberFilterDto) {
+    return this.listMembersUseCase.execute(filter);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener un cliente por ID' })
-  @ApiOkResponse({ type: ClientResponseDto })
+  @ApiOperation({ summary: 'Obtener un socio por ID' })
+  @ApiOkResponse({ type: MemberResponseDto })
   findOne(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.getClientUseCase.execute(id);
+    return this.getMemberUseCase.execute(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar un cliente' })
-  @ApiOkResponse({ type: ClientResponseDto })
+  @ApiOperation({ summary: 'Actualizar un socio' })
+  @ApiOkResponse({ type: MemberResponseDto })
   update(
     @Param('id', ParsePositiveIntPipe) id: number,
-    @Body() dto: UpdateClientDto,
+    @Body() dto: UpdateMemberDto,
   ) {
-    return this.updateClientUseCase.execute(id, dto);
+    return this.updateMemberUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Eliminar un cliente' })
+  @ApiOperation({ summary: 'Eliminar un socio' })
   @ApiNoContentResponse()
   remove(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.deleteClientUseCase.execute(id);
+    return this.deleteMemberUseCase.execute(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1892140578.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add controller clients.controller.ts"
+git commit -m "feat: add controller members.controller.ts"
 ```
 
-#### 7.23 — features/business/clients/index.ts
+![](images/clipboard-2837104156.png)
+
+#### 7.21 — features/business/members/index.ts
 
 Barrel export del feature para imports limpios.
 
-**Archivo:** `src/features/business/clients/index.ts`
+**Archivo:** `src/features/business/memberss/index.ts`
 
 ``` bash
-mkdir -p src/features/business/clients
-cat > src/features/business/clients/index.ts <<'EOF_BACKEND_IA'
-export { ClientsModule } from './clients.module';
-EOF_BACKEND_IA
+mkdir -p src/features/business/members
+
+cat > src/features/business/members/index.ts <<'EOF_BACKEND-MANUAL'
+export { MembersModule } from './members.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4279723988.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add barrel export clients"
+git commit -m "chore: add barrel export members"
 ```
 
-#### 7.24 — features/business/clients/clients.module.ts
+![](images/clipboard-3984842896.png)
+
+#### 7.22 — features/business/members/members.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
-**Archivo:** `src/features/business/clients/clients.module.ts`
+**Archivo:** `src/features/business/member`
+
+`members/members.module.ts`
 
 ``` bash
-mkdir -p src/features/business/clients
-cat > src/features/business/clients/clients.module.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/members
+
+cat > src/features/business/members/members.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { BcryptPasswordHasherService } from '../../../infrastructure/security/hashing/bcrypt-password-hasher.service';
-import { PASSWORD_HASHER } from '../../../infrastructure/security/hashing/password-hasher.interface';
-import { CLIENT_REPOSITORY } from './domain/interfaces/client-repository.interface';
-import { ClientRepository } from './infrastructure/persistence/repositories/client.repository';
-import { CreateClientUseCase } from './application/use-cases/create-client.use-case';
-import { UpdateClientUseCase } from './application/use-cases/update-client.use-case';
-import { DeleteClientUseCase } from './application/use-cases/delete-client.use-case';
-import { GetClientUseCase } from './application/use-cases/get-client.use-case';
-import { ListClientsUseCase } from './application/use-cases/list-clients.use-case';
-import { ClientsController } from './presentation/http/controllers/clients.controller';
+import { MEMBER_REPOSITORY } from './domain/interfaces/member-repository.interface.js';
+import { MemberRepository } from './infrastructure/persistence/repositories/member.repository.js';
+import { CreateMemberUseCase } from './application/use-cases/create-member.use-case.js';
+import { UpdateMemberUseCase } from './application/use-cases/update-member.use-case.js';
+import { DeleteMemberUseCase } from './application/use-cases/delete-member.use-case.js';
+import { GetMemberUseCase } from './application/use-cases/get-member.use-case.js';
+import { ListMembersUseCase } from './application/use-cases/list-members.use-case.js';
+import { MembersController } from './presentation/http/controllers/members.controller.js';
 
 @Module({
-  controllers: [ClientsController],
+  controllers: [MembersController],
   providers: [
-    ClientRepository,
-    { provide: CLIENT_REPOSITORY, useExisting: ClientRepository },
-    BcryptPasswordHasherService,
-    { provide: PASSWORD_HASHER, useExisting: BcryptPasswordHasherService },
-    CreateClientUseCase,
-    UpdateClientUseCase,
-    DeleteClientUseCase,
-    GetClientUseCase,
-    ListClientsUseCase,
+    MemberRepository,
+    { provide: MEMBER_REPOSITORY, useExisting: MemberRepository },
+    CreateMemberUseCase,
+    UpdateMemberUseCase,
+    DeleteMemberUseCase,
+    GetMemberUseCase,
+    ListMembersUseCase,
   ],
-  exports: [CLIENT_REPOSITORY],
+  exports: [MEMBER_REPOSITORY],
 })
-export class ClientsModule {}
-EOF_BACKEND_IA
+export class MembersModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-754538106.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: wire nest module clients.module.ts"
+git commit -m "feat: wire nest module members.module.ts"
 ```
+
+![](images/clipboard-3844922388.png)
 
 #### 7.25 — Actualizar sequelize.factory.ts (registrar modelos)
 
@@ -4305,15 +4321,21 @@ Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
 ``` bash
 mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA'
-import { Sequelize } from 'sequelize-typescript';
-import { DatabaseDialect } from '../../../config/environment/env.interface';
-import { getSequelizeOptions } from './sequelize.options';
 
-import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model';
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND-MANUAL'
+import { Sequelize } from 'sequelize-typescript';
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
+
+import mysql2 from 'mysql2';
+import pg from 'pg';
+import tedious from 'tedious';
+import oracledb from 'oracledb';
+
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
 
 export const ALL_MODELS = [
-  ClientModel,
+  MemberModel,
 ];
 
 export async function createSequelizeInstance(
@@ -4325,16 +4347,16 @@ export async function createSequelizeInstance(
 
   switch (dialect) {
     case DatabaseDialect.MySQL:
-      dialectModule = require('mysql2');
+      dialectModule = mysql2;
       break;
     case DatabaseDialect.Postgres:
-      dialectModule = require('pg');
+      dialectModule = pg;
       break;
     case DatabaseDialect.MSSQL:
-      dialectModule = require('tedious');
+      dialectModule = tedious;
       break;
     case DatabaseDialect.Oracle:
-      dialectModule = require('oracledb');
+      dialectModule = oracledb;
       break;
     default:
       throw new Error(`Dialecto no soportado: ${dialect}`);
@@ -4364,15 +4386,19 @@ export async function createSequelizeInstance(
 
   return sequelize;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3210437119.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: register ClientModel in sequelize factory"
+git commit -m "feat: register MemberModel in sequelize factory"
 ```
+
+![](images/clipboard-795667857.png)
 
 #### 7.26 — Actualizar business.module.ts
 
@@ -4382,24 +4408,29 @@ Agrega el feature module de negocio recién terminado.
 
 ``` bash
 mkdir -p src/features/business
-cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/business/business.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { ClientsModule } from './clients/clients.module';
+import { MembersModule } from './members/members.module.js';
 
 @Module({
-  imports: [ClientsModule],
-  exports: [ClientsModule],
+  imports: [MembersModule],
+  exports: [MembersModule],
 })
 export class BusinessModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1327302380.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: export ClientsModule from BusinessModule"
+git commit -m "feat: export MembersModule from BusinessModule"
 ```
+
+![](images/clipboard-2950630766.png)
 
 #### 7.27 — Actualizar database-seeder.service.ts
 
@@ -4409,9 +4440,10 @@ Ejecuta seeders en orden de dependencias al arrancar (dev).
 
 ``` bash
 mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder';
+import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -4427,23 +4459,30 @@ export class DatabaseSeederService implements OnModuleInit {
     }
 
     try {
-      await seedClients();
+      await seedMembers();
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
-      this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2505681421.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: run seedClients on bootstrap"
+git commit -m "chore: run seedMembers on bootstrap"
 ```
+
+![](images/clipboard-1714896939.png)
 
 #### 7.28 — Actualizar app.module.ts
 
@@ -4454,18 +4493,18 @@ Los guards globales llegan en la fase RBAC.
 
 ``` bash
 mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+
+cat > src/app.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { envConfig } from './config/environment/env.config';
-import { appConfig } from './config/app/app.config';
-import { jwtConfig } from './config/jwt/jwt.config';
-import { LoggerModule } from './config/logger/logger.module';
-import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module';
-import { SecurityModule } from './infrastructure/security/security.module';
-import { BusinessModule } from './features/business/business.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { envConfig } from './config/environment/env.config.js';
+import { appConfig } from './config/app/app.config.js';
+import { jwtConfig } from './config/jwt/jwt.config.js';
+import { LoggerModule } from './config/logger/logger.module.js';
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
+import { BusinessModule } from './features/business/business.module.js';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 
 @Module({
   imports: [
@@ -4475,18 +4514,17 @@ import { AppService } from './app.service';
       envFilePath: '.env',
     }),
     SequelizeDatabaseModule,
-    SecurityModule,
     LoggerModule,
     BusinessModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2761111564.png)
 
 **Sugerencia de commit (issue):**
 
@@ -4494,6 +4532,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: import BusinessModule into AppModule"
 ```
+
+![](images/clipboard-2389566402.png)
 
 #### 7.29 — Verificar tabla física `clients` y API
 
@@ -4505,84 +4545,97 @@ Prueba list/create en Swagger o curl.
 npm run start:dev
 ```
 
+![](images/clipboard-1956141488.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "test: verify clients table and crud endpoints"
+git commit -m "feat: import BusinessModule into AppModule"
 ```
 
 ------------------------------------------------------------------------
 
-## FASE 8 — `07_BUSINESS_PRODUCT_TYPES`
+## FASE 8 — `07_BUSINESS_Account`
 
-### Business — ProductTypes
+### Account — ProductTypes
 
-> **Objetivo de la fase:** Catálogo de tipos de producto.
+> **Objetivo de la fase:** Catálogo de cuentas.
 > Misma plantilla CA que Clients.
 
-#### 8.1 — features/business/product-types/domain/entities/product-type.entity.ts
+#### 8.1 — features/business/accountndefinedndefined/domain/entities/acount
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
 Aquí viven las reglas del negocio.
 
-**Archivo:** `src/features/business/product-types/domain/entities/product-type.entity.ts`
+**Archivo:** `src/features/business/accounts/domain/entities/account.entity.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/domain/entities
-cat > src/features/business/product-types/domain/entities/product-type.entity.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/accounts/domain/entities
 
-export interface ProductTypeProps {
+cat > src/features/business/accounts/domain/entities/account.entity.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export interface AccountProps {
   id?: number;
   name: string;
   description?: string;
+  isActive?: boolean;
   status?: Status;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export class ProductType {
+export class Account {
   id?: number;
   name: string;
   description?: string;
+  isActive: boolean;
   status: Status;
   createdAt?: Date;
   updatedAt?: Date;
 
-  private constructor(props: ProductTypeProps) {
+  private constructor(props: AccountProps) {
     this.id = props.id;
     this.name = props.name;
     this.description = props.description;
+    this.isActive = props.isActive ?? true;
     this.status = props.status ?? Status.ACTIVE;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
 
   static create(
-    props: Omit<ProductTypeProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
-  ): ProductType {
+    props: Omit<
+      AccountProps,
+      'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+    >,
+  ): Account {
     if (!props.name?.trim()) {
-      throw new Error('El nombre del tipo de producto es requerido');
+      throw new Error('El nombre de la cuenta es requerido');
     }
 
-    return new ProductType(props);
+    return new Account(props);
   }
 
-  static reconstitute(props: ProductTypeProps): ProductType {
-    return new ProductType(props);
+  static reconstitute(props: AccountProps): Account {
+    return new Account(props);
   }
 
   update(
     props: Partial<
-      Omit<ProductTypeProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>
+      Omit<
+        AccountProps,
+        'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+      >
     >,
   ): void {
     if (props.name !== undefined) {
       if (!props.name.trim()) {
-        throw new Error('El nombre del tipo de producto es requerido');
+        throw new Error('El nombre de la cuenta es requerido');
       }
+
       this.name = props.name;
     }
 
@@ -4592,119 +4645,152 @@ export class ProductType {
   }
 
   deactivate(): void {
+    this.isActive = false;
     this.status = Status.INACTIVE;
   }
+
+  activate(): void {
+    this.isActive = true;
+    this.status = Status.ACTIVE;
+  }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1871207542.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain entity product-type.entity.ts"
+git commit -m "feat: add domain entity account"
 ```
 
-#### 8.2 — features/business/product-types/domain/exceptions/product-type-not-found.exception.ts
+![](images/clipboard-65177312.png)
+
+#### 8.2 — features/business/accounts/domain/exceptions/account-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/product-types/domain/exceptions/product-type-not-found.exception.ts`
+**Archivo:** `src/features/business/accounts/domain/exceptions/account-not-found.exception.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/domain/exceptions
-cat > src/features/business/product-types/domain/exceptions/product-type-not-found.exception.ts <<'EOF_BACKEND_IA'
-import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception';
+mkdir -p src/features/business/accounts/domain/exceptions
 
-export class ProductTypeNotFoundException extends EntityNotFoundException {
+cat > src/features/business/accounts/domain/exceptions/account-not-found.exception.ts <<'EOF_BACKEND-MANUAL'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
+
+export class AccountNotFoundException extends EntityNotFoundException {
   constructor(id: number) {
-    super('Tipo de producto', id);
+    super('Cuenta', id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3893288588.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception product-type-not-found.exception.ts"
+git commit -m "feat: add domain exception account-not-found.exception.ts"
 ```
 
-#### 8.3 — features/business/product-types/domain/interfaces/product-type-repository.interface.ts
+![](images/clipboard-2389230530.png)
+
+#### 8.3 — features/business/accounts/domain/interfaces/account-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
 
-**Archivo:** `src/features/business/product-types/domain/interfaces/product-type-repository.interface.ts`
+**Archivo:** `src/features/business/accouts/domain/interfaces/account-repository.interface.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/domain/interfaces
-cat > src/features/business/product-types/domain/interfaces/product-type-repository.interface.ts <<'EOF_BACKEND_IA'
-import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface';
-import { ProductType } from '../entities/product-type.entity';
+mkdir -p src/features/business/accounts/domain/interfaces
 
-export const PRODUCT_TYPE_REPOSITORY = 'PRODUCT_TYPE_REPOSITORY';
+cat > src/features/business/accounts/domain/interfaces/account-repository.interface.ts <<'EOF_BACKEND-MANUAL'
+import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface.js';
+import { Account } from '../entities/account.entity.js';
 
-export interface ProductTypeFindAllParams {
+export const ACCOUNT_REPOSITORY = 'ACCOUNT_REPOSITORY';
+
+export interface AccountFindAllParams {
   page?: number;
   limit?: number;
   search?: string;
 }
 
-export interface IProductTypeRepository {
-  create(productType: ProductType): Promise<ProductType>;
-  update(productType: ProductType): Promise<ProductType>;
+export interface IAccountRepository {
+  create(account: Account): Promise<Account>;
+  update(account: Account): Promise<Account>;
   delete(id: number): Promise<void>;
-  findById(id: number): Promise<ProductType | null>;
-  findAll(params: ProductTypeFindAllParams): Promise<PaginatedResult<ProductType>>;
+  findById(id: number): Promise<Account | null>;
+  findAll(params: AccountFindAllParams): Promise<PaginatedResult<Account>>;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-19230339.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add repository port product-type-repository.interface.ts"
+git commit -m "feat: add repository port account-repository.interface.ts"
 ```
 
-#### 8.4 — features/business/product-types/infrastructure/persistence/models/product-type.model.ts
+![](images/clipboard-1858713726.png)
+
+#### 8.4 — features/business/accounts/infrastructure/persistence/models/account.model.ts
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
 
-**Archivo:** `src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts`
+**Archivo:** `src/features/business/accounts/infrastructure/persistence/models/account.model.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/models
-cat > src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/infrastructure/persistence/models
+
+cat > src/features/business/accounts/infrastructure/persistence/models/account.model.ts <<'EOF_BACKEND-MANUAL'
 import {
   AutoIncrement,
   Column,
   CreatedAt,
   DataType,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
+import { Status } from '../../../../../../common/enums/status.enum.js';
 
-@Table({ tableName: 'product_types' })
-export class ProductTypeModel extends Model {
+@Table({ tableName: 'accounts' })
+export class AccountModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
 
-  @Column({ type: DataType.STRING(100), allowNull: false })
+  @Column({
+    type: DataType.STRING(150),
+    allowNull: false,
+  })
   declare name: string;
 
-  @Column({ type: DataType.TEXT, allowNull: true })
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
   declare description: string | null;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare isActive: boolean;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
@@ -4718,75 +4804,81 @@ export class ProductTypeModel extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @HasMany(
-    () =>
-      require('../../../../products/infrastructure/persistence/models/product.model')
-        .ProductModel,
-  )
-  declare products: unknown[];
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2485720200.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize model product-type.model.ts"
+git commit -m "feat: add sequelize model account.model.ts"
 ```
 
-#### 8.5 — features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts
+![](images/clipboard-26255014.png)
+
+#### 8.5 — features/business/account/infrastructure/persistence/repositories/account.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
-**Archivo:** `src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts`
+**Archivo:** `src/features/business/accounts/infrastructure/persistence/repositories`
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/repositories
-cat > src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/infrastructure/persistence/repositories
+
+cat > src/features/business/accounts/infrastructure/persistence/repositories/account.repository.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import { Op } from 'sequelize';
 import {
   buildPaginatedResult,
   normalizePagination,
-} from '../../../../../../common/utils/pagination.util';
-import { ProductType } from '../../../domain/entities/product-type.entity';
+} from '../../../../../../common/utils/pagination.util.js';
+import { Account } from '../../../domain/entities/account.entity.js';
 import {
-  IProductTypeRepository,
-  ProductTypeFindAllParams,
-} from '../../../domain/interfaces/product-type-repository.interface';
-import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper';
-import { ProductTypeModel } from '../models/product-type.model';
+  IAccountRepository,
+  AccountFindAllParams,
+} from '../../../domain/interfaces/account-repository.interface.js';
+import { AccountMapper } from '../../../application/mappers/account.mapper.js';
+import { AccountModel } from '../models/account.model.js';
 
 @Injectable()
-export class ProductTypeRepository implements IProductTypeRepository {
-  async create(productType: ProductType): Promise<ProductType> {
-    const model = await ProductTypeModel.create(
-      ProductTypeMapper.toPersistence(productType),
+export class AccountRepository implements IAccountRepository {
+  async create(account: Account): Promise<Account> {
+    const model = await AccountModel.create(
+      AccountMapper.toPersistence(account),
     );
-    return ProductTypeMapper.toDomain(model);
+
+    return AccountMapper.toDomain(model);
   }
 
-  async update(productType: ProductType): Promise<ProductType> {
-    await ProductTypeModel.update(
-      ProductTypeMapper.toPersistence(productType),
-      { where: { id: productType.id } },
+  async update(account: Account): Promise<Account> {
+    await AccountModel.update(
+      AccountMapper.toPersistence(account),
+      {
+        where: { id: account.id },
+      },
     );
-    const updated = await ProductTypeModel.findByPk(productType.id!);
-    return ProductTypeMapper.toDomain(updated!);
+
+    const updated = await AccountModel.findByPk(account.id!);
+
+    return AccountMapper.toDomain(updated!);
   }
 
   async delete(id: number): Promise<void> {
-    await ProductTypeModel.destroy({ where: { id } });
+    await AccountModel.destroy({
+      where: { id },
+    });
   }
 
-  async findById(id: number): Promise<ProductType | null> {
-    const model = await ProductTypeModel.findByPk(id);
-    return model ? ProductTypeMapper.toDomain(model) : null;
+  async findById(id: number): Promise<Account | null> {
+    const model = await AccountModel.findByPk(id);
+
+    return model ? AccountMapper.toDomain(model) : null;
   }
 
-  async findAll(params: ProductTypeFindAllParams) {
+  async findAll(params: AccountFindAllParams) {
     const { page, limit, offset } = normalizePagination(
       params.page,
       params.limit,
@@ -4795,13 +4887,21 @@ export class ProductTypeRepository implements IProductTypeRepository {
     const where = params.search
       ? {
           [Op.or]: [
-            { name: { [Op.like]: `%${params.search}%` } },
-            { description: { [Op.like]: `%${params.search}%` } },
+            {
+              name: {
+                [Op.like]: `%${params.search}%`,
+              },
+            },
+            {
+              description: {
+                [Op.like]: `%${params.search}%`,
+              },
+            },
           ],
         }
       : {};
 
-    const { rows, count } = await ProductTypeModel.findAndCountAll({
+    const { rows, count } = await AccountModel.findAndCountAll({
       where,
       limit,
       offset,
@@ -4809,52 +4909,72 @@ export class ProductTypeRepository implements IProductTypeRepository {
     });
 
     return buildPaginatedResult(
-      rows.map((row) => ProductTypeMapper.toDomain(row)),
+      rows.map((row) => AccountMapper.toDomain(row)),
       count,
       page,
       limit,
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-749230720.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize repository product-type.repository.ts"
+git commit -m "feat: add sequelize repository account.repository.ts"
 ```
 
-#### 8.6 — features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts
+![](images/clipboard-2129647622.png)
+
+#### 8.6 — features/business/account/infrastructure/persistence/migrations/create-account table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
 
-**Archivo:** `src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts`
+**Archivo:** src/features/business/accounts/infrastructure/persistence/migrations
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/migrations
-cat > src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts <<'EOF_BACKEND_IA'
-export const createProductTypesTableMigration = {
-  name: 'create-product-types-table',
+mkdir -p src/features/business/accounts/infrastructure/persistence/migrations
+
+cat > src/features/business/accounts/infrastructure/persistence/migrations/create-accounts-table.migration.ts <<'EOF_BACKEND-MANUAL'
+export const createAccountsTableMigration = {
+  name: 'create-accounts-table',
+
   async up(): Promise<void> {
     // Sequelize sync handles table creation in development.
-    // Production: CREATE TABLE product_types (id, name, description, status, createdAt, updatedAt)
+    // Production:
+    // CREATE TABLE accounts (
+    //   id,
+    //   name,
+    //   description,
+    //   isActive,
+    //   status,
+    //   createdAt,
+    //   updatedAt
+    // );
   },
+
   async down(): Promise<void> {
-    // Production: DROP TABLE product_types
+    // Production: DROP TABLE accounts
   },
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2739909561.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add migration create-product-types-table.migration.ts"
+git commit -m "chore: add migration create-accounts-table.migration.ts"
 ```
+
+![](images/clipboard-1074964713.png)
 
 #### 8.7 — features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts
 
@@ -4863,88 +4983,116 @@ Seeder de datos iniciales para desarrollo y verificación física en BD.
 **Archivo:** `src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/seeders
-cat > src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts <<'EOF_BACKEND_IA'
-import { ProductTypeModel } from '../models/product-type.model';
-import { Status } from '../../../../../../common/enums/status.enum';
+mkdir -p src/features/business/accounts/infrastructure/persistence/seeders
 
-export async function seedProductTypes(): Promise<void> {
-  const count = await ProductTypeModel.count();
+cat > src/features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.ts <<'EOF_BACKEND-MANUAL'
+import { AccountModel } from '../models/account.model.js';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+
+export async function seedAccounts(): Promise<void> {
+  const count = await AccountModel.count();
+
   if (count > 0) {
     return;
   }
 
-  await ProductTypeModel.bulkCreate([
+  await AccountModel.bulkCreate([
     {
-      name: 'Electronics',
-      description: 'Electronic devices and accessories',
+      name: 'Cuenta de Ahorros',
+      description: 'Cuenta destinada al ahorro de los socios de FondoSolidario',
+      isActive: true,
       status: Status.ACTIVE,
     },
     {
-      name: 'Clothing',
-      description: 'Apparel and fashion items',
+      name: 'Cuenta de Aportes',
+      description: 'Cuenta para registrar los aportes de los socios de FondoSolidario',
+      isActive: true,
       status: Status.ACTIVE,
     },
   ]);
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2486341539.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add seeder product-types.seeder.ts"
+git commit -m "chore: add seeder accounts.seeder.ts"
 ```
 
-#### 8.8 — features/business/product-types/application/dto/create-product-type.dto.ts
+![](images/clipboard-2935461142.png)
+
+#### 8.8 — features/business/account/application/dto/create-account.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/create-product-type.dto.ts`
+**Archivo:** `src/features/business/accounts/application/dto/create-account.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto
-cat > src/features/business/product-types/application/dto/create-product-type.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+mkdir -p src/features/business/accounts/application/dto
 
-export class CreateProductTypeDto {
-  @ApiProperty({ example: 'Electronics' })
+cat > src/features/business/accounts/application/dto/create-account.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+
+export class CreateAccountDto {
+  @ApiProperty({ example: 'Cuenta de Ahorros' })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
+  @MaxLength(150)
   name: string;
 
-  @ApiPropertyOptional({ example: 'Electronic devices and accessories' })
+  @ApiPropertyOptional({
+    example: 'Cuenta destinada al ahorro de los socios de FondoSolidario',
+  })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   description?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-71372456.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto create-product-type.dto.ts"
+git commit -m "feat: add dto create-account.dto.ts"
 ```
 
-#### 8.9 — features/business/product-types/application/dto/product-type-filter.dto.ts
+![](images/clipboard-2500289007.png)
+
+#### 8.9 — features/business/account/application/dto/account-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/product-type-filter.dto.ts`
+**Archivo:** `src/features/business/accounts/application/dto/account-filter.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto
-cat > src/features/business/product-types/application/dto/product-type-filter.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/application/dto
+
+cat > src/features/business/accounts/application/dto/account-filter.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 
-export class ProductTypeFilterDto {
+export class AccountFilterDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -4959,42 +5107,52 @@ export class ProductTypeFilterDto {
   @IsPositive()
   limit?: number;
 
-  @ApiPropertyOptional({ example: 'electronics' })
+  @ApiPropertyOptional({ example: 'ahorros' })
   @IsOptional()
   @IsString()
   search?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-700908806.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto product-type-filter.dto.ts"
+git commit -m "feat: add dto account-filter.dto.ts"
 ```
 
-#### 8.10 — features/business/product-types/application/dto/product-type-response.dto.ts
+![](images/clipboard-584329053.png)
+
+#### 8.10 — features/business/account/application/dto/account-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/product-type-response.dto.ts`
+**Archivo:** src/features/business/accounts/application/dto/account-response.dto.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto
-cat > src/features/business/product-types/application/dto/product-type-response.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/accounts/application/dto
 
-export class ProductTypeResponseDto {
+cat > src/features/business/accounts/application/dto/account-response.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class AccountResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'Electronics' })
+  @ApiProperty({ example: 'Cuenta de Ahorros' })
   name: string;
 
-  @ApiPropertyOptional({ example: 'Electronic devices and accessories' })
+  @ApiPropertyOptional({
+    example: 'Cuenta destinada al ahorro de los socios de FondoSolidario',
+  })
   description?: string;
+
+  @ApiProperty({ example: true })
+  isActive: boolean;
 
   @ApiProperty({ enum: Status, example: Status.ACTIVE })
   status: Status;
@@ -5005,38 +5163,47 @@ export class ProductTypeResponseDto {
   @ApiProperty()
   updatedAt: Date;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3527214189.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto product-type-response.dto.ts"
+git commit -m "feat: add dto account-response.dto.ts"
 ```
 
-#### 8.11 — features/business/product-types/application/dto/update-product-type.dto.ts
+![](images/clipboard-3709408646.png)
+
+#### 8.11 — features/business/accounts/application/dto/update-account.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/update-product-type.dto.ts`
+**Archivo:** `src/features/business/accounts/application/dto/update-account.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto
-cat > src/features/business/product-types/application/dto/update-product-type.dto.ts <<'EOF_BACKEND_IA'
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProductTypeDto } from './create-product-type.dto';
+mkdir -p src/features/business/accounts/application/dto
 
-export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {}
-EOF_BACKEND_IA
+cat > src/features/business/accounts/application/dto/update-account.dto.ts <<'EOF_BACKEND-MANUAL'
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateAccountDto } from './create-account.dto.js';
+
+export class UpdateAccountDto extends PartialType(CreateAccountDto) {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-753460234.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto update-product-type.dto.ts"
+git commit -m "feat: add dto update-account.dto.ts"
 ```
+
+![](images/clipboard-1379971222.png)
 
 #### 8.12 — features/business/product-types/application/mappers/product-type.mapper.ts
 
@@ -5045,54 +5212,62 @@ Mapper entre entidad de dominio y DTO de respuesta.
 **Archivo:** `src/features/business/product-types/application/mappers/product-type.mapper.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/mappers
-cat > src/features/business/product-types/application/mappers/product-type.mapper.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { ProductType } from '../../domain/entities/product-type.entity';
-import { ProductTypeResponseDto } from '../dto/product-type-response.dto';
-import { ProductTypeModel } from '../../infrastructure/persistence/models/product-type.model';
+mkdir -p src/features/business/accounts/application/mappers
 
-export class ProductTypeMapper {
-  static toDomain(model: ProductTypeModel): ProductType {
-    return ProductType.reconstitute({
+cat > src/features/business/accounts/application/mappers/account.mapper.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { Account } from '../../domain/entities/account.entity.js';
+import { AccountResponseDto } from '../dto/account-response.dto.js';
+import { AccountModel } from '../../infrastructure/persistence/models/account.model.js';
+
+export class AccountMapper {
+  static toDomain(model: AccountModel): Account {
+    return Account.reconstitute({
       id: model.id,
       name: model.name,
       description: model.description ?? undefined,
+      isActive: model.isActive,
       status: model.status,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     });
   }
 
-  static toResponse(entity: ProductType): ProductTypeResponseDto {
+  static toResponse(entity: Account): AccountResponseDto {
     return {
       id: entity.id!,
       name: entity.name,
       description: entity.description,
+      isActive: entity.isActive,
       status: entity.status,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
     };
   }
 
-  static toPersistence(entity: ProductType): Partial<ProductTypeModel> {
+  static toPersistence(entity: Account): Partial<AccountModel> {
     return {
       id: entity.id,
       name: entity.name,
       description: entity.description ?? null,
+      isActive: entity.isActive,
       status: entity.status ?? Status.ACTIVE,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+ ![](images/clipboard-407469409.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add mapper product-type.mapper.ts"
+git commit -m "feat: add mapper account.mapper.ts"
 ```
+
+![](images/clipboard-3500108653.png)
 
 #### 8.13 — features/business/product-types/application/use-cases/create-product-type.use-case.ts
 
@@ -5103,220 +5278,159 @@ El controller solo lo invoca.
 **Archivo:** `src/features/business/product-types/application/use-cases/create-product-type.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases
-cat > src/features/business/product-types/application/use-cases/create-product-type.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/application/use-cases
+
+cat > src/features/business/accounts/application/use-cases/create-account.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductType } from '../../domain/entities/product-type.entity';
+import { Account } from '../../domain/entities/account.entity.js';
 import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../domain/interfaces/product-type-repository.interface';
-import { CreateProductTypeDto } from '../dto/create-product-type.dto';
-import { ProductTypeMapper } from '../mappers/product-type.mapper';
+  type IAccountRepository,
+  ACCOUNT_REPOSITORY,
+} from '../../domain/interfaces/account-repository.interface.js';
+import { CreateAccountDto } from '../dto/create-account.dto.js';
+import { AccountMapper } from '../mappers/account.mapper.js';
 
 @Injectable()
-export class CreateProductTypeUseCase {
+export class CreateAccountUseCase {
   constructor(
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
+    @Inject(ACCOUNT_REPOSITORY)
+    private readonly accountRepository: IAccountRepository,
   ) {}
 
-  async execute(dto: CreateProductTypeDto) {
-    const productType = ProductType.create(dto);
-    const created = await this.productTypeRepository.create(productType);
-    return ProductTypeMapper.toResponse(created);
+  async execute(dto: CreateAccountDto) {
+    const account = Account.create({
+      name: dto.name,
+      description: dto.description,
+    });
+
+    const created = await this.accountRepository.create(account);
+
+    return AccountMapper.toResponse(created);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2866587975.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case create-product-type.use-case.ts"
+git commit -m "feat: add use case create-account.use-case.ts"
 ```
 
-#### 8.14 — features/business/product-types/application/use-cases/delete-product-type.use-case.ts
+![](images/clipboard-2343224989.png)
+
+####  8.16 — features/business/accounts/application/use-cases/list-account.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts`
+**Archivo:** `src/features/business/accounts/application/use-cases/list-account.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases
-cat > src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/application/use-cases
+
+cat > src/features/business/accounts/application/use-cases/get-account.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception';
+import { AccountNotFoundException } from '../../domain/exceptions/account-not-found.exception.js';
 import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../domain/interfaces/product-type-repository.interface';
+  type IAccountRepository,
+  ACCOUNT_REPOSITORY,
+} from '../../domain/interfaces/account-repository.interface.js';
+import { AccountMapper } from '../mappers/account.mapper.js';
 
 @Injectable()
-export class DeleteProductTypeUseCase {
+export class GetAccountUseCase {
   constructor(
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
-  ) {}
-
-  async execute(id: number): Promise<void> {
-    const productType = await this.productTypeRepository.findById(id);
-    if (!productType) {
-      throw new ProductTypeNotFoundException(id);
-    }
-
-    await this.productTypeRepository.delete(id);
-  }
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add use case delete-product-type.use-case.ts"
-```
-
-#### 8.15 — features/business/product-types/application/use-cases/get-product-type.use-case.ts
-
-Caso de uso (aplicación).
-Orquesta dominio + repositorio.
-El controller solo lo invoca.
-
-**Archivo:** `src/features/business/product-types/application/use-cases/get-product-type.use-case.ts`
-
-``` bash
-mkdir -p src/features/business/product-types/application/use-cases
-cat > src/features/business/product-types/application/use-cases/get-product-type.use-case.ts <<'EOF_BACKEND_IA'
-import { Inject, Injectable } from '@nestjs/common';
-import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception';
-import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../domain/interfaces/product-type-repository.interface';
-import { ProductTypeMapper } from '../mappers/product-type.mapper';
-
-@Injectable()
-export class GetProductTypeUseCase {
-  constructor(
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
+    @Inject(ACCOUNT_REPOSITORY)
+    private readonly accountRepository: IAccountRepository,
   ) {}
 
   async execute(id: number) {
-    const productType = await this.productTypeRepository.findById(id);
-    if (!productType) {
-      throw new ProductTypeNotFoundException(id);
+    const account = await this.accountRepository.findById(id);
+
+    if (!account) {
+      throw new AccountNotFoundException(id);
     }
 
-    return ProductTypeMapper.toResponse(productType);
+    return AccountMapper.toResponse(account);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3501590892.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case get-product-type.use-case.ts"
+git commit -m "feat: add use case get-account.use-case.ts"
 ```
 
-#### 8.16 — features/business/product-types/application/use-cases/list-product-types.use-case.ts
+![](images/clipboard-348769652.png)
+
+#### 8.17 — features/business/accounts/application/use-cases/update-account.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/list-product-types.use-case.ts`
+**Archivo:** `src/features/business/accounts/application/use-cases/update-account.use-case.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases
-cat > src/features/business/product-types/application/use-cases/list-product-types.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/application/use-cases
+
+cat > src/features/business/accounts/application/use-cases/update-account.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
+import { AccountNotFoundException } from '../../domain/exceptions/account-not-found.exception.js';
 import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../domain/interfaces/product-type-repository.interface';
-import { ProductTypeFilterDto } from '../dto/product-type-filter.dto';
-import { ProductTypeMapper } from '../mappers/product-type.mapper';
+  type IAccountRepository,
+  ACCOUNT_REPOSITORY,
+} from '../../domain/interfaces/account-repository.interface.js';
+import { UpdateAccountDto } from '../dto/update-account.dto.js';
+import { AccountMapper } from '../mappers/account.mapper.js';
 
 @Injectable()
-export class ListProductTypesUseCase {
+export class UpdateAccountUseCase {
   constructor(
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
+    @Inject(ACCOUNT_REPOSITORY)
+    private readonly accountRepository: IAccountRepository,
   ) {}
 
-  async execute(filter: ProductTypeFilterDto) {
-    const result = await this.productTypeRepository.findAll(filter);
-    return {
-      items: result.items.map((pt) => ProductTypeMapper.toResponse(pt)),
-      meta: result.meta,
-    };
-  }
-}
-EOF_BACKEND_IA
-```
+  async execute(id: number, dto: UpdateAccountDto) {
+    const account = await this.accountRepository.findById(id);
 
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add use case list-product-types.use-case.ts"
-```
-
-#### 8.17 — features/business/product-types/application/use-cases/update-product-type.use-case.ts
-
-Caso de uso (aplicación).
-Orquesta dominio + repositorio.
-El controller solo lo invoca.
-
-**Archivo:** `src/features/business/product-types/application/use-cases/update-product-type.use-case.ts`
-
-``` bash
-mkdir -p src/features/business/product-types/application/use-cases
-cat > src/features/business/product-types/application/use-cases/update-product-type.use-case.ts <<'EOF_BACKEND_IA'
-import { Inject, Injectable } from '@nestjs/common';
-import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception';
-import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../domain/interfaces/product-type-repository.interface';
-import { UpdateProductTypeDto } from '../dto/update-product-type.dto';
-import { ProductTypeMapper } from '../mappers/product-type.mapper';
-
-@Injectable()
-export class UpdateProductTypeUseCase {
-  constructor(
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
-  ) {}
-
-  async execute(id: number, dto: UpdateProductTypeDto) {
-    const productType = await this.productTypeRepository.findById(id);
-    if (!productType) {
-      throw new ProductTypeNotFoundException(id);
+    if (!account) {
+      throw new AccountNotFoundException(id);
     }
 
-    productType.update(dto);
-    const updated = await this.productTypeRepository.update(productType);
-    return ProductTypeMapper.toResponse(updated);
+    account.update({
+      name: dto.name,
+      description: dto.description,
+    });
+
+    const updated = await this.accountRepository.update(account);
+
+    return AccountMapper.toResponse(updated);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1648568586.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case update-product-type.use-case.ts"
+git commit -m "feat: add use case update-account.use-case.ts"
 ```
+
+![](images/clipboard-133375629.png)
 
 #### 8.18 — features/business/product-types/presentation/http/serializers/product-type.serializer.ts
 
@@ -5325,36 +5439,42 @@ Serializer de presentación (forma estable de la respuesta HTTP).
 **Archivo:** `src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/presentation/http/serializers
-cat > src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts <<'EOF_BACKEND_IA'
-import { ProductType } from '../../../domain/entities/product-type.entity';
-import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto';
-import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper';
+mkdir -p src/features/business/accounts/presentation/http/serializers
 
-export class ProductTypeSerializer {
-  static serialize(entity: ProductType): ProductTypeResponseDto {
-    return ProductTypeMapper.toResponse(entity);
+cat > src/features/business/accounts/presentation/http/serializers/account.serializer.ts <<'EOF_BACKEND-MANUAL'
+import { Account } from '../../../domain/entities/account.entity.js';
+import { AccountResponseDto } from '../../../application/dto/account-response.dto.js';
+import { AccountMapper } from '../../../application/mappers/account.mapper.js';
+
+export class AccountSerializer {
+  static serialize(entity: Account): AccountResponseDto {
+    return AccountMapper.toResponse(entity);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1713343984.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add serializer product-type.serializer.ts"
+git commit -m "feat: add serializer account.serializer.ts"
 ```
 
-#### 8.19 — features/business/product-types/presentation/http/controllers/product-types.controller.ts
+![](images/clipboard-1604735073.png)
+
+#### 8.19 — features/business/accounts/presentation/http/controllers/account.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
-**Archivo:** `src/features/business/product-types/presentation/http/controllers/product-types.controller.ts`
+**Archivo:** `src/features/business/accounts/presentation/http/controllers/account.controller.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/presentation/http/controllers
-cat > src/features/business/product-types/presentation/http/controllers/product-types.controller.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts/presentation/http/controllers
+
+cat > src/features/business/accounts/presentation/http/controllers/accounts.controller.ts <<'EOF_BACKEND-MANUAL'
 import {
   Body,
   Controller,
@@ -5374,139 +5494,153 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe';
-import { CreateProductTypeDto } from '../../../application/dto/create-product-type.dto';
-import { UpdateProductTypeDto } from '../../../application/dto/update-product-type.dto';
-import { ProductTypeFilterDto } from '../../../application/dto/product-type-filter.dto';
-import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto';
-import { CreateProductTypeUseCase } from '../../../application/use-cases/create-product-type.use-case';
-import { UpdateProductTypeUseCase } from '../../../application/use-cases/update-product-type.use-case';
-import { DeleteProductTypeUseCase } from '../../../application/use-cases/delete-product-type.use-case';
-import { GetProductTypeUseCase } from '../../../application/use-cases/get-product-type.use-case';
-import { ListProductTypesUseCase } from '../../../application/use-cases/list-product-types.use-case';
+import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe.js';
+import { CreateAccountDto } from '../../../application/dto/create-account.dto.js';
+import { UpdateAccountDto } from '../../../application/dto/update-account.dto.js';
+import { AccountFilterDto } from '../../../application/dto/account-filter.dto.js';
+import { AccountResponseDto } from '../../../application/dto/account-response.dto.js';
+import { CreateAccountUseCase } from '../../../application/use-cases/create-account.use-case.js';
+import { UpdateAccountUseCase } from '../../../application/use-cases/update-account.use-case.js';
+import { DeleteAccountUseCase } from '../../../application/use-cases/delete-account.use-case.js';
+import { GetAccountUseCase } from '../../../application/use-cases/get-account.use-case.js';
+import { ListAccountsUseCase } from '../../../application/use-cases/list-accounts.use-case.js';
 
-@ApiTags('Product Types')
-@Controller('product-types')
-export class ProductTypesController {
+@ApiTags('Accounts')
+@Controller('accounts')
+export class AccountsController {
   constructor(
-    private readonly createProductTypeUseCase: CreateProductTypeUseCase,
-    private readonly updateProductTypeUseCase: UpdateProductTypeUseCase,
-    private readonly deleteProductTypeUseCase: DeleteProductTypeUseCase,
-    private readonly getProductTypeUseCase: GetProductTypeUseCase,
-    private readonly listProductTypesUseCase: ListProductTypesUseCase,
+    private readonly createAccountUseCase: CreateAccountUseCase,
+    private readonly updateAccountUseCase: UpdateAccountUseCase,
+    private readonly deleteAccountUseCase: DeleteAccountUseCase,
+    private readonly getAccountUseCase: GetAccountUseCase,
+    private readonly listAccountsUseCase: ListAccountsUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear un tipo de producto' })
-  @ApiCreatedResponse({ type: ProductTypeResponseDto })
-  create(@Body() dto: CreateProductTypeDto) {
-    return this.createProductTypeUseCase.execute(dto);
+  @ApiOperation({ summary: 'Crear una cuenta' })
+  @ApiCreatedResponse({ type: AccountResponseDto })
+  create(@Body() dto: CreateAccountDto) {
+    return this.createAccountUseCase.execute(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar tipos de producto' })
-  @ApiOkResponse({ type: [ProductTypeResponseDto] })
-  findAll(@Query() filter: ProductTypeFilterDto) {
-    return this.listProductTypesUseCase.execute(filter);
+  @ApiOperation({ summary: 'Listar cuentas' })
+  @ApiOkResponse({ type: [AccountResponseDto] })
+  findAll(@Query() filter: AccountFilterDto) {
+    return this.listAccountsUseCase.execute(filter);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener un tipo de producto por ID' })
-  @ApiOkResponse({ type: ProductTypeResponseDto })
+  @ApiOperation({ summary: 'Obtener una cuenta por ID' })
+  @ApiOkResponse({ type: AccountResponseDto })
   findOne(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.getProductTypeUseCase.execute(id);
+    return this.getAccountUseCase.execute(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar un tipo de producto' })
-  @ApiOkResponse({ type: ProductTypeResponseDto })
+  @ApiOperation({ summary: 'Actualizar una cuenta' })
+  @ApiOkResponse({ type: AccountResponseDto })
   update(
     @Param('id', ParsePositiveIntPipe) id: number,
-    @Body() dto: UpdateProductTypeDto,
+    @Body() dto: UpdateAccountDto,
   ) {
-    return this.updateProductTypeUseCase.execute(id, dto);
+    return this.updateAccountUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Eliminar un tipo de producto' })
+  @ApiOperation({ summary: 'Eliminar una cuenta' })
   @ApiNoContentResponse()
   remove(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.deleteProductTypeUseCase.execute(id);
+    return this.deleteAccountUseCase.execute(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-853032401.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add controller product-types.controller.ts"
+git commit -m "feat: add controller accounts.controller.ts"
 ```
 
-#### 8.20 — features/business/product-types/index.ts
+![](images/clipboard-2060812126.png)
+
+####  8.20 — features/business/account/index.ts
 
 Barrel export del feature para imports limpios.
 
-**Archivo:** `src/features/business/product-types/index.ts`
+**Archivo:** `src/features/business/accounts/index.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types
-cat > src/features/business/product-types/index.ts <<'EOF_BACKEND_IA'
-export { ProductTypesModule } from './product-types.module';
-EOF_BACKEND_IA
+mkdir -p src/features/business/accounts
+
+cat > src/features/business/accounts/index.ts <<'EOF_BACKEND-MANUAL'
+export { AccountsModule } from './accounts.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-271081379.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add barrel export product-types"
+git commit -m "chore: add barrel export accounts"
 ```
 
-#### 8.21 — features/business/product-types/product-types.module.ts
+![](images/clipboard-2336110675.png)
+
+#### 8.21 — features/business/accounts/account.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
-**Archivo:** `src/features/business/product-types/product-types.module.ts`
+**Archivo:** `src/features/business/accounts/accounts.module.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types
-cat > src/features/business/product-types/product-types.module.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/accounts
+
+cat > src/features/business/accounts/accounts.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { PRODUCT_TYPE_REPOSITORY } from './domain/interfaces/product-type-repository.interface';
-import { ProductTypeRepository } from './infrastructure/persistence/repositories/product-type.repository';
-import { CreateProductTypeUseCase } from './application/use-cases/create-product-type.use-case';
-import { UpdateProductTypeUseCase } from './application/use-cases/update-product-type.use-case';
-import { DeleteProductTypeUseCase } from './application/use-cases/delete-product-type.use-case';
-import { GetProductTypeUseCase } from './application/use-cases/get-product-type.use-case';
-import { ListProductTypesUseCase } from './application/use-cases/list-product-types.use-case';
-import { ProductTypesController } from './presentation/http/controllers/product-types.controller';
+import { ACCOUNT_REPOSITORY } from './domain/interfaces/account-repository.interface.js';
+import { AccountRepository } from './infrastructure/persistence/repositories/account.repository.js';
+import { CreateAccountUseCase } from './application/use-cases/create-account.use-case.js';
+import { UpdateAccountUseCase } from './application/use-cases/update-account.use-case.js';
+import { DeleteAccountUseCase } from './application/use-cases/delete-account.use-case.js';
+import { GetAccountUseCase } from './application/use-cases/get-account.use-case.js';
+import { ListAccountsUseCase } from './application/use-cases/list-accounts.use-case.js';
+import { AccountsController } from './presentation/http/controllers/accounts.controller.js';
 
 @Module({
-  controllers: [ProductTypesController],
+  controllers: [AccountsController],
   providers: [
-    ProductTypeRepository,
-    { provide: PRODUCT_TYPE_REPOSITORY, useExisting: ProductTypeRepository },
-    CreateProductTypeUseCase,
-    UpdateProductTypeUseCase,
-    DeleteProductTypeUseCase,
-    GetProductTypeUseCase,
-    ListProductTypesUseCase,
+    AccountRepository,
+    { provide: ACCOUNT_REPOSITORY, useExisting: AccountRepository },
+    CreateAccountUseCase,
+    UpdateAccountUseCase,
+    DeleteAccountUseCase,
+    GetAccountUseCase,
+    ListAccountsUseCase,
   ],
-  exports: [PRODUCT_TYPE_REPOSITORY],
+  exports: [ACCOUNT_REPOSITORY],
 })
-export class ProductTypesModule {}
-EOF_BACKEND_IA
+export class AccountsModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-105880885.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: wire nest module product-types.module.ts"
+git commit -m "feat: wire nest module accounts.module.ts"
 ```
+
+![](images/clipboard-3297872411.png)
 
 #### 8.22 — Actualizar sequelize.factory.ts (registrar modelos)
 
@@ -5580,12 +5714,16 @@ export async function createSequelizeInstance(
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-4147136524.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: register ProductTypeModel in sequelize factory"
+git commit -m "feat: register AccountModel in sequelize factory"
 ```
+
+![](images/clipboard-120153222.png)
 
 #### 8.23 — Actualizar business.module.ts
 
@@ -5608,12 +5746,16 @@ export class BusinessModule {}
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-2601236774.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add ProductTypesModule to BusinessModule"
+git commit -m "feat: add AccountsModule to BusinessModule"
 ```
+
+![](images/clipboard-922492989.png)
 
 #### 8.24 — Actualizar database-seeder.service.ts
 
@@ -5654,12 +5796,16 @@ export class DatabaseSeederService implements OnModuleInit {
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-3029482262.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: run seedProductTypes on bootstrap"
+git commit -m "chore: run seedAccounts on bootstrap"
 ```
+
+![](images/clipboard-1376091916.png)
 
 #### 8.25 — Actualizar app.module.ts
 
@@ -5704,12 +5850,16 @@ export class AppModule {}
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-2514932499.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "chore: keep BusinessModule wired in AppModule"
 ```
+
+![](images/clipboard-4156135958.png)
 
 #### 8.26 — Verificar tabla `product_types`
 
@@ -5719,6 +5869,10 @@ Confirma sync/seeder y endpoints `/api/product-types`.
 npm run start:dev
 ```
 
+![](images/clipboard-3855131526.png)
+
+![](images/clipboard-4276152718.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -5727,6 +5881,8 @@ git commit -m "test: verify product_types table and endpoints"
 ```
 
 ------------------------------------------------------------------------
+
+![](images/clipboard-1664470437.png)
 
 ## FASE 9 — `08_BUSINESS_PRODUCTS`
 
