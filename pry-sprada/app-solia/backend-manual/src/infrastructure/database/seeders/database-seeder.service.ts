@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-
+import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -15,10 +15,13 @@ export class DatabaseSeederService implements OnModuleInit {
     }
 
     try {
-      // sin seeders aún
+      await seedMembers();
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
-      this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
