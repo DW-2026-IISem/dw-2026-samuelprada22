@@ -7,8 +7,10 @@ import pg from 'pg';
 import tedious from 'tedious';
 import oracledb from 'oracledb';
 
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+
 export const ALL_MODELS = [
-  // (aún sin modelos — se agregan por feature)
+  MemberModel,
 ];
 
 export async function createSequelizeInstance(
@@ -22,19 +24,15 @@ export async function createSequelizeInstance(
     case DatabaseDialect.MySQL:
       dialectModule = mysql2;
       break;
-
     case DatabaseDialect.Postgres:
       dialectModule = pg;
       break;
-
     case DatabaseDialect.MSSQL:
       dialectModule = tedious;
       break;
-
     case DatabaseDialect.Oracle:
       dialectModule = oracledb;
       break;
-
     default:
       throw new Error(`Dialecto no soportado: ${dialect}`);
   }
@@ -47,16 +45,12 @@ export async function createSequelizeInstance(
 
   try {
     await sequelize.authenticate();
-
-    console.log(
-      `✅ Conexión exitosa a ${dialect.toUpperCase()}`,
-    );
+    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
   } catch (error: any) {
     console.error(
       `❌ Error conectando a ${dialect.toUpperCase()}:`,
       error.message,
     );
-
     throw error;
   }
 
