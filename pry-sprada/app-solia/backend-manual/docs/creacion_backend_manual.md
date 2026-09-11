@@ -5884,140 +5884,129 @@ git commit -m "test: verify product_types table and endpoints"
 
 ![](images/clipboard-1664470437.png)
 
-## FASE 9 — `08_BUSINESS_PRODUCTS`
+## FASE 9 — `08_BUSINESS_movements`
 
-### Business — Products
+### Business — movements
 
 > **Objetivo de la fase:** Productos dependen de ProductTypes (FK).
 > El modelo usa `require()` lazy para evitar ciclos.
 
-#### 9.1 — features/business/products/domain/entities/product.entity.ts
+#### 9.1 — features/business/movements/domain/entities/movement.entity.ts
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
 Aquí viven las reglas del negocio.
 
-**Archivo:** `src/features/business/products/domain/entities/product.entity.ts`
+**Archivo:** src/features/business/movements/domain/entities/movement.entity.ts
 
 ``` bash
-mkdir -p src/features/business/products/domain/entities
-cat > src/features/business/products/domain/entities/product.entity.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { InvalidProductPriceException } from '../exceptions/invalid-product-price.exception';
-import { InvalidProductStockException } from '../exceptions/invalid-product-stock.exception';
-import { isValidPrice } from '../validators/product-price.validator';
-import { isValidStock } from '../validators/product-stock.validator';
+mkdir -p src/features/business/movements/domain/entities
 
-export interface ProductProps {
+cat > src/features/business/movements/domain/entities/movement.entity.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export interface MovementProps {
   id?: number;
-  name: string;
-  brand: string;
-  price: number;
-  minStock: number;
-  quantity: number;
-  productTypeId: number;
+  referenceId: number;
+  type: string;
+  date: Date;
+  amount: number;
+  observations?: string;
   status?: Status;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export class Product {
+export class Movement {
   id?: number;
-  name: string;
-  brand: string;
-  price: number;
-  minStock: number;
-  quantity: number;
-  productTypeId: number;
+  referenceId: number;
+  type: string;
+  date: Date;
+  amount: number;
+  observations?: string;
   status: Status;
   createdAt?: Date;
   updatedAt?: Date;
 
-  private constructor(props: ProductProps) {
+  private constructor(props: MovementProps) {
     this.id = props.id;
-    this.name = props.name;
-    this.brand = props.brand;
-    this.price = props.price;
-    this.minStock = props.minStock;
-    this.quantity = props.quantity;
-    this.productTypeId = props.productTypeId;
+    this.referenceId = props.referenceId;
+    this.type = props.type;
+    this.date = props.date;
+    this.amount = props.amount;
+    this.observations = props.observations;
     this.status = props.status ?? Status.ACTIVE;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
 
   static create(
-    props: Omit<ProductProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>,
-  ): Product {
-    if (!props.name?.trim()) {
-      throw new Error('El nombre del producto es requerido');
+    props: Omit<
+      MovementProps,
+      'id' | 'status' | 'createdAt' | 'updatedAt'
+    >,
+  ): Movement {
+    if (!props.referenceId || props.referenceId <= 0) {
+      throw new Error('La referencia del movimiento es requerida');
     }
 
-    if (!props.brand?.trim()) {
-      throw new Error('La marca del producto es requerida');
+    if (!props.type?.trim()) {
+      throw new Error('El tipo de movimiento es requerido');
     }
 
-    if (!isValidPrice(props.price)) {
-      throw new InvalidProductPriceException(props.price);
+    if (!props.date) {
+      throw new Error('La fecha del movimiento es requerida');
     }
 
-    if (!isValidStock(props.quantity)) {
-      throw new InvalidProductStockException(props.quantity);
+    if (props.amount <= 0) {
+      throw new Error('La cantidad del movimiento debe ser mayor que cero');
     }
 
-    if (!isValidStock(props.minStock)) {
-      throw new InvalidProductStockException(props.minStock);
-    }
-
-    return new Product(props);
+    return new Movement(props);
   }
 
-  static reconstitute(props: ProductProps): Product {
-    return new Product(props);
+  static reconstitute(props: MovementProps): Movement {
+    return new Movement(props);
   }
 
   update(
     props: Partial<
-      Omit<ProductProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>
+      Omit<
+        MovementProps,
+        'id' | 'status' | 'createdAt' | 'updatedAt'
+      >
     >,
   ): void {
-    if (props.name !== undefined) {
-      if (!props.name.trim()) {
-        throw new Error('El nombre del producto es requerido');
+    if (props.referenceId !== undefined) {
+      if (props.referenceId <= 0) {
+        throw new Error('La referencia del movimiento debe ser válida');
       }
-      this.name = props.name;
+
+      this.referenceId = props.referenceId;
     }
 
-    if (props.brand !== undefined) {
-      if (!props.brand.trim()) {
-        throw new Error('La marca del producto es requerida');
+    if (props.type !== undefined) {
+      if (!props.type.trim()) {
+        throw new Error('El tipo de movimiento es requerido');
       }
-      this.brand = props.brand;
+
+      this.type = props.type;
     }
 
-    if (props.price !== undefined) {
-      if (!isValidPrice(props.price)) {
-        throw new InvalidProductPriceException(props.price);
-      }
-      this.price = props.price;
+    if (props.date !== undefined) {
+      this.date = props.date;
     }
 
-    if (props.minStock !== undefined) {
-      if (!isValidStock(props.minStock)) {
-        throw new InvalidProductStockException(props.minStock);
+    if (props.amount !== undefined) {
+      if (props.amount <= 0) {
+        throw new Error('La cantidad del movimiento debe ser mayor que cero');
       }
-      this.minStock = props.minStock;
+
+      this.amount = props.amount;
     }
 
-    if (props.quantity !== undefined) {
-      if (!isValidStock(props.quantity)) {
-        throw new InvalidProductStockException(props.quantity);
-      }
-      this.quantity = props.quantity;
-    }
-
-    if (props.productTypeId !== undefined) {
-      this.productTypeId = props.productTypeId;
+    if (props.observations !== undefined) {
+      this.observations = props.observations;
     }
   }
 
@@ -6025,198 +6014,173 @@ export class Product {
     this.status = Status.INACTIVE;
   }
 
-  reduceStock(amount: number): void {
-    const newQuantity = this.quantity - amount;
-    if (!isValidStock(newQuantity)) {
-      throw new InvalidProductStockException(newQuantity);
-    }
-    this.quantity = newQuantity;
+  activate(): void {
+    this.status = Status.ACTIVE;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3859395214.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain entity product.entity.ts"
+git commit -m "feat: add domain entity movement.entity.ts"
 ```
 
-#### 9.2 — features/business/products/domain/exceptions/invalid-product-price.exception.ts
+![](images/clipboard-2334327781.png)
+
+#### 9.2 — features/business/movements/domain/exceptions/invalid-movement-amount.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/products/domain/exceptions/invalid-product-price.exception.ts`
+**Archivo:** src/features/business/movements/domain/exceptions/invalid-movement-amount.exception.ts
 
 ``` bash
-mkdir -p src/features/business/products/domain/exceptions
-cat > src/features/business/products/domain/exceptions/invalid-product-price.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
+mkdir -p src/features/business/movements/domain/exceptions
 
-export class InvalidProductPriceException extends DomainException {
-  constructor(price: number) {
-    super(`El precio '${price}' debe ser mayor a 0`);
+cat > src/features/business/movements/domain/exceptions/invalid-movement-amount.exception.ts <<'EOF_BACKEND-MANUAL'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
+
+export class InvalidMovementAmountException extends DomainException {
+  constructor(amount: number) {
+    super(`La cantidad '${amount}' debe ser mayor a 0`);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-673053784.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception invalid-product-price.exception.ts"
+git commit -m "feat: add domain exception invalid-movement-amount.exception.ts"
 ```
 
-#### 9.3 — features/business/products/domain/exceptions/invalid-product-stock.exception.ts
+![](images/clipboard-1033741072.png)
+
+#### 9.3 — features/business/movements/domain/exceptions/movement-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/products/domain/exceptions/invalid-product-stock.exception.ts`
+**Archivo:** src/features/business/movements/domain/exceptions/movement-not-found.exception.ts
 
 ``` bash
-mkdir -p src/features/business/products/domain/exceptions
-cat > src/features/business/products/domain/exceptions/invalid-product-stock.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
+mkdir -p src/features/business/movements/domain/exceptions
 
-export class InvalidProductStockException extends DomainException {
-  constructor(stock: number) {
-    super(`El stock '${stock}' no puede ser negativo`);
-  }
-}
-EOF_BACKEND_IA
-```
+cat > src/features/business/movements/domain/exceptions/movement-not-found.exception.ts <<'EOF_BACKEND-MANUAL'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
 
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain exception invalid-product-stock.exception.ts"
-```
-
-#### 9.4 — features/business/products/domain/exceptions/product-not-found.exception.ts
-
-Excepción de dominio.
-El caso de uso la lanza; el filter HTTP la traduce a status code.
-
-**Archivo:** `src/features/business/products/domain/exceptions/product-not-found.exception.ts`
-
-``` bash
-mkdir -p src/features/business/products/domain/exceptions
-cat > src/features/business/products/domain/exceptions/product-not-found.exception.ts <<'EOF_BACKEND_IA'
-import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception';
-
-export class ProductNotFoundException extends EntityNotFoundException {
+export class MovementNotFoundException extends EntityNotFoundException {
   constructor(id: number) {
-    super('Producto', id);
+    super('Movimiento', id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3657740538.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception product-not-found.exception.ts"
+git commit -m "feat: add domain exception movement-not-found.exception.ts"
 ```
 
-#### 9.5 — features/business/products/domain/interfaces/product-repository.interface.ts
+![](images/clipboard-1200880770.png)
+
+#### 9.4 — features/business/movements/domain/interfaces/movement-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
 
-**Archivo:** `src/features/business/products/domain/interfaces/product-repository.interface.ts`
+**Archivo:** src/features/business/movements/domain/interfaces/movement-repository.interface.ts
 
 ``` bash
-mkdir -p src/features/business/products/domain/interfaces
-cat > src/features/business/products/domain/interfaces/product-repository.interface.ts <<'EOF_BACKEND_IA'
-import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface';
-import { Product } from '../entities/product.entity';
+mkdir -p src/features/business/movements/domain/interfaces
 
-export const PRODUCT_REPOSITORY = 'PRODUCT_REPOSITORY';
+cat > src/features/business/movements/domain/interfaces/movement-repository.interface.ts <<'EOF_BACKEND-MANUAL'
+import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface.js';
+import { Movement } from '../entities/movement.entity.js';
 
-export interface ProductFindAllParams {
+export const MOVEMENT_REPOSITORY = 'MOVEMENT_REPOSITORY';
+
+export interface MovementFindAllParams {
   page?: number;
   limit?: number;
   search?: string;
-  productTypeId?: number;
+  referenceId?: number;
+  type?: string;
 }
 
-export interface IProductRepository {
-  create(product: Product): Promise<Product>;
-  update(product: Product): Promise<Product>;
+export interface IMovementRepository {
+  create(movement: Movement): Promise<Movement>;
+  update(movement: Movement): Promise<Movement>;
   delete(id: number): Promise<void>;
-  findById(id: number): Promise<Product | null>;
-  findAll(params: ProductFindAllParams): Promise<PaginatedResult<Product>>;
+  findById(id: number): Promise<Movement | null>;
+  findAll(
+    params: MovementFindAllParams,
+  ): Promise<PaginatedResult<Movement>>;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-430707226.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add repository port product-repository.interface.ts"
+git commit -m "feat: add repository port movement-repository.interface.ts"
 ```
 
-#### 9.6 — features/business/products/domain/validators/product-price.validator.ts
+![](images/clipboard-2774533849.png)
+
+#### 9.5 — features/business/movements/domain/validators
 
 Validador de dominio reutilizable (reglas independientes del framework HTTP).
 
-**Archivo:** `src/features/business/products/domain/validators/product-price.validator.ts`
+**Archivo:** src/features/business/movements/domain/validators
 
 ``` bash
-mkdir -p src/features/business/products/domain/validators
-cat > src/features/business/products/domain/validators/product-price.validator.ts <<'EOF_BACKEND_IA'
-export function isValidPrice(price: number): boolean {
-  return price > 0;
+mkdir -p src/features/business/movements/domain/validators
+
+cat > src/features/business/movements/domain/validators/movement-amount.validator.ts <<'EOF_BACKEND-MANUAL'
+export function isValidMovementAmount(amount: number): boolean {
+  return amount > 0;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3704358358.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain validator product-price.validator.ts"
+git commit -m "feat: add domain validator movement-amount.validator.ts"
 ```
 
-#### 9.7 — features/business/products/domain/validators/product-stock.validator.ts
+![](images/clipboard-462316576.png)
 
-Validador de dominio reutilizable (reglas independientes del framework HTTP).
-
-**Archivo:** `src/features/business/products/domain/validators/product-stock.validator.ts`
-
-``` bash
-mkdir -p src/features/business/products/domain/validators
-cat > src/features/business/products/domain/validators/product-stock.validator.ts <<'EOF_BACKEND_IA'
-export function isValidStock(stock: number): boolean {
-  return stock >= 0;
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain validator product-stock.validator.ts"
-```
-
-#### 9.8 — features/business/products/infrastructure/persistence/models/product.model.ts
+#### 9.6 features/business/movements/infrastructure/persistence/models/movement.model.ts
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
 
-**Archivo:** `src/features/business/products/infrastructure/persistence/models/product.model.ts`
+**Archivo:** src/features/business/movements/infrastructure/persistence/models/movement.model.ts
 
 ``` bash
-mkdir -p src/features/business/products/infrastructure/persistence/models
-cat > src/features/business/products/infrastructure/persistence/models/product.model.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/infrastructure/persistence/models
+
+cat > src/features/business/movements/infrastructure/persistence/models/movement.model.ts <<'EOF_BACKEND-MANUAL'
 import {
   AutoIncrement,
   BelongsTo,
@@ -6229,44 +6193,49 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+import { AccountModel } from '../../../../accounts/infrastructure/persistence/models/account.model.js';
 
-@Table({ tableName: 'products' })
-export class ProductModel extends Model {
+@Table({ tableName: 'movements' })
+export class MovementModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
 
-  @Column({ type: DataType.STRING(150), allowNull: false })
-  declare name: string;
+  @ForeignKey(() => AccountModel)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare referenceId: number;
 
-  @Column({ type: DataType.STRING(100), allowNull: false })
-  declare brand: string;
+  @BelongsTo(() => AccountModel)
+  declare account: AccountModel;
 
-  @Column({ type: DataType.BIGINT, allowNull: false })
-  declare price: number;
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: false,
+  })
+  declare type: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
-  declare minStock: number;
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  declare date: Date;
 
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
-  declare quantity: number;
+  @Column({
+    type: DataType.DECIMAL(15, 2),
+    allowNull: false,
+  })
+  declare amount: number;
 
-  @ForeignKey(
-    () =>
-      require('../../../../product-types/infrastructure/persistence/models/product-type.model')
-        .ProductTypeModel,
-  )
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  declare productTypeId: number;
-
-  @BelongsTo(
-    () =>
-      require('../../../../product-types/infrastructure/persistence/models/product-type.model')
-        .ProductTypeModel,
-  )
-  declare productType: unknown;
+  @Column({
+    type: DataType.STRING(500),
+    allowNull: true,
+  })
+  declare observations: string | null;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
@@ -6281,64 +6250,80 @@ export class ProductModel extends Model {
   @UpdatedAt
   declare updatedAt: Date;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-860168422.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize model product.model.ts"
+git commit -m "feat: add sequelize model movement.model.ts"
 ```
 
-#### 9.9 — features/business/products/infrastructure/persistence/repositories/product.repository.ts
+![](images/clipboard-2782358677.png)
+
+#### 9.7 features/business/movements/infrastructure/persistence/repositories/movement.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
-**Archivo:** `src/features/business/products/infrastructure/persistence/repositories/product.repository.ts`
+**Archivo:** src/features/business/movements/infrastructure/persistence/repositories/movement.repository.ts
 
 ``` bash
-mkdir -p src/features/business/products/infrastructure/persistence/repositories
-cat > src/features/business/products/infrastructure/persistence/repositories/product.repository.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/infrastructure/persistence/repositories
+
+cat > src/features/business/movements/infrastructure/persistence/repositories/movement.repository.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import { Op, WhereOptions } from 'sequelize';
 import {
   buildPaginatedResult,
   normalizePagination,
-} from '../../../../../../common/utils/pagination.util';
-import { Product } from '../../../domain/entities/product.entity';
+} from '../../../../../../common/utils/pagination.util.js';
+import { Movement } from '../../../domain/entities/movement.entity.js';
 import {
-  IProductRepository,
-  ProductFindAllParams,
-} from '../../../domain/interfaces/product-repository.interface';
-import { ProductMapper } from '../../../application/mappers/product.mapper';
-import { ProductModel } from '../models/product.model';
+  IMovementRepository,
+  MovementFindAllParams,
+} from '../../../domain/interfaces/movement-repository.interface.js';
+import { MovementMapper } from '../../../application/mappers/movement.mapper.js';
+import { MovementModel } from '../models/movement.model.js';
 
 @Injectable()
-export class ProductRepository implements IProductRepository {
-  async create(product: Product): Promise<Product> {
-    const model = await ProductModel.create(ProductMapper.toPersistence(product));
-    return ProductMapper.toDomain(model);
+export class MovementRepository implements IMovementRepository {
+  async create(movement: Movement): Promise<Movement> {
+    const model = await MovementModel.create(
+      MovementMapper.toPersistence(movement),
+    );
+
+    return MovementMapper.toDomain(model);
   }
 
-  async update(product: Product): Promise<Product> {
-    await ProductModel.update(ProductMapper.toPersistence(product), {
-      where: { id: product.id },
-    });
-    const updated = await ProductModel.findByPk(product.id!);
-    return ProductMapper.toDomain(updated!);
+  async update(movement: Movement): Promise<Movement> {
+    await MovementModel.update(
+      MovementMapper.toPersistence(movement),
+      {
+        where: { id: movement.id },
+      },
+    );
+
+    const updated = await MovementModel.findByPk(movement.id!);
+
+    return MovementMapper.toDomain(updated!);
   }
 
   async delete(id: number): Promise<void> {
-    await ProductModel.destroy({ where: { id } });
+    await MovementModel.destroy({
+      where: { id },
+    });
   }
 
-  async findById(id: number): Promise<Product | null> {
-    const model = await ProductModel.findByPk(id);
-    return model ? ProductMapper.toDomain(model) : null;
+  async findById(id: number): Promise<Movement | null> {
+    const model = await MovementModel.findByPk(id);
+
+    return model ? MovementMapper.toDomain(model) : null;
   }
 
-  async findAll(params: ProductFindAllParams) {
+  async findAll(params: MovementFindAllParams) {
     const { page, limit, offset } = normalizePagination(
       params.page,
       params.limit,
@@ -6349,17 +6334,21 @@ export class ProductRepository implements IProductRepository {
     if (params.search) {
       Object.assign(where, {
         [Op.or]: [
-          { name: { [Op.like]: `%${params.search}%` } },
-          { brand: { [Op.like]: `%${params.search}%` } },
+          { type: { [Op.like]: `%${params.search}%` } },
+          { observations: { [Op.like]: `%${params.search}%` } },
         ],
       });
     }
 
-    if (params.productTypeId) {
-      where.productTypeId = params.productTypeId;
+    if (params.referenceId) {
+      where.referenceId = params.referenceId;
     }
 
-    const { rows, count } = await ProductModel.findAndCountAll({
+    if (params.type) {
+      where.type = params.type;
+    }
+
+    const { rows, count } = await MovementModel.findAndCountAll({
       where,
       limit,
       offset,
@@ -6367,113 +6356,149 @@ export class ProductRepository implements IProductRepository {
     });
 
     return buildPaginatedResult(
-      rows.map((row) => ProductMapper.toDomain(row)),
+      rows.map((row) => MovementMapper.toDomain(row)),
       count,
       page,
       limit,
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3958835869.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize repository product.repository.ts"
+git commit -m "feat: add sequelize repository movement.repository.ts"
 ```
 
-#### 9.10 — features/business/products/infrastructure/persistence/migrations/create-products-table.migration.ts
+#### 9.8 — features/business/movements/infrastructure/persistence/migrations/create-movements-table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
 
-**Archivo:** `src/features/business/products/infrastructure/persistence/migrations/create-products-table.migration.ts`
+**Archivo:** src/features/business/movements/infrastructure/persistence/migrations/create-movements-table.migration.ts
 
 ``` bash
-mkdir -p src/features/business/products/infrastructure/persistence/migrations
-cat > src/features/business/products/infrastructure/persistence/migrations/create-products-table.migration.ts <<'EOF_BACKEND_IA'
-export const createProductsTableMigration = {
-  name: 'create-products-table',
+mkdir -p src/features/business/movements/infrastructure/persistence/migrations
+
+cat > src/features/business/movements/infrastructure/persistence/migrations/create-movements-table.migration.ts <<'EOF_BACKEND-MANUAL'
+export const createMovementsTableMigration = {
+  name: 'create-movements-table',
+
   async up(): Promise<void> {
     // Sequelize sync handles table creation in development.
-    // Production: CREATE TABLE products (id, name, brand, price, minStock, quantity, productTypeId, status, createdAt, updatedAt)
+    // Production:
+    // CREATE TABLE movements (
+    //   id,
+    //   referenceId,
+    //   type,
+    //   date,
+    //   amount,
+    //   observations,
+    //   status,
+    //   createdAt,
+    //   updatedAt
+    // );
   },
+
   async down(): Promise<void> {
-    // Production: DROP TABLE products
+    // Production: DROP TABLE movements
   },
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1710551980.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add migration create-products-table.migration.ts"
+git commit -m "chore: add migration create-movements-table.migration.ts"
 ```
 
-#### 9.11 — features/business/products/infrastructure/persistence/seeders/products.seeder.ts
+![](images/clipboard-3992288076.png)
+
+#### 9.9
+
+#### features/business/movements/infrastructure/persistence/seeders/movements.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
-**Archivo:** `src/features/business/products/infrastructure/persistence/seeders/products.seeder.ts`
+**Archivo:** src/features/business/movements/infrastructure/persistence/seeders/movements.seeder.ts
 
 ``` bash
-mkdir -p src/features/business/products/infrastructure/persistence/seeders
-cat > src/features/business/products/infrastructure/persistence/seeders/products.seeder.ts <<'EOF_BACKEND_IA'
-import { ProductModel } from '../models/product.model';
-import { Status } from '../../../../../../common/enums/status.enum';
+mkdir -p src/features/business/movements/infrastructure/persistence/seeders
 
-export async function seedProducts(): Promise<void> {
-  const count = await ProductModel.count();
+cat > src/features/business/movements/infrastructure/persistence/seeders/movements.seeder.ts <<'EOF_BACKEND-MANUAL'
+import { MovementModel } from '../models/movement.model.js';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+
+export async function seedMovements(): Promise<void> {
+  const count = await MovementModel.count();
+
   if (count > 0) {
     return;
   }
 
-  await ProductModel.bulkCreate([
+  await MovementModel.bulkCreate([
     {
-      name: 'Smartphone X',
-      brand: 'TechBrand',
-      price: 59999,
-      minStock: 5,
-      quantity: 50,
-      productTypeId: 1,
+      referenceId: 1,
+      type: 'APORTE',
+      date: new Date(),
+      amount: 50000,
+      observations: 'Aporte inicial registrado en la cuenta de ahorros',
       status: Status.ACTIVE,
     },
     {
-      name: 'Wireless Headphones',
-      brand: 'AudioPro',
-      price: 12999,
-      minStock: 10,
-      quantity: 100,
-      productTypeId: 1,
+      referenceId: 1,
+      type: 'ABONO',
+      date: new Date(),
+      amount: 100000,
+      observations: 'Abono de prueba a la cuenta de ahorros',
+      status: Status.ACTIVE,
+    },
+    {
+      referenceId: 2,
+      type: 'APORTE',
+      date: new Date(),
+      amount: 75000,
+      observations: 'Aporte inicial registrado en la cuenta de aportes',
       status: Status.ACTIVE,
     },
   ]);
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1815008307.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add seeder products.seeder.ts"
+git commit -m "chore: add seeder movements.seeder.ts"
 ```
 
-#### 9.12 — features/business/products/application/dto/create-product.dto.ts
+![](images/clipboard-422961179.png)
+
+#### 9.10 — features/business/movements/application/dto
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/products/application/dto/create-product.dto.ts`
+**Archivo:** src/features/business/movements/application/dto
 
 ``` bash
-mkdir -p src/features/business/products/application/dto
-cat > src/features/business/products/application/dto/create-product.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/dto
+
+cat > src/features/business/movements/application/dto/create-movement.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsDateString,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -6481,66 +6506,84 @@ import {
   IsPositive,
   IsString,
   MaxLength,
-  Min,
 } from 'class-validator';
 
-export class CreateProductDto {
-  @ApiProperty({ example: 'Smartphone X' })
+export class CreateMovementDto {
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la cuenta asociada al movimiento',
+  })
+  @IsInt()
+  @IsPositive()
+  referenceId: number;
+
+  @ApiProperty({
+    example: 'APORTE',
+    description: 'Tipo de movimiento',
+  })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(150)
-  name: string;
+  @MaxLength(50)
+  type: string;
 
-  @ApiProperty({ example: 'TechBrand' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  brand: string;
+  @ApiProperty({
+    example: '2026-09-10',
+    description: 'Fecha del movimiento',
+  })
+  @IsDateString()
+  date: string;
 
-  @ApiProperty({ example: 59999 })
+  @ApiProperty({
+    example: 50000,
+    description: 'Cantidad monetaria del movimiento',
+  })
   @IsNumber()
   @IsPositive()
-  price: number;
+  amount: number;
 
-  @ApiProperty({ example: 5, default: 0 })
-  @IsInt()
-  @Min(0)
-  minStock: number;
-
-  @ApiProperty({ example: 50, default: 0 })
-  @IsInt()
-  @Min(0)
-  quantity: number;
-
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  @IsPositive()
-  productTypeId: number;
+  @ApiPropertyOptional({
+    example: 'Aporte inicial del socio',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  observations?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2992032803.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto create-product.dto.ts"
+git commit -m "feat: add dto create-movement.dto.ts"
 ```
 
-#### 9.13 — features/business/products/application/dto/product-filter.dto.ts
+![](images/clipboard-89756161.png)
+
+#### 9.11 — features/business/movements/application/dto/movement-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/products/application/dto/product-filter.dto.ts`
+**Archivo:** src/features/business/movements/application/dto/movement-filter.dto.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/dto
-cat > src/features/business/products/application/dto/product-filter.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/dto
+
+cat > src/features/business/movements/application/dto/movement-filter.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 
-export class ProductFilterDto {
+export class MovementFilterDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -6555,61 +6598,88 @@ export class ProductFilterDto {
   @IsPositive()
   limit?: number;
 
-  @ApiPropertyOptional({ example: 'smartphone' })
+  @ApiPropertyOptional({ example: 'aporte' })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ example: 1 })
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'ID de la cuenta asociada',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  productTypeId?: number;
+  referenceId?: number;
+
+  @ApiPropertyOptional({
+    example: 'APORTE',
+    description: 'Tipo de movimiento',
+  })
+  @IsOptional()
+  @IsString()
+  type?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2592644125.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto product-filter.dto.ts"
+git commit -m "feat: add dto movement-filter.dto.ts"
 ```
 
-#### 9.14 — features/business/products/application/dto/product-response.dto.ts
+![](images/clipboard-3005580918.png)
+
+#### 9.12 — features/business/movements/application/dto/movement-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/products/application/dto/product-response.dto.ts`
+**Archivo:** src/features/business/movements/application/dto/movement-response.dto.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/dto
-cat > src/features/business/products/application/dto/product-response.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty } from '@nestjs/swagger';
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/movements/application/dto
 
-export class ProductResponseDto {
+cat > src/features/business/movements/application/dto/movement-response.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class MovementResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'Smartphone X' })
-  name: string;
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la cuenta asociada al movimiento',
+  })
+  referenceId: number;
 
-  @ApiProperty({ example: 'TechBrand' })
-  brand: string;
+  @ApiProperty({
+    example: 'APORTE',
+    description: 'Tipo de movimiento',
+  })
+  type: string;
 
-  @ApiProperty({ example: 59999 })
-  price: number;
+  @ApiProperty({
+    example: '2026-09-10',
+    description: 'Fecha del movimiento',
+  })
+  date: Date;
 
-  @ApiProperty({ example: 5 })
-  minStock: number;
+  @ApiProperty({
+    example: 50000,
+    description: 'Cantidad monetaria del movimiento',
+  })
+  amount: number;
 
-  @ApiProperty({ example: 50 })
-  quantity: number;
-
-  @ApiProperty({ example: 1 })
-  productTypeId: number;
+  @ApiPropertyOptional({
+    example: 'Aporte inicial del socio',
+  })
+  observations?: string;
 
   @ApiProperty({ enum: Status, example: Status.ACTIVE })
   status: Status;
@@ -6620,398 +6690,432 @@ export class ProductResponseDto {
   @ApiProperty()
   updatedAt: Date;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2192373323.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto product-response.dto.ts"
+git commit -m "feat: add dto movement-response.dto.ts"
 ```
 
-#### 9.15 — features/business/products/application/dto/update-product.dto.ts
+![](images/clipboard-3194204420.png)
+
+#### 9.13 — features/business/movements/application/dto/update-movement.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/products/application/dto/update-product.dto.ts`
+**Archivo:** src/features/business/movements/application/dto/update-movement.dto.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/dto
-cat > src/features/business/products/application/dto/update-product.dto.ts <<'EOF_BACKEND_IA'
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProductDto } from './create-product.dto';
+mkdir -p src/features/business/movements/application/dto
 
-export class UpdateProductDto extends PartialType(CreateProductDto) {}
-EOF_BACKEND_IA
+cat > src/features/business/movements/application/dto/update-movement.dto.ts <<'EOF_BACKEND-MANUAL'
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMovementDto } from './create-movement.dto.js';
+
+export class UpdateMovementDto extends PartialType(CreateMovementDto) {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4249998694.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto update-product.dto.ts"
+git commit -m "feat: add dto update-movement.dto.ts"
 ```
 
-#### 9.16 — features/business/products/application/mappers/product.mapper.ts
+![](images/clipboard-15279146.png)
+
+#### 9.14 — features/business/products/application/mappers/product.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
 **Archivo:** `src/features/business/products/application/mappers/product.mapper.ts`
 
 ``` bash
-mkdir -p src/features/business/products/application/mappers
-cat > src/features/business/products/application/mappers/product.mapper.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { Product } from '../../domain/entities/product.entity';
-import { ProductResponseDto } from '../dto/product-response.dto';
-import { ProductModel } from '../../infrastructure/persistence/models/product.model';
+mkdir -p src/features/business/movements/application/mappers
 
-export class ProductMapper {
-  static toDomain(model: ProductModel): Product {
-    return Product.reconstitute({
+cat > src/features/business/movements/application/mappers/movement.mapper.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { Movement } from '../../domain/entities/movement.entity.js';
+import { MovementResponseDto } from '../dto/movement-response.dto.js';
+import { MovementModel } from '../../infrastructure/persistence/models/movement.model.js';
+
+export class MovementMapper {
+  static toDomain(model: MovementModel): Movement {
+    return Movement.reconstitute({
       id: model.id,
-      name: model.name,
-      brand: model.brand,
-      price: Number(model.price),
-      minStock: model.minStock,
-      quantity: model.quantity,
-      productTypeId: model.productTypeId,
+      referenceId: model.referenceId,
+      type: model.type,
+      date: model.date,
+      amount: Number(model.amount),
+      observations: model.observations ?? undefined,
       status: model.status,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     });
   }
 
-  static toResponse(entity: Product): ProductResponseDto {
+  static toResponse(entity: Movement): MovementResponseDto {
     return {
       id: entity.id!,
-      name: entity.name,
-      brand: entity.brand,
-      price: entity.price,
-      minStock: entity.minStock,
-      quantity: entity.quantity,
-      productTypeId: entity.productTypeId,
+      referenceId: entity.referenceId,
+      type: entity.type,
+      date: entity.date,
+      amount: entity.amount,
+      observations: entity.observations,
       status: entity.status,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
     };
   }
 
-  static toPersistence(entity: Product): Partial<ProductModel> {
+  static toPersistence(entity: Movement): Partial<MovementModel> {
     return {
       id: entity.id,
-      name: entity.name,
-      brand: entity.brand,
-      price: entity.price,
-      minStock: entity.minStock,
-      quantity: entity.quantity,
-      productTypeId: entity.productTypeId,
+      referenceId: entity.referenceId,
+      type: entity.type,
+      date: entity.date,
+      amount: entity.amount,
+      observations: entity.observations ?? null,
       status: entity.status ?? Status.ACTIVE,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2458873815.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add mapper product.mapper.ts"
+git commit -m "feat: add mapper movement.mapper.ts"
 ```
 
-#### 9.17 — features/business/products/application/use-cases/create-product.use-case.ts
+![](images/clipboard-4069528058.png)
+
+#### 9.15 — features/business/movements/application/use-cases/create-movement.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/products/application/use-cases/create-product.use-case.ts`
+**Archivo:** src/features/business/movements/application/use-cases/create-movement.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/use-cases
-cat > src/features/business/products/application/use-cases/create-product.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/use-cases
+
+cat > src/features/business/movements/application/use-cases/create-movement.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductTypeNotFoundException } from '../../../product-types/domain/exceptions/product-type-not-found.exception';
+import { Movement } from '../../domain/entities/movement.entity.js';
 import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../../product-types/domain/interfaces/product-type-repository.interface';
-import { Product } from '../../domain/entities/product.entity';
-import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../domain/interfaces/product-repository.interface';
-import { CreateProductDto } from '../dto/create-product.dto';
-import { ProductMapper } from '../mappers/product.mapper';
+  type IMovementRepository,
+  MOVEMENT_REPOSITORY,
+} from '../../domain/interfaces/movement-repository.interface.js';
+import { CreateMovementDto } from '../dto/create-movement.dto.js';
+import { MovementMapper } from '../mappers/movement.mapper.js';
 
 @Injectable()
-export class CreateProductUseCase {
+export class CreateMovementUseCase {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
+    @Inject(MOVEMENT_REPOSITORY)
+    private readonly movementRepository: IMovementRepository,
   ) {}
 
-  async execute(dto: CreateProductDto) {
-    const productType = await this.productTypeRepository.findById(
-      dto.productTypeId,
-    );
-    if (!productType) {
-      throw new ProductTypeNotFoundException(dto.productTypeId);
-    }
+  async execute(dto: CreateMovementDto) {
+    const movement = Movement.create({
+      referenceId: dto.referenceId,
+      type: dto.type,
+      date: new Date(dto.date),
+      amount: dto.amount,
+      observations: dto.observations,
+    });
 
-    const product = Product.create(dto);
-    const created = await this.productRepository.create(product);
-    return ProductMapper.toResponse(created);
+    const created = await this.movementRepository.create(movement);
+
+    return MovementMapper.toResponse(created);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1570445977.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case create-product.use-case.ts"
+git commit -m "feat: add use case create-movement.use-case.ts"
 ```
 
-#### 9.18 — features/business/products/application/use-cases/delete-product.use-case.ts
+![](images/clipboard-1483787242.png)
+
+#### 9.16 — features/business/movements/application/use-cases/delete-movement.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/products/application/use-cases/delete-product.use-case.ts`
+**Archivo:** src/features/business/movements/application/use-cases/delete-movement.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/use-cases
-cat > src/features/business/products/application/use-cases/delete-product.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/use-cases
+
+cat > src/features/business/movements/application/use-cases/delete-movement.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductNotFoundException } from '../../domain/exceptions/product-not-found.exception';
+import { MovementNotFoundException } from '../../domain/exceptions/movement-not-found.exception.js';
 import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../domain/interfaces/product-repository.interface';
+  type IMovementRepository,
+  MOVEMENT_REPOSITORY,
+} from '../../domain/interfaces/movement-repository.interface.js';
 
 @Injectable()
-export class DeleteProductUseCase {
+export class DeleteMovementUseCase {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
+    @Inject(MOVEMENT_REPOSITORY)
+    private readonly movementRepository: IMovementRepository,
   ) {}
 
   async execute(id: number): Promise<void> {
-    const product = await this.productRepository.findById(id);
-    if (!product) {
-      throw new ProductNotFoundException(id);
+    const movement = await this.movementRepository.findById(id);
+
+    if (!movement) {
+      throw new MovementNotFoundException(id);
     }
 
-    await this.productRepository.delete(id);
+    await this.movementRepository.delete(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2161806474.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case delete-product.use-case.ts"
+git commit -m "feat: add use case delete-movement.use-case.ts"
 ```
 
-#### 9.19 — features/business/products/application/use-cases/get-product.use-case.ts
+![](images/clipboard-360938643.png)
+
+#### 9.17 — features/business/movements/application/use-cases/get-movement.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/products/application/use-cases/get-product.use-case.ts`
+**Archivo:** src/features/business/movements/application/use-cases/get-movement.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/use-cases
-cat > src/features/business/products/application/use-cases/get-product.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/use-cases
+
+cat > src/features/business/movements/application/use-cases/get-movement.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductNotFoundException } from '../../domain/exceptions/product-not-found.exception';
+import { MovementNotFoundException } from '../../domain/exceptions/movement-not-found.exception.js';
 import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../domain/interfaces/product-repository.interface';
-import { ProductMapper } from '../mappers/product.mapper';
+  type IMovementRepository,
+  MOVEMENT_REPOSITORY,
+} from '../../domain/interfaces/movement-repository.interface.js';
+import { MovementMapper } from '../mappers/movement.mapper.js';
 
 @Injectable()
-export class GetProductUseCase {
+export class GetMovementUseCase {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
+    @Inject(MOVEMENT_REPOSITORY)
+    private readonly movementRepository: IMovementRepository,
   ) {}
 
   async execute(id: number) {
-    const product = await this.productRepository.findById(id);
-    if (!product) {
-      throw new ProductNotFoundException(id);
+    const movement = await this.movementRepository.findById(id);
+
+    if (!movement) {
+      throw new MovementNotFoundException(id);
     }
 
-    return ProductMapper.toResponse(product);
+    return MovementMapper.toResponse(movement);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3853489684.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case get-product.use-case.ts"
+git commit -m "feat: add use case get-movement.use-case.ts"
 ```
 
-#### 9.20 — features/business/products/application/use-cases/list-products.use-case.ts
+![](images/clipboard-2343064892.png)
+
+#### 9.18 — features/business/movements/application/use-cases/list-movements.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/products/application/use-cases/list-products.use-case.ts`
+**Archivo:** src/features/business/movements/application/use-cases/list-movements.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/use-cases
-cat > src/features/business/products/application/use-cases/list-products.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/use-cases
+
+cat > src/features/business/movements/application/use-cases/list-movements.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../domain/interfaces/product-repository.interface';
-import { ProductFilterDto } from '../dto/product-filter.dto';
-import { ProductMapper } from '../mappers/product.mapper';
+  type IMovementRepository,
+  MOVEMENT_REPOSITORY,
+} from '../../domain/interfaces/movement-repository.interface.js';
+import { MovementFilterDto } from '../dto/movement-filter.dto.js';
+import { MovementMapper } from '../mappers/movement.mapper.js';
 
 @Injectable()
-export class ListProductsUseCase {
+export class ListMovementsUseCase {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
+    @Inject(MOVEMENT_REPOSITORY)
+    private readonly movementRepository: IMovementRepository,
   ) {}
 
-  async execute(filter: ProductFilterDto) {
-    const result = await this.productRepository.findAll(filter);
+  async execute(filter: MovementFilterDto) {
+    const result = await this.movementRepository.findAll(filter);
+
     return {
-      items: result.items.map((product) => ProductMapper.toResponse(product)),
+      items: result.items.map((movement) =>
+        MovementMapper.toResponse(movement),
+      ),
       meta: result.meta,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3500991378.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case list-products.use-case.ts"
+git commit -m "feat: add use case list-movements.use-case.ts"
 ```
 
-#### 9.21 — features/business/products/application/use-cases/update-product.use-case.ts
+![](images/clipboard-3204331552.png)
+
+#### 9.19 — features/business/movements/application/use-cases/update-movement.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/products/application/use-cases/update-product.use-case.ts`
+**Archivo:** src/features/business/movements/application/use-cases/update-movement.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/products/application/use-cases
-cat > src/features/business/products/application/use-cases/update-product.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/application/use-cases
+
+cat > src/features/business/movements/application/use-cases/update-movement.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ProductTypeNotFoundException } from '../../../product-types/domain/exceptions/product-type-not-found.exception';
+import { MovementNotFoundException } from '../../domain/exceptions/movement-not-found.exception.js';
 import {
-  type IProductTypeRepository,
-  PRODUCT_TYPE_REPOSITORY,
-} from '../../../product-types/domain/interfaces/product-type-repository.interface';
-import { ProductNotFoundException } from '../../domain/exceptions/product-not-found.exception';
-import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../domain/interfaces/product-repository.interface';
-import { UpdateProductDto } from '../dto/update-product.dto';
-import { ProductMapper } from '../mappers/product.mapper';
+  type IMovementRepository,
+  MOVEMENT_REPOSITORY,
+} from '../../domain/interfaces/movement-repository.interface.js';
+import { UpdateMovementDto } from '../dto/update-movement.dto.js';
+import { MovementMapper } from '../mappers/movement.mapper.js';
 
 @Injectable()
-export class UpdateProductUseCase {
+export class UpdateMovementUseCase {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
-    @Inject(PRODUCT_TYPE_REPOSITORY)
-    private readonly productTypeRepository: IProductTypeRepository,
+    @Inject(MOVEMENT_REPOSITORY)
+    private readonly movementRepository: IMovementRepository,
   ) {}
 
-  async execute(id: number, dto: UpdateProductDto) {
-    const product = await this.productRepository.findById(id);
-    if (!product) {
-      throw new ProductNotFoundException(id);
+  async execute(id: number, dto: UpdateMovementDto) {
+    const movement = await this.movementRepository.findById(id);
+
+    if (!movement) {
+      throw new MovementNotFoundException(id);
     }
 
-    if (dto.productTypeId) {
-      const productType = await this.productTypeRepository.findById(
-        dto.productTypeId,
-      );
-      if (!productType) {
-        throw new ProductTypeNotFoundException(dto.productTypeId);
-      }
-    }
+    movement.update({
+      referenceId: dto.referenceId,
+      type: dto.type,
+      date: dto.date ? new Date(dto.date) : undefined,
+      amount: dto.amount,
+      observations: dto.observations,
+    });
 
-    product.update(dto);
-    const updated = await this.productRepository.update(product);
-    return ProductMapper.toResponse(updated);
+    const updated = await this.movementRepository.update(movement);
+
+    return MovementMapper.toResponse(updated);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1646534821.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case update-product.use-case.ts"
+git commit -m "feat: add use case update-movement.use-case.ts"
 ```
 
-#### 9.22 — features/business/products/presentation/http/serializers/product.serializer.ts
+![](images/clipboard-2281004059.png)
+
+#### 9.20 — features/business/movements/presentation/http/serializers/movement.serializer.ts
 
 Serializer de presentación (forma estable de la respuesta HTTP).
 
-**Archivo:** `src/features/business/products/presentation/http/serializers/product.serializer.ts`
+**Archivo:** src/features/business/movements/presentation/http/serializers/movement.serializer.ts
 
 ``` bash
-mkdir -p src/features/business/products/presentation/http/serializers
-cat > src/features/business/products/presentation/http/serializers/product.serializer.ts <<'EOF_BACKEND_IA'
-import { Product } from '../../../domain/entities/product.entity';
-import { ProductResponseDto } from '../../../application/dto/product-response.dto';
-import { ProductMapper } from '../../../application/mappers/product.mapper';
+mkdir -p src/features/business/movements/presentation/http/serializers
 
-export class ProductSerializer {
-  static serialize(entity: Product): ProductResponseDto {
-    return ProductMapper.toResponse(entity);
+cat > src/features/business/movements/presentation/http/serializers/movement.serializer.ts <<'EOF_BACKEND-MANUAL'
+import { Movement } from '../../../domain/entities/movement.entity.js';
+import { MovementResponseDto } from '../../../application/dto/movement-response.dto.js';
+import { MovementMapper } from '../../../application/mappers/movement.mapper.js';
+
+export class MovementSerializer {
+  static serialize(entity: Movement): MovementResponseDto {
+    return MovementMapper.toResponse(entity);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3161023540.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add serializer product.serializer.ts"
+git commit -m "feat: add serializer movement.serializer.ts"
 ```
 
-#### 9.23 — features/business/products/presentation/http/controllers/products.controller.ts
+![](images/clipboard-1090219804.png)
+
+#### 9.21 — features/business/movements/presentation/http/controllers/movements.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
-**Archivo:** `src/features/business/products/presentation/http/controllers/products.controller.ts`
+**Archivo:** src/features/business/movements/presentation/http/controllers/movements.controller.ts
 
 ``` bash
-mkdir -p src/features/business/products/presentation/http/controllers
-cat > src/features/business/products/presentation/http/controllers/products.controller.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements/presentation/http/controllers
+
+cat > src/features/business/movements/presentation/http/controllers/movements.controller.ts <<'EOF_BACKEND-MANUAL'
 import {
   Body,
   Controller,
@@ -7031,163 +7135,182 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe';
-import { CreateProductDto } from '../../../application/dto/create-product.dto';
-import { UpdateProductDto } from '../../../application/dto/update-product.dto';
-import { ProductFilterDto } from '../../../application/dto/product-filter.dto';
-import { ProductResponseDto } from '../../../application/dto/product-response.dto';
-import { CreateProductUseCase } from '../../../application/use-cases/create-product.use-case';
-import { UpdateProductUseCase } from '../../../application/use-cases/update-product.use-case';
-import { DeleteProductUseCase } from '../../../application/use-cases/delete-product.use-case';
-import { GetProductUseCase } from '../../../application/use-cases/get-product.use-case';
-import { ListProductsUseCase } from '../../../application/use-cases/list-products.use-case';
+import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe.js';
+import { CreateMovementDto } from '../../../application/dto/create-movement.dto.js';
+import { UpdateMovementDto } from '../../../application/dto/update-movement.dto.js';
+import { MovementFilterDto } from '../../../application/dto/movement-filter.dto.js';
+import { MovementResponseDto } from '../../../application/dto/movement-response.dto.js';
+import { CreateMovementUseCase } from '../../../application/use-cases/create-movement.use-case.js';
+import { UpdateMovementUseCase } from '../../../application/use-cases/update-movement.use-case.js';
+import { DeleteMovementUseCase } from '../../../application/use-cases/delete-movement.use-case.js';
+import { GetMovementUseCase } from '../../../application/use-cases/get-movement.use-case.js';
+import { ListMovementsUseCase } from '../../../application/use-cases/list-movements.use-case.js';
 
-@ApiTags('Products')
-@Controller('products')
-export class ProductsController {
+@ApiTags('Movements')
+@Controller('movements')
+export class MovementsController {
   constructor(
-    private readonly createProductUseCase: CreateProductUseCase,
-    private readonly updateProductUseCase: UpdateProductUseCase,
-    private readonly deleteProductUseCase: DeleteProductUseCase,
-    private readonly getProductUseCase: GetProductUseCase,
-    private readonly listProductsUseCase: ListProductsUseCase,
+    private readonly createMovementUseCase: CreateMovementUseCase,
+    private readonly updateMovementUseCase: UpdateMovementUseCase,
+    private readonly deleteMovementUseCase: DeleteMovementUseCase,
+    private readonly getMovementUseCase: GetMovementUseCase,
+    private readonly listMovementsUseCase: ListMovementsUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear un producto' })
-  @ApiCreatedResponse({ type: ProductResponseDto })
-  create(@Body() dto: CreateProductDto) {
-    return this.createProductUseCase.execute(dto);
+  @ApiOperation({ summary: 'Crear un movimiento' })
+  @ApiCreatedResponse({ type: MovementResponseDto })
+  create(@Body() dto: CreateMovementDto) {
+    return this.createMovementUseCase.execute(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar productos' })
-  @ApiOkResponse({ type: [ProductResponseDto] })
-  findAll(@Query() filter: ProductFilterDto) {
-    return this.listProductsUseCase.execute(filter);
+  @ApiOperation({ summary: 'Listar movimientos' })
+  @ApiOkResponse({ type: [MovementResponseDto] })
+  findAll(@Query() filter: MovementFilterDto) {
+    return this.listMovementsUseCase.execute(filter);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener un producto por ID' })
-  @ApiOkResponse({ type: ProductResponseDto })
+  @ApiOperation({ summary: 'Obtener un movimiento por ID' })
+  @ApiOkResponse({ type: MovementResponseDto })
   findOne(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.getProductUseCase.execute(id);
+    return this.getMovementUseCase.execute(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar un producto' })
-  @ApiOkResponse({ type: ProductResponseDto })
+  @ApiOperation({ summary: 'Actualizar un movimiento' })
+  @ApiOkResponse({ type: MovementResponseDto })
   update(
     @Param('id', ParsePositiveIntPipe) id: number,
-    @Body() dto: UpdateProductDto,
+    @Body() dto: UpdateMovementDto,
   ) {
-    return this.updateProductUseCase.execute(id, dto);
+    return this.updateMovementUseCase.execute(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Eliminar un producto' })
+  @ApiOperation({ summary: 'Eliminar un movimiento' })
   @ApiNoContentResponse()
   remove(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.deleteProductUseCase.execute(id);
+    return this.deleteMovementUseCase.execute(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3100981756.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add controller products.controller.ts"
+git commit -m "feat: add controller movements.controller.ts"
 ```
 
-#### 9.24 — features/business/products/index.ts
+![](images/clipboard-638712952.png)
+
+#### 9.22 — features/business/movements/index.ts
 
 Barrel export del feature para imports limpios.
 
-**Archivo:** `src/features/business/products/index.ts`
+**Archivo:** `src/features/business/movements/index.ts`
 
 ``` bash
-mkdir -p src/features/business/products
-cat > src/features/business/products/index.ts <<'EOF_BACKEND_IA'
-export { ProductsModule } from './products.module';
-EOF_BACKEND_IA
+mkdir -p src/features/business/movements
+
+cat > src/features/business/movements/index.ts <<'EOF_BACKEND-MANUAL'
+export { MovementsModule } from './movements.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2749362215.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add barrel export products"
+git commit -m "chore: add barrel export movements"
 ```
 
-#### 9.25 — features/business/products/products.module.ts
+![](images/clipboard-2494315436.png)
+
+#### 9.23 — features/business/movements/products.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
-**Archivo:** `src/features/business/products/products.module.ts`
+**Archivo:** `src/features/business/movements/movement.module.ts`
 
 ``` bash
-mkdir -p src/features/business/products
-cat > src/features/business/products/products.module.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/movements
+
+cat > src/features/business/movements/movements.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { ProductTypesModule } from '../product-types/product-types.module';
-import { PRODUCT_REPOSITORY } from './domain/interfaces/product-repository.interface';
-import { ProductRepository } from './infrastructure/persistence/repositories/product.repository';
-import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
-import { UpdateProductUseCase } from './application/use-cases/update-product.use-case';
-import { DeleteProductUseCase } from './application/use-cases/delete-product.use-case';
-import { GetProductUseCase } from './application/use-cases/get-product.use-case';
-import { ListProductsUseCase } from './application/use-cases/list-products.use-case';
-import { ProductsController } from './presentation/http/controllers/products.controller';
+import { MOVEMENT_REPOSITORY } from './domain/interfaces/movement-repository.interface.js';
+import { MovementRepository } from './infrastructure/persistence/repositories/movement.repository.js';
+import { CreateMovementUseCase } from './application/use-cases/create-movement.use-case.js';
+import { UpdateMovementUseCase } from './application/use-cases/update-movement.use-case.js';
+import { DeleteMovementUseCase } from './application/use-cases/delete-movement.use-case.js';
+import { GetMovementUseCase } from './application/use-cases/get-movement.use-case.js';
+import { ListMovementsUseCase } from './application/use-cases/list-movements.use-case.js';
+import { MovementsController } from './presentation/http/controllers/movements.controller.js';
 
 @Module({
-  imports: [ProductTypesModule],
-  controllers: [ProductsController],
+  controllers: [MovementsController],
   providers: [
-    ProductRepository,
-    { provide: PRODUCT_REPOSITORY, useExisting: ProductRepository },
-    CreateProductUseCase,
-    UpdateProductUseCase,
-    DeleteProductUseCase,
-    GetProductUseCase,
-    ListProductsUseCase,
+    MovementRepository,
+    {
+      provide: MOVEMENT_REPOSITORY,
+      useExisting: MovementRepository,
+    },
+    CreateMovementUseCase,
+    UpdateMovementUseCase,
+    DeleteMovementUseCase,
+    GetMovementUseCase,
+    ListMovementsUseCase,
   ],
-  exports: [PRODUCT_REPOSITORY],
+  exports: [MOVEMENT_REPOSITORY],
 })
-export class ProductsModule {}
-EOF_BACKEND_IA
+export class MovementsModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3411967674.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: wire nest module products.module.ts"
+git commit -m "feat: wire nest module movements.module.ts"
 ```
 
-#### 9.26 — Actualizar sequelize.factory.ts (registrar modelos)
+![](images/clipboard-3737803482.png)
+
+####  9.24 — Actualizar sequelize.factory.ts (registrar modelos)
 
 Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
 **Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts`
 
 ``` bash
-mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND-MANUAL'
 import { Sequelize } from 'sequelize-typescript';
-import { DatabaseDialect } from '../../../config/environment/env.interface';
-import { getSequelizeOptions } from './sequelize.options';
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
 
-import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model';
-import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';
-import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model';
+import mysql2 from 'mysql2';
+import pg from 'pg';
+import tedious from 'tedious';
+import oracledb from 'oracledb';
+
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
+import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
 
 export const ALL_MODELS = [
-  ClientModel,
-  ProductTypeModel,
-  ProductModel,
+  MemberModel,
+  AccountModel,
+  MovementModel,
 ];
 
 export async function createSequelizeInstance(
@@ -7199,16 +7322,16 @@ export async function createSequelizeInstance(
 
   switch (dialect) {
     case DatabaseDialect.MySQL:
-      dialectModule = require('mysql2');
+      dialectModule = mysql2;
       break;
     case DatabaseDialect.Postgres:
-      dialectModule = require('pg');
+      dialectModule = pg;
       break;
     case DatabaseDialect.MSSQL:
-      dialectModule = require('tedious');
+      dialectModule = tedious;
       break;
     case DatabaseDialect.Oracle:
-      dialectModule = require('oracledb');
+      dialectModule = oracledb;
       break;
     default:
       throw new Error(`Dialecto no soportado: ${dialect}`);
@@ -7238,58 +7361,72 @@ export async function createSequelizeInstance(
 
   return sequelize;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3856077196.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: register ProductModel in sequelize factory"
+git commit -m "feat: register MovementModel in sequelize factory"
 ```
 
-#### 9.27 — Actualizar business.module.ts
+![](images/clipboard-38505327.png)
+
+#### 9.25 — Actualizar business.module.ts
 
 Agrega el feature module de negocio recién terminado.
 
 **Archivo:** `src/features/business/business.module.ts`
 
 ``` bash
-mkdir -p src/features/business
-cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA'
+cat > src/features/business/business.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { ClientsModule } from './clients/clients.module';
-import { ProductTypesModule } from './product-types/product-types.module';
-import { ProductsModule } from './products/products.module';
+import { MembersModule } from './members/members.module.js';
+import { AccountsModule } from './accounts/accounts.module.js';
+import { MovementsModule } from './movements/movements.module.js';
 
 @Module({
-  imports: [ClientsModule, ProductTypesModule, ProductsModule],
-  exports: [ClientsModule, ProductTypesModule, ProductsModule],
+  imports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+  ],
+  exports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+  ],
 })
 export class BusinessModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1781771459.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add ProductsModule to BusinessModule"
+git commit -m "feat: add MovementsModule to BusinessModule"
 ```
 
-#### 9.28 — Actualizar database-seeder.service.ts
+![](images/clipboard-2381556384.png)
+
+#### 9.26 — Actualizar database-seeder.service.ts
 
 Ejecuta seeders en orden de dependencias al arrancar (dev).
 
 **Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
 
 ``` bash
-mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder';
-import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';
-import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder';
+import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
+import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
+import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -7305,27 +7442,35 @@ export class DatabaseSeederService implements OnModuleInit {
     }
 
     try {
-      await seedClients();
-      await seedProductTypes();
-      await seedProducts();
+      await seedMembers();
+      await seedAccounts();
+      await seedMovements();
+
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
-      this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4051682182.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: run seedProducts on bootstrap"
+git commit -m "chore: run seedMovements on bootstrap"
 ```
 
-#### 9.29 — Actualizar app.module.ts
+![](images/clipboard-3574231641.png)
+
+#### 9.27 — Actualizar app.module.ts
 
 Importa BusinessModule y/o AuthModule según el avance.
 Los guards globales llegan en la fase RBAC.
@@ -7334,18 +7479,17 @@ Los guards globales llegan en la fase RBAC.
 
 ``` bash
 mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+cat > src/app.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { envConfig } from './config/environment/env.config';
-import { appConfig } from './config/app/app.config';
-import { jwtConfig } from './config/jwt/jwt.config';
-import { LoggerModule } from './config/logger/logger.module';
-import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module';
-import { SecurityModule } from './infrastructure/security/security.module';
-import { BusinessModule } from './features/business/business.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { envConfig } from './config/environment/env.config.js';
+import { appConfig } from './config/app/app.config.js';
+import { jwtConfig } from './config/jwt/jwt.config.js';
+import { LoggerModule } from './config/logger/logger.module.js';
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
+import { BusinessModule } from './features/business/business.module.js';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 
 @Module({
   imports: [
@@ -7355,18 +7499,17 @@ import { AppService } from './app.service';
       envFilePath: '.env',
     }),
     SequelizeDatabaseModule,
-    SecurityModule,
     LoggerModule,
     BusinessModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4012437698.png)
 
 **Sugerencia de commit (issue):**
 
@@ -7374,6 +7517,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "chore: keep BusinessModule wired in AppModule"
 ```
+
+![](images/clipboard-1453472034.png)
 
 #### 9.30 — Verificar tabla `products`
 
@@ -7383,20 +7528,26 @@ Confirma FK a product_types, seeder y CRUD `/api/products`.
 npm run start:dev
 ```
 
+![](images/clipboard-3775513547.png)
+
+![](images/clipboard-755261950.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "test: verify products table and endpoints"
+git commit -m "test: verify movements table and endpoints"
 ```
+
+![](images/clipboard-574860857.png)
 
 ------------------------------------------------------------------------
 
-## FASE 10 — `09_BUSINESS_SALES`
+## FASE 10 — `09_BUSINESS_CreditApplication`
 
-### Business — Sales (+ ProductSale)
+### Business —`CreditApplication`
 
-> **Objetivo de la fase:** Ventas con líneas (ProductSale), cálculo de dominio y control de stock.
+> **Objetivo de la fase:** Ventas con líneas (`CreditApplication`), cálculo de dominio y control de stock.
 
 #### 10.1 — features/business/sales/domain/entities/sale.entity.ts
 
