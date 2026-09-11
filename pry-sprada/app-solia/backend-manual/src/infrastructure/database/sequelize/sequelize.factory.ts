@@ -10,11 +10,13 @@ import oracledb from 'oracledb';
 import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
 import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
 import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
+import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
 
 export const ALL_MODELS = [
   MemberModel,
   AccountModel,
   MovementModel,
+  CreditApplicationModel,
 ];
 
 export async function createSequelizeInstance(
