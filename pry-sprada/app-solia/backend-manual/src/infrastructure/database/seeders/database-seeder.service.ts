@@ -3,6 +3,7 @@ import { seedMembers } from '../../../features/business/members/infrastructure/p
 import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
 import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
 import { seedCreditApplications } from '../../../features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.js';
+import { seedCredits } from '../../../features/business/credits/infrastructure/persistence/seeders/credits.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -22,6 +23,7 @@ export class DatabaseSeederService implements OnModuleInit {
       await seedAccounts();
       await seedMovements();
       await seedCreditApplications();
+      await seedCredits();
 
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
