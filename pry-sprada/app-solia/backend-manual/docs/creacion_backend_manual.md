@@ -7549,371 +7549,236 @@ git commit -m "test: verify movements table and endpoints"
 
 > **Objetivo de la fase:** Ventas con líneas (`CreditApplication`), cálculo de dominio y control de stock.
 
-#### 10.1 — features/business/sales/domain/entities/sale.entity.ts
+#### 10.1 — features/business/credit-applications/domain/entities/credit-application.entity.ts
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
 Aquí viven las reglas del negocio.
 
-**Archivo:** `src/features/business/sales/domain/entities/sale.entity.ts`
+**Archivo:** src/features/business/credit-applications/domain/entities/credit-application.entity.ts
 
 ``` bash
-mkdir -p src/features/business/sales/domain/entities
-cat > src/features/business/sales/domain/entities/sale.entity.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/credit-applications/domain/entities
 
-export interface SaleItemProps {
+cat > src/features/business/credit-applications/domain/entities/credit-application.entity.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export interface CreditApplicationProps {
   id?: number;
-  productId: number;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-  saleId?: number;
-}
-
-export class SaleItem {
-  id?: number;
-  productId: number;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-  saleId?: number;
-
-  private constructor(props: SaleItemProps) {
-    this.id = props.id;
-    this.productId = props.productId;
-    this.quantity = props.quantity;
-    this.unitPrice = props.unitPrice;
-    this.total = props.total;
-    this.saleId = props.saleId;
-  }
-
-  static create(
-    props: Omit<SaleItemProps, 'id' | 'total' | 'saleId'>,
-  ): SaleItem {
-    if (props.quantity <= 0) {
-      throw new Error('La cantidad debe ser mayor a 0');
-    }
-
-    if (props.unitPrice <= 0) {
-      throw new Error('El precio unitario debe ser mayor a 0');
-    }
-
-    const total = props.quantity * props.unitPrice;
-
-    return new SaleItem({
-      ...props,
-      total,
-    });
-  }
-
-  static reconstitute(props: SaleItemProps): SaleItem {
-    return new SaleItem(props);
-  }
-}
-
-export interface SaleProps {
-  id?: number;
-  saleDate: Date;
-  subtotal: number;
-  tax: number;
-  discounts: number;
-  total: number;
+  referenceId: number;
+  date: Date;
+  amount: number;
   status?: Status;
-  clientId: number;
-  items?: SaleItem[];
+  observations?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export class Sale {
+export class CreditApplication {
   id?: number;
-  saleDate: Date;
-  subtotal: number;
-  tax: number;
-  discounts: number;
-  total: number;
+  referenceId: number;
+  date: Date;
+  amount: number;
   status: Status;
-  clientId: number;
-  items: SaleItem[];
+  observations?: string;
   createdAt?: Date;
   updatedAt?: Date;
 
-  private constructor(props: SaleProps) {
+  private constructor(props: CreditApplicationProps) {
     this.id = props.id;
-    this.saleDate = props.saleDate;
-    this.subtotal = props.subtotal;
-    this.tax = props.tax;
-    this.discounts = props.discounts;
-    this.total = props.total;
+    this.referenceId = props.referenceId;
+    this.date = props.date;
+    this.amount = props.amount;
     this.status = props.status ?? Status.ACTIVE;
-    this.clientId = props.clientId;
-    this.items = props.items ?? [];
+    this.observations = props.observations;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
 
   static create(
     props: Omit<
-      SaleProps,
-      'id' | 'status' | 'subtotal' | 'total' | 'createdAt' | 'updatedAt'
-    > & {
-      subtotal: number;
-      total: number;
-    },
-  ): Sale {
-    if (!props.items?.length) {
-      throw new Error('La venta debe tener al menos un item');
+      CreditApplicationProps,
+      'id' | 'status' | 'createdAt' | 'updatedAt'
+    >,
+  ): CreditApplication {
+    if (!props.referenceId || props.referenceId <= 0) {
+      throw new Error('La referencia de la solicitud de crédito es requerida');
     }
 
-    return new Sale(props);
+    if (!props.date) {
+      throw new Error('La fecha de la solicitud de crédito es requerida');
+    }
+
+    if (props.amount <= 0) {
+      throw new Error(
+        'El valor de la solicitud de crédito debe ser mayor que cero',
+      );
+    }
+
+    return new CreditApplication(props);
   }
 
-  static reconstitute(props: SaleProps): Sale {
-    return new Sale(props);
+  static reconstitute(props: CreditApplicationProps): CreditApplication {
+    return new CreditApplication(props);
   }
 
-  cancel(): void {
+  update(
+    props: Partial<
+      Omit<
+        CreditApplicationProps,
+        'id' | 'status' | 'createdAt' | 'updatedAt'
+      >
+    >,
+  ): void {
+    if (props.referenceId !== undefined) {
+      if (props.referenceId <= 0) {
+        throw new Error(
+          'La referencia de la solicitud de crédito debe ser válida',
+        );
+      }
+
+      this.referenceId = props.referenceId;
+    }
+
+    if (props.date !== undefined) {
+      this.date = props.date;
+    }
+
+    if (props.amount !== undefined) {
+      if (props.amount <= 0) {
+        throw new Error(
+          'El valor de la solicitud de crédito debe ser mayor que cero',
+        );
+      }
+
+      this.amount = props.amount;
+    }
+
+    if (props.observations !== undefined) {
+      this.observations = props.observations;
+    }
+  }
+
+  deactivate(): void {
     this.status = Status.INACTIVE;
   }
-}
-EOF_BACKEND_IA
-```
 
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain entity sale.entity.ts"
-```
-
-#### 10.2 — features/business/sales/domain/exceptions/insufficient-stock.exception.ts
-
-Excepción de dominio.
-El caso de uso la lanza; el filter HTTP la traduce a status code.
-
-**Archivo:** `src/features/business/sales/domain/exceptions/insufficient-stock.exception.ts`
-
-``` bash
-mkdir -p src/features/business/sales/domain/exceptions
-cat > src/features/business/sales/domain/exceptions/insufficient-stock.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
-
-export class InsufficientStockException extends DomainException {
-  constructor(productName: string, available: number, requested: number) {
-    super(
-      `Stock insuficiente para '${productName}': disponible ${available}, solicitado ${requested}`,
-    );
+  activate(): void {
+    this.status = Status.ACTIVE;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4000497474.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception insufficient-stock.exception.ts"
+git commit -m "feat: add domain entity credit-application.entity.ts"
 ```
 
-#### 10.3 — features/business/sales/domain/exceptions/sale-not-found.exception.ts
+![](images/clipboard-1377111931.png)
+
+#### 10.2  — features/business/credit-applications/domain/exceptions/credit-application-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
-**Archivo:** `src/features/business/sales/domain/exceptions/sale-not-found.exception.ts`
+**Archivo:** `src/features/business/`credit-applications`/domain/exceptions/`credit-applications`-not-found.exception.ts`
 
 ``` bash
-mkdir -p src/features/business/sales/domain/exceptions
-cat > src/features/business/sales/domain/exceptions/sale-not-found.exception.ts <<'EOF_BACKEND_IA'
-import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception';
+mkdir -p src/features/business/credit-applications/domain/exceptions
 
-export class SaleNotFoundException extends EntityNotFoundException {
+cat > src/features/business/credit-applications/domain/exceptions/credit-application-not-found.exception.ts <<'EOF_BACKEND-MANUAL'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
+
+export class CreditApplicationNotFoundException extends EntityNotFoundException {
   constructor(id: number) {
-    super('Venta', id);
+    super('Solicitud de crédito', id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1768187150.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add domain exception sale-not-found.exception.ts"
+git commit -m "feat: add domain exception credit-application-not-found.exception.ts"
 ```
 
-#### 10.4 — features/business/sales/domain/interfaces/sale-repository.interface.ts
+![](images/clipboard-1338954416.png)
+
+#### 10.3 — features/business/credit-applications/domain/interfaces/credit-applications-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
 
-**Archivo:** `src/features/business/sales/domain/interfaces/sale-repository.interface.ts`
+**Archivo:** `src/features/business/`credit-applications`/domain/interfaces/`credit-applications`-repository.interface.ts`
 
 ``` bash
-mkdir -p src/features/business/sales/domain/interfaces
-cat > src/features/business/sales/domain/interfaces/sale-repository.interface.ts <<'EOF_BACKEND_IA'
-import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface';
-import { Sale } from '../entities/sale.entity';
+mkdir -p src/features/business/credit-applications/domain/interfaces
 
-export const SALE_REPOSITORY = 'SALE_REPOSITORY';
+cat > src/features/business/credit-applications/domain/interfaces/credit-application-repository.interface.ts <<'EOF_BACKEND-MANUAL'
+import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface.js';
+import { CreditApplication } from '../entities/credit-application.entity.js';
 
-export interface SaleFindAllParams {
+export const CREDIT_APPLICATION_REPOSITORY =
+  'CREDIT_APPLICATION_REPOSITORY';
+
+export interface CreditApplicationFindAllParams {
   page?: number;
   limit?: number;
-  clientId?: number;
+  search?: string;
+  referenceId?: number;
 }
 
-export interface ISaleRepository {
-  create(sale: Sale): Promise<Sale>;
-  update(sale: Sale): Promise<Sale>;
-  findById(id: number): Promise<Sale | null>;
-  findAll(params: SaleFindAllParams): Promise<PaginatedResult<Sale>>;
+export interface ICreditApplicationRepository {
+  create(
+    creditApplication: CreditApplication,
+  ): Promise<CreditApplication>;
+
+  update(
+    creditApplication: CreditApplication,
+  ): Promise<CreditApplication>;
+
+  delete(id: number): Promise<void>;
+
+  findById(id: number): Promise<CreditApplication | null>;
+
+  findAll(
+    params: CreditApplicationFindAllParams,
+  ): Promise<PaginatedResult<CreditApplication>>;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2138049348.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add repository port sale-repository.interface.ts"
+git commit -m "feat: add repository port credit-application-repository.interface.ts"
 ```
 
-#### 10.5 — features/business/sales/domain/services/sale-calculator.domain-service.ts
+![](images/clipboard-2676933675.png)
 
-Servicio de dominio (lógica pura sin I/O).
-
-**Archivo:** `src/features/business/sales/domain/services/sale-calculator.domain-service.ts`
-
-``` bash
-mkdir -p src/features/business/sales/domain/services
-cat > src/features/business/sales/domain/services/sale-calculator.domain-service.ts <<'EOF_BACKEND_IA'
-export interface SaleItemInput {
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface SaleTotals {
-  subtotal: number;
-  tax: number;
-  discounts: number;
-  total: number;
-}
-
-export class SaleCalculatorDomainService {
-  calculateSubtotal(items: SaleItemInput[]): number {
-    return items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPrice,
-      0,
-    );
-  }
-
-  calculateTotals(
-    items: SaleItemInput[],
-    tax = 0,
-    discounts = 0,
-  ): SaleTotals {
-    const subtotal = this.calculateSubtotal(items);
-    const total = subtotal + tax - discounts;
-
-    return {
-      subtotal,
-      tax,
-      discounts,
-      total,
-    };
-  }
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain service sale-calculator.domain-service.ts"
-```
-
-#### 10.6 — features/business/sales/infrastructure/persistence/models/product-sale.model.ts
+#### 10.4 — features/business/credit-applications/infrastructure/persistence/models/credit-application.model.ts
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
 
-**Archivo:** `src/features/business/sales/infrastructure/persistence/models/product-sale.model.ts`
+**Archivo:** src/features/business/credit-applications/infrastructure/persistence/models/credit-application.model.ts
 
 ``` bash
-mkdir -p src/features/business/sales/infrastructure/persistence/models
-cat > src/features/business/sales/infrastructure/persistence/models/product-sale.model.ts <<'EOF_BACKEND_IA'
-import {
-  AutoIncrement,
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+mkdir -p src/features/business/credit-applications/infrastructure/persistence/models
 
-@Table({ tableName: 'product_sales' })
-export class ProductSaleModel extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  declare id: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: false })
-  declare total: number;
-
-  @ForeignKey(
-    () =>
-      require('../../../../products/infrastructure/persistence/models/product.model')
-        .ProductModel,
-  )
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  declare productId: number;
-
-  @BelongsTo(
-    () =>
-      require('../../../../products/infrastructure/persistence/models/product.model')
-        .ProductModel,
-  )
-  declare product: unknown;
-
-  @ForeignKey(() => require('./sale.model').SaleModel)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  declare saleId: number;
-
-  @BelongsTo(() => require('./sale.model').SaleModel)
-  declare sale: unknown;
-
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 1 })
-  declare quantity: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: false })
-  declare unitPrice: number;
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add sequelize model product-sale.model.ts"
-```
-
-#### 10.7 — features/business/sales/infrastructure/persistence/models/sale.model.ts
-
-Modelo Sequelize (`@Table`).
-Solo infraestructura: mapeo a tabla física.
-
-**Archivo:** `src/features/business/sales/infrastructure/persistence/models/sale.model.ts`
-
-``` bash
-mkdir -p src/features/business/sales/infrastructure/persistence/models
-cat > src/features/business/sales/infrastructure/persistence/models/sale.model.ts <<'EOF_BACKEND_IA'
+cat > src/features/business/credit-applications/infrastructure/persistence/models/credit-application.model.ts <<'EOF_BACKEND-MANUAL'
 import {
   AutoIncrement,
   BelongsTo,
@@ -7921,35 +7786,42 @@ import {
   CreatedAt,
   DataType,
   ForeignKey,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+import { MemberModel } from '../../../../members/infrastructure/persistence/models/member.model.js';
 
-@Table({ tableName: 'sales' })
-export class SaleModel extends Model {
+@Table({ tableName: 'credit_applications' })
+export class CreditApplicationModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  declare saleDate: Date;
+  @ForeignKey(() => MemberModel)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare referenceId: number;
 
-  @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: 0 })
-  declare subtotal: number;
+  @BelongsTo(() => MemberModel)
+  declare member: MemberModel;
 
-  @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: 0 })
-  declare tax: number;
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  declare date: Date;
 
-  @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: 0 })
-  declare discounts: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: 0 })
-  declare total: number;
+  @Column({
+    type: DataType.DECIMAL(15, 2),
+    allowNull: false,
+  })
+  declare amount: number;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
@@ -7958,157 +7830,140 @@ export class SaleModel extends Model {
   })
   declare status: Status;
 
-  @ForeignKey(
-    () =>
-      require('../../../../clients/infrastructure/persistence/models/client.model')
-        .ClientModel,
-  )
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  declare clientId: number;
-
-  @BelongsTo(
-    () =>
-      require('../../../../clients/infrastructure/persistence/models/client.model')
-        .ClientModel,
-  )
-  declare client: unknown;
+  @Column({
+    type: DataType.STRING(500),
+    allowNull: true,
+  })
+  declare observations: string | null;
 
   @CreatedAt
   declare createdAt: Date;
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @HasMany(
-    () =>
-      require('./product-sale.model').ProductSaleModel,
-  )
-  declare items: unknown[];
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-440163845.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add sequelize model sale.model.ts"
+git commit -m "feat: add sequelize model credit-application.model.ts"
 ```
 
-#### 10.8 — features/business/sales/infrastructure/persistence/repositories/sale.repository.ts
+![](images/clipboard-396528037.png)
+
+#### 10.5 — features/business/credit-applications/infrastructure/persistence/repositories/credit-application.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
-**Archivo:** `src/features/business/sales/infrastructure/persistence/repositories/sale.repository.ts`
+**Archivo:** src/features/business/credit-applications/infrastructure/persistence/repositories/credit-application.repository.ts
 
 ``` bash
-mkdir -p src/features/business/sales/infrastructure/persistence/repositories
-cat > src/features/business/sales/infrastructure/persistence/repositories/sale.repository.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/infrastructure/persistence/repositories
+
+cat > src/features/business/credit-applications/infrastructure/persistence/repositories/credit-application.repository.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable } from '@nestjs/common';
 import {
   buildPaginatedResult,
   normalizePagination,
-} from '../../../../../../common/utils/pagination.util';
-import { ProductModel } from '../../../../products/infrastructure/persistence/models/product.model';
-import { Sale } from '../../../domain/entities/sale.entity';
+} from '../../../../../../common/utils/pagination.util.js';
+import { CreditApplication } from '../../../domain/entities/credit-application.entity.js';
 import {
-  ISaleRepository,
-  SaleFindAllParams,
-} from '../../../domain/interfaces/sale-repository.interface';
-import { SaleMapper } from '../../../application/mappers/sale.mapper';
-import { SaleModel } from '../models/sale.model';
-import { ProductSaleModel } from '../models/product-sale.model';
+  CreditApplicationFindAllParams,
+  ICreditApplicationRepository,
+} from '../../../domain/interfaces/credit-application-repository.interface.js';
+import { CreditApplicationMapper } from '../../../application/mappers/credit-application.mapper.js';
+import { CreditApplicationModel } from '../models/credit-application.model.js';
 
 @Injectable()
-export class SaleRepository implements ISaleRepository {
-  async create(sale: Sale): Promise<Sale> {
-    const sequelize = SaleModel.sequelize!;
+export class CreditApplicationRepository
+  implements ICreditApplicationRepository
+{
+  async create(
+    creditApplication: CreditApplication,
+  ): Promise<CreditApplication> {
+    const model = await CreditApplicationModel.create(
+      CreditApplicationMapper.toPersistence(creditApplication),
+    );
 
-    return sequelize.transaction(async (transaction) => {
-      const saleModel = await SaleModel.create(
-        SaleMapper.toPersistence(sale),
-        { transaction },
-      );
+    return CreditApplicationMapper.toDomain(model);
+  }
 
-      const itemModels = await ProductSaleModel.bulkCreate(
-        sale.items.map((item) => ({
-          productId: item.productId,
-          saleId: saleModel.id,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          total: item.total,
-        })),
-        { transaction },
-      );
+  async update(
+    creditApplication: CreditApplication,
+  ): Promise<CreditApplication> {
+    await CreditApplicationModel.update(
+      CreditApplicationMapper.toPersistence(creditApplication),
+      {
+        where: { id: creditApplication.id },
+      },
+    );
 
-      for (const item of sale.items) {
-        const product = await ProductModel.findByPk(item.productId, {
-          transaction,
-        });
-        if (product) {
-          await product.update(
-            { quantity: product.quantity - item.quantity },
-            { transaction },
-          );
-        }
-      }
+    const updated = await CreditApplicationModel.findByPk(
+      creditApplication.id!,
+    );
 
-      return SaleMapper.toDomain(saleModel, itemModels);
+    return CreditApplicationMapper.toDomain(updated!);
+  }
+
+  async delete(id: number): Promise<void> {
+    await CreditApplicationModel.destroy({
+      where: { id },
     });
   }
 
-  async update(sale: Sale): Promise<Sale> {
-    await SaleModel.update(SaleMapper.toPersistence(sale), {
-      where: { id: sale.id },
-    });
-
-    const updated = await SaleModel.findByPk(sale.id!, {
-      include: [ProductSaleModel],
-    });
-
-    return SaleMapper.toDomain(updated!, updated!.items as ProductSaleModel[]);
-  }
-
-  async findById(id: number): Promise<Sale | null> {
-    const model = await SaleModel.findByPk(id, {
-      include: [ProductSaleModel],
-    });
+  async findById(id: number): Promise<CreditApplication | null> {
+    const model = await CreditApplicationModel.findByPk(id);
 
     if (!model) {
       return null;
     }
 
-    return SaleMapper.toDomain(model, model.items as ProductSaleModel[]);
+    return CreditApplicationMapper.toDomain(model);
   }
 
-  async findAll(params: SaleFindAllParams) {
+  async findAll(params: CreditApplicationFindAllParams) {
     const { page, limit, offset } = normalizePagination(
       params.page,
       params.limit,
     );
 
-    const where = params.clientId ? { clientId: params.clientId } : {};
+    const where: Record<string, unknown> = {};
 
-    const { rows, count } = await SaleModel.findAndCountAll({
-      where,
-      limit,
-      offset,
-      order: [['createdAt', 'DESC']],
-      include: [ProductSaleModel],
-    });
+    if (params.search) {
+      where['observations'] = {
+        [Symbol.for('like')]: `%${params.search}%`,
+      };
+    }
+
+    if (params.referenceId) {
+      where['referenceId'] = params.referenceId;
+    }
+
+    const { rows, count } =
+      await CreditApplicationModel.findAndCountAll({
+        where,
+        limit,
+        offset,
+        order: [['createdAt', 'DESC']],
+      });
 
     return buildPaginatedResult(
-      rows.map((row) =>
-        SaleMapper.toDomain(row, row.items as ProductSaleModel[]),
-      ),
+      rows.map((row) => CreditApplicationMapper.toDomain(row)),
       count,
       page,
       limit,
     );
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-120161142.png)
 
 **Sugerencia de commit (issue):**
 
@@ -8117,205 +7972,201 @@ git add .
 git commit -m "feat: add sequelize repository sale.repository.ts"
 ```
 
-#### 10.9 — features/business/sales/infrastructure/persistence/migrations/create-sales-table.migration.ts
+#### 10.6 — features/business/credit-applications/infrastructure/persistence/migrations/create-credit-applications-table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
 
-**Archivo:** `src/features/business/sales/infrastructure/persistence/migrations/create-sales-table.migration.ts`
+**Archivo:** src/features/business/credit-applications/infrastructure/persistence/migrations/create-credit-applications-table.migration.ts
 
 ``` bash
-mkdir -p src/features/business/sales/infrastructure/persistence/migrations
-cat > src/features/business/sales/infrastructure/persistence/migrations/create-sales-table.migration.ts <<'EOF_BACKEND_IA'
-export const createSalesTableMigration = {
-  name: 'create-sales-table',
+mkdir -p src/features/business/credit-applications/infrastructure/persistence/migrations
+
+cat > src/features/business/credit-applications/infrastructure/persistence/migrations/create-credit-applications-table.migration.ts <<'EOF_BACKEND-MANUAL'
+export const createCreditApplicationsTableMigration = {
+  name: 'create-credit-applications-table',
+
   async up(): Promise<void> {
     // Sequelize sync handles table creation in development.
-    // Production: CREATE TABLE sales (...), CREATE TABLE product_sales (...)
+    //
+    // Production:
+    // CREATE TABLE credit_applications (
+    //   id,
+    //   referenceId,
+    //   date,
+    //   amount,
+    //   status,
+    //   observations,
+    //   createdAt,
+    //   updatedAt
+    // );
   },
+
   async down(): Promise<void> {
-    // Production: DROP TABLE product_sales, DROP TABLE sales
+    // Production:
+    // DROP TABLE credit_applications
   },
 };
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1647025613.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add migration create-sales-table.migration.ts"
+git commit -m "chore: add migration create-credit-applications-table.migration.ts"
 ```
 
-#### 10.10 — features/business/sales/infrastructure/persistence/seeders/sales.seeder.ts
+![](images/clipboard-2542178078.png)
+
+#### 10.7 — features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
-**Archivo:** `src/features/business/sales/infrastructure/persistence/seeders/sales.seeder.ts`
+**Archivo:** src/features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.ts
 
 ``` bash
-mkdir -p src/features/business/sales/infrastructure/persistence/seeders
-cat > src/features/business/sales/infrastructure/persistence/seeders/sales.seeder.ts <<'EOF_BACKEND_IA'
-import { SaleModel } from '../models/sale.model';
-import { ProductSaleModel } from '../models/product-sale.model';
-import { ClientModel } from '../../../../clients/infrastructure/persistence/models/client.model';
-import { ProductModel } from '../../../../products/infrastructure/persistence/models/product.model';
-import { Status } from '../../../../../../common/enums/status.enum';
+mkdir -p src/features/business/credit-applications/infrastructure/persistence/seeders
 
-export async function seedSales(): Promise<void> {
-  const count = await SaleModel.count();
+cat > src/features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.ts <<'EOF_BACKEND-MANUAL'
+import { CreditApplicationModel } from '../models/credit-application.model.js';
+import { MemberModel } from '../../../../members/infrastructure/persistence/models/member.model.js';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+
+export async function seedCreditApplications(): Promise<void> {
+  const count = await CreditApplicationModel.count();
+
   if (count > 0) {
     return;
   }
 
-  const clientCount = await ClientModel.count();
-  const productCount = await ProductModel.count();
+  const memberCount = await MemberModel.count();
 
-  if (clientCount === 0 || productCount === 0) {
+  if (memberCount === 0) {
     return;
   }
 
-  const product = await ProductModel.findByPk(1);
-  if (!product) {
+  const member = await MemberModel.findByPk(1);
+
+  if (!member) {
     return;
   }
 
-  const quantity = 1;
-  const unitPrice = Number(product.price);
-  const subtotal = quantity * unitPrice;
-  const tax = Math.round(subtotal * 0.19);
-  const discounts = 0;
-  const total = subtotal + tax - discounts;
-
-  const sequelize = SaleModel.sequelize!;
-
-  await sequelize.transaction(async (transaction) => {
-    const sale = await SaleModel.create(
-      {
-        saleDate: new Date(),
-        subtotal,
-        tax,
-        discounts,
-        total,
-        status: Status.ACTIVE,
-        clientId: 1,
-      },
-      { transaction },
-    );
-
-    await ProductSaleModel.create(
-      {
-        saleId: sale.id,
-        productId: product.id,
-        quantity,
-        unitPrice,
-        total: subtotal,
-      },
-      { transaction },
-    );
-
-    await product.update(
-      { quantity: product.quantity - quantity },
-      { transaction },
-    );
+  await CreditApplicationModel.create({
+    referenceId: member.id,
+    date: new Date(),
+    amount: 1000000,
+    status: Status.ACTIVE,
+    observations: 'Solicitud de crédito inicial para desarrollo',
   });
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-641503279.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add seeder sales.seeder.ts"
+git commit -m "chore: add seeder credit-applications.seeder.ts"
 ```
 
-#### 10.11 — features/business/sales/application/dto/create-sale.dto.ts
+![](images/clipboard-3255060055.png)
+
+#### 10.8 — features/business/credit-applications/application/dto/create-credit-application.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/sales/application/dto/create-sale.dto.ts`
+**Archivo:** src/features/business/credit-applications/application/dto/create-credit-application.dto.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/dto
-cat > src/features/business/sales/application/dto/create-sale.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+mkdir -p src/features/business/credit-applications/application/dto
+
+cat > src/features/business/credit-applications/application/dto/create-credit-application.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsArray,
+  IsDateString,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
-  Min,
-  ValidateNested,
+  IsString,
+  MaxLength,
 } from 'class-validator';
 
-export class CreateSaleItemDto {
-  @ApiProperty({ example: 1 })
+export class CreateCreditApplicationDto {
+  @ApiProperty({
+    example: 1,
+    description: 'ID del socio que realiza la solicitud de crédito',
+  })
   @IsInt()
   @IsPositive()
-  productId: number;
+  referenceId: number;
 
-  @ApiProperty({ example: 2 })
-  @IsInt()
-  @Min(1)
-  quantity: number;
+  @ApiProperty({
+    example: '2026-09-11',
+    description: 'Fecha de la solicitud de crédito',
+  })
+  @IsDateString()
+  date: string;
 
-  @ApiProperty({ example: 59999 })
+  @ApiProperty({
+    example: 1000000,
+    description: 'Valor solicitado en el crédito',
+  })
   @IsNumber()
   @IsPositive()
-  unitPrice: number;
-}
+  amount: number;
 
-export class CreateSaleDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  @IsPositive()
-  clientId: number;
-
-  @ApiProperty({ type: [CreateSaleItemDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateSaleItemDto)
-  items: CreateSaleItemDto[];
-
-  @ApiProperty({ example: 0, required: false })
+  @ApiPropertyOptional({
+    example: 'Solicitud de crédito para inversión personal',
+    description: 'Observaciones de la solicitud',
+  })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  tax?: number;
-
-  @ApiProperty({ example: 0, required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  discounts?: number;
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  observations?: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2706084930.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto create-sale.dto.ts"
+git commit -m "feat: add dto create-credit-application.dto.ts"
 ```
 
-#### 10.12 — features/business/sales/application/dto/sale-filter.dto.ts
+![](images/clipboard-3945726343.png)
+
+#### 10.9 — features/business/credit-applications/application/dto/credit-application-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/sales/application/dto/sale-filter.dto.ts`
+**Archivo:** src/features/business/credit-applications/application/dto/credit-application-filter.dto.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/dto
-cat > src/features/business/sales/application/dto/sale-filter.dto.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/application/dto
+
+cat > src/features/business/credit-applications/application/dto/credit-application-filter.dto.ts <<'EOF_BACKEND-MANUAL'
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive, Min } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 
-export class SaleFilterDto {
+export class CreditApplicationFilterDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -8330,79 +8181,83 @@ export class SaleFilterDto {
   @IsPositive()
   limit?: number;
 
-  @ApiPropertyOptional({ example: 1 })
+  @ApiPropertyOptional({
+    example: 'inversión',
+    description: 'Texto para buscar en las observaciones',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'ID del socio asociado a la solicitud',
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  clientId?: number;
+  referenceId?: number;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-915322055.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add dto sale-filter.dto.ts"
+git commit -m "feat: add dto credit-application-filter.dto.ts"
 ```
 
-#### 10.13 — features/business/sales/application/dto/sale-response.dto.ts
+![](images/clipboard-1949005732.png)
+
+#### 10.10 — features/business/credit-applications/application/dto/credit-application-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/sales/application/dto/sale-response.dto.ts`
+**Archivo:** src/features/business/credit-applications/application/dto/credit-application-response.dto.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/dto
-cat > src/features/business/sales/application/dto/sale-response.dto.ts <<'EOF_BACKEND_IA'
-import { ApiProperty } from '@nestjs/swagger';
-import { Status } from '../../../../../common/enums/status.enum';
+mkdir -p src/features/business/credit-applications/application/dto
 
-export class SaleItemResponseDto {
+cat > src/features/business/credit-applications/application/dto/credit-application-response.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class CreditApplicationResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 1 })
-  productId: number;
+  @ApiProperty({
+    example: 1,
+    description: 'ID del socio asociado a la solicitud',
+  })
+  referenceId: number;
 
-  @ApiProperty({ example: 2 })
-  quantity: number;
+  @ApiProperty({
+    example: '2026-09-11',
+    description: 'Fecha de la solicitud de crédito',
+  })
+  date: Date;
 
-  @ApiProperty({ example: 59999 })
-  unitPrice: number;
+  @ApiProperty({
+    example: 1000000,
+    description: 'Valor solicitado',
+  })
+  amount: number;
 
-  @ApiProperty({ example: 119998 })
-  total: number;
-}
-
-export class SaleResponseDto {
-  @ApiProperty({ example: 1 })
-  id: number;
-
-  @ApiProperty()
-  saleDate: Date;
-
-  @ApiProperty({ example: 119998 })
-  subtotal: number;
-
-  @ApiProperty({ example: 22799 })
-  tax: number;
-
-  @ApiProperty({ example: 0 })
-  discounts: number;
-
-  @ApiProperty({ example: 142797 })
-  total: number;
-
-  @ApiProperty({ enum: Status, example: Status.ACTIVE })
+  @ApiProperty({
+    enum: Status,
+    example: Status.ACTIVE,
+  })
   status: Status;
 
-  @ApiProperty({ example: 1 })
-  clientId: number;
-
-  @ApiProperty({ type: [SaleItemResponseDto] })
-  items: SaleItemResponseDto[];
+  @ApiPropertyOptional({
+    example: 'Solicitud de crédito para inversión personal',
+  })
+  observations?: string;
 
   @ApiProperty()
   createdAt: Date;
@@ -8410,8 +8265,10 @@ export class SaleResponseDto {
   @ApiProperty()
   updatedAt: Date;
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3943703987.png)
 
 **Sugerencia de commit (issue):**
 
@@ -8420,385 +8277,362 @@ git add .
 git commit -m "feat: add dto sale-response.dto.ts"
 ```
 
-#### 10.14 — features/business/sales/application/mappers/sale.mapper.ts
+![](images/clipboard-3305602238.png)
+
+#### 10.11 — features/business/credit-applications/application/mappers/credit-application.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
-**Archivo:** `src/features/business/sales/application/mappers/sale.mapper.ts`
+**Archivo:** src/features/business/credit-applications/application/mappers/credit-application.mapper.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/mappers
-cat > src/features/business/sales/application/mappers/sale.mapper.ts <<'EOF_BACKEND_IA'
-import { Status } from '../../../../../common/enums/status.enum';
-import { Sale, SaleItem } from '../../domain/entities/sale.entity';
-import {
-  SaleItemResponseDto,
-  SaleResponseDto,
-} from '../dto/sale-response.dto';
-import { SaleModel } from '../../infrastructure/persistence/models/sale.model';
-import { ProductSaleModel } from '../../infrastructure/persistence/models/product-sale.model';
+mkdir -p src/features/business/credit-applications/application/mappers
 
-export class SaleMapper {
-  static toDomain(saleModel: SaleModel, itemModels: ProductSaleModel[]): Sale {
-    const items = itemModels.map((item) =>
-      SaleItem.reconstitute({
-        id: item.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: Number(item.unitPrice),
-        total: Number(item.total),
-        saleId: item.saleId,
-      }),
-    );
+cat > src/features/business/credit-applications/application/mappers/credit-application.mapper.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { CreditApplication } from '../../domain/entities/credit-application.entity.js';
+import { CreditApplicationResponseDto } from '../dto/credit-application-response.dto.js';
+import { CreditApplicationModel } from '../../infrastructure/persistence/models/credit-application.model.js';
 
-    return Sale.reconstitute({
-      id: saleModel.id,
-      saleDate: saleModel.saleDate,
-      subtotal: Number(saleModel.subtotal),
-      tax: Number(saleModel.tax),
-      discounts: Number(saleModel.discounts),
-      total: Number(saleModel.total),
-      status: saleModel.status,
-      clientId: saleModel.clientId,
-      items,
-      createdAt: saleModel.createdAt,
-      updatedAt: saleModel.updatedAt,
+export class CreditApplicationMapper {
+  static toDomain(
+    model: CreditApplicationModel,
+  ): CreditApplication {
+    return CreditApplication.reconstitute({
+      id: model.id,
+      referenceId: model.referenceId,
+      date: model.date,
+      amount: Number(model.amount),
+      status: model.status,
+      observations: model.observations ?? undefined,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
     });
   }
 
-  static toResponse(entity: Sale): SaleResponseDto {
+  static toResponse(
+    entity: CreditApplication,
+  ): CreditApplicationResponseDto {
     return {
       id: entity.id!,
-      saleDate: entity.saleDate,
-      subtotal: entity.subtotal,
-      tax: entity.tax,
-      discounts: entity.discounts,
-      total: entity.total,
+      referenceId: entity.referenceId,
+      date: entity.date,
+      amount: entity.amount,
       status: entity.status,
-      clientId: entity.clientId,
-      items: entity.items.map((item) => SaleMapper.toItemResponse(item)),
+      observations: entity.observations,
       createdAt: entity.createdAt!,
       updatedAt: entity.updatedAt!,
     };
   }
 
-  static toItemResponse(item: SaleItem): SaleItemResponseDto {
-    return {
-      id: item.id!,
-      productId: item.productId,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      total: item.total,
-    };
-  }
-
-  static toPersistence(entity: Sale): Partial<SaleModel> {
+  static toPersistence(
+    entity: CreditApplication,
+  ): Partial<CreditApplicationModel> {
     return {
       id: entity.id,
-      saleDate: entity.saleDate,
-      subtotal: entity.subtotal,
-      tax: entity.tax,
-      discounts: entity.discounts,
-      total: entity.total,
+      referenceId: entity.referenceId,
+      date: entity.date,
+      amount: entity.amount,
       status: entity.status ?? Status.ACTIVE,
-      clientId: entity.clientId,
+      observations: entity.observations ?? null,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2935690609.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add mapper sale.mapper.ts"
+git commit -m "feat: add mapper credit-application.mapper.ts"
 ```
 
-#### 10.15 — features/business/sales/application/use-cases/cancel-sale.use-case.ts
+![](images/clipboard-57103084.png)
+
+#### 10.12 — features/business/credit-applications/application/use-cases/cancel-credit-application.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/sales/application/use-cases/cancel-sale.use-case.ts`
+**Archivo:** src/features/business/credit-applications/application/use-cases/cancel-credit-application.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/use-cases
-cat > src/features/business/sales/application/use-cases/cancel-sale.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/application/use-cases
+
+cat > src/features/business/credit-applications/application/use-cases/cancel-credit-application.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { Status } from '../../../../../common/enums/status.enum';
-import { SaleNotFoundException } from '../../domain/exceptions/sale-not-found.exception';
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { CreditApplicationNotFoundException } from '../../domain/exceptions/credit-application-not-found.exception.js';
 import {
-  type ISaleRepository,
-  SALE_REPOSITORY,
-} from '../../domain/interfaces/sale-repository.interface';
-import { SaleMapper } from '../mappers/sale.mapper';
+  type ICreditApplicationRepository,
+  CREDIT_APPLICATION_REPOSITORY,
+} from '../../domain/interfaces/credit-application-repository.interface.js';
+import { CreditApplicationMapper } from '../mappers/credit-application.mapper.js';
 
 @Injectable()
-export class CancelSaleUseCase {
+export class CancelCreditApplicationUseCase {
   constructor(
-    @Inject(SALE_REPOSITORY)
-    private readonly saleRepository: ISaleRepository,
+    @Inject(CREDIT_APPLICATION_REPOSITORY)
+    private readonly creditApplicationRepository: ICreditApplicationRepository,
   ) {}
 
   async execute(id: number) {
-    const sale = await this.saleRepository.findById(id);
-    if (!sale) {
-      throw new SaleNotFoundException(id);
+    const creditApplication =
+      await this.creditApplicationRepository.findById(id);
+
+    if (!creditApplication) {
+      throw new CreditApplicationNotFoundException(id);
     }
 
-    if (sale.status === Status.INACTIVE) {
-      return SaleMapper.toResponse(sale);
+    if (creditApplication.status === Status.INACTIVE) {
+      return CreditApplicationMapper.toResponse(creditApplication);
     }
 
-    sale.cancel();
-    const updated = await this.saleRepository.update(sale);
-    return SaleMapper.toResponse(updated);
+    creditApplication.deactivate();
+
+    const updated =
+      await this.creditApplicationRepository.update(creditApplication);
+
+    return CreditApplicationMapper.toResponse(updated);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3363324942.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case cancel-sale.use-case.ts"
+git commit -m "feat: add use case cancel-credit-application.use-case.ts"
 ```
 
-#### 10.16 — features/business/sales/application/use-cases/create-sale.use-case.ts
+![](images/clipboard-2148227726.png)
+
+#### 10.13 — features/business/credit-applications/application/use-cases/create-credit-application.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/sales/application/use-cases/create-sale.use-case.ts`
+**Archivo:** src/features/business/credit-applications/application/use-cases/create-credit-application.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/use-cases
-cat > src/features/business/sales/application/use-cases/create-sale.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/application/use-cases
+
+cat > src/features/business/credit-applications/application/use-cases/create-credit-application.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientNotFoundException } from '../../../clients/domain/exceptions/client-not-found.exception';
+import { CreditApplicationNotFoundException } from '../../domain/exceptions/credit-application-not-found.exception.js';
 import {
-  CLIENT_REPOSITORY,
-  type IClientRepository,
-} from '../../../clients/domain/interfaces/client-repository.interface';
-import { ProductNotFoundException } from '../../../products/domain/exceptions/product-not-found.exception';
+  CREDIT_APPLICATION_REPOSITORY,
+  type ICreditApplicationRepository,
+} from '../../domain/interfaces/credit-application-repository.interface.js';
+import { MemberNotFoundException } from '../../../members/domain/exceptions/member-not-found.exception.js';
 import {
-  type IProductRepository,
-  PRODUCT_REPOSITORY,
-} from '../../../products/domain/interfaces/product-repository.interface';
-import { InsufficientStockException } from '../../domain/exceptions/insufficient-stock.exception';
-import { Sale, SaleItem } from '../../domain/entities/sale.entity';
-import {
-  type ISaleRepository,
-  SALE_REPOSITORY,
-} from '../../domain/interfaces/sale-repository.interface';
-import { SaleCalculatorDomainService } from '../../domain/services/sale-calculator.domain-service';
-import { CreateSaleDto } from '../dto/create-sale.dto';
-import { SaleMapper } from '../mappers/sale.mapper';
+  MEMBER_REPOSITORY,
+  type IMemberRepository,
+} from '../../../members/domain/interfaces/member-repository.interface.js';
+import { CreditApplication } from '../../domain/entities/credit-application.entity.js';
+import { CreateCreditApplicationDto } from '../dto/create-credit-application.dto.js';
+import { CreditApplicationMapper } from '../mappers/credit-application.mapper.js';
 
 @Injectable()
-export class CreateSaleUseCase {
-  private readonly saleCalculator = new SaleCalculatorDomainService();
-
+export class CreateCreditApplicationUseCase {
   constructor(
-    @Inject(SALE_REPOSITORY)
-    private readonly saleRepository: ISaleRepository,
-    @Inject(CLIENT_REPOSITORY)
-    private readonly clientRepository: IClientRepository,
-    @Inject(PRODUCT_REPOSITORY)
-    private readonly productRepository: IProductRepository,
+    @Inject(CREDIT_APPLICATION_REPOSITORY)
+    private readonly creditApplicationRepository: ICreditApplicationRepository,
+
+    @Inject(MEMBER_REPOSITORY)
+    private readonly memberRepository: IMemberRepository,
   ) {}
 
-  async execute(dto: CreateSaleDto) {
-    const client = await this.clientRepository.findById(dto.clientId);
-    if (!client) {
-      throw new ClientNotFoundException(dto.clientId);
+  async execute(dto: CreateCreditApplicationDto) {
+    const member = await this.memberRepository.findById(dto.referenceId);
+
+    if (!member) {
+      throw new MemberNotFoundException(dto.referenceId);
     }
 
-    const saleItems: SaleItem[] = [];
-
-    for (const itemDto of dto.items) {
-      const product = await this.productRepository.findById(itemDto.productId);
-      if (!product) {
-        throw new ProductNotFoundException(itemDto.productId);
-      }
-
-      if (product.quantity < itemDto.quantity) {
-        throw new InsufficientStockException(
-          product.name,
-          product.quantity,
-          itemDto.quantity,
-        );
-      }
-
-      saleItems.push(
-        SaleItem.create({
-          productId: itemDto.productId,
-          quantity: itemDto.quantity,
-          unitPrice: itemDto.unitPrice,
-        }),
-      );
-    }
-
-    const totals = this.saleCalculator.calculateTotals(
-      dto.items,
-      dto.tax ?? 0,
-      dto.discounts ?? 0,
-    );
-
-    const sale = Sale.create({
-      saleDate: new Date(),
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      discounts: totals.discounts,
-      total: totals.total,
-      clientId: dto.clientId,
-      items: saleItems,
+    const creditApplication = CreditApplication.create({
+      referenceId: dto.referenceId,
+      date: new Date(dto.date),
+      amount: dto.amount,
+      observations: dto.observations,
     });
 
-    const created = await this.saleRepository.create(sale);
-    return SaleMapper.toResponse(created);
+    const created =
+      await this.creditApplicationRepository.create(creditApplication);
+
+    return CreditApplicationMapper.toResponse(created);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3065236771.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case create-sale.use-case.ts"
+git commit -m "feat: add use case create-credit-application.use-case.ts"
 ```
 
-#### 10.17 — features/business/sales/application/use-cases/get-sale.use-case.ts
+![](images/clipboard-1644312755.png)
+
+#### 10.14 — features/business/credit-applications/application/use-cases/get-credit-application.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/sales/application/use-cases/get-sale.use-case.ts`
+**Archivo:** src/features/business/credit-applications/application/use-cases/get-credit-application.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/use-cases
-cat > src/features/business/sales/application/use-cases/get-sale.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/application/use-cases
+
+cat > src/features/business/credit-applications/application/use-cases/get-credit-application.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
-import { SaleNotFoundException } from '../../domain/exceptions/sale-not-found.exception';
+import { CreditApplicationNotFoundException } from '../../domain/exceptions/credit-application-not-found.exception.js';
 import {
-  type ISaleRepository,
-  SALE_REPOSITORY,
-} from '../../domain/interfaces/sale-repository.interface';
-import { SaleMapper } from '../mappers/sale.mapper';
+  type ICreditApplicationRepository,
+  CREDIT_APPLICATION_REPOSITORY,
+} from '../../domain/interfaces/credit-application-repository.interface.js';
+import { CreditApplicationMapper } from '../mappers/credit-application.mapper.js';
 
 @Injectable()
-export class GetSaleUseCase {
+export class GetCreditApplicationUseCase {
   constructor(
-    @Inject(SALE_REPOSITORY)
-    private readonly saleRepository: ISaleRepository,
+    @Inject(CREDIT_APPLICATION_REPOSITORY)
+    private readonly creditApplicationRepository: ICreditApplicationRepository,
   ) {}
 
   async execute(id: number) {
-    const sale = await this.saleRepository.findById(id);
-    if (!sale) {
-      throw new SaleNotFoundException(id);
+    const creditApplication =
+      await this.creditApplicationRepository.findById(id);
+
+    if (!creditApplication) {
+      throw new CreditApplicationNotFoundException(id);
     }
 
-    return SaleMapper.toResponse(sale);
+    return CreditApplicationMapper.toResponse(creditApplication);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2814642624.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case get-sale.use-case.ts"
+git commit -m "feat: add use case get-credit-application.use-case.ts"
 ```
 
-#### 10.18 — features/business/sales/application/use-cases/list-sales.use-case.ts
+![](images/clipboard-336260828.png)
+
+#### 10.15 — features/business/credit-applications/application/use-cases/list-credit-applications.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/sales/application/use-cases/list-sales.use-case.ts`
+**Archivo:** src/features/business/credit-applications/application/use-cases/list-credit-applications.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/sales/application/use-cases
-cat > src/features/business/sales/application/use-cases/list-sales.use-case.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/application/use-cases
+
+cat > src/features/business/credit-applications/application/use-cases/list-credit-applications.use-case.ts <<'EOF_BACKEND-MANUAL'
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  type ISaleRepository,
-  SALE_REPOSITORY,
-} from '../../domain/interfaces/sale-repository.interface';
-import { SaleFilterDto } from '../dto/sale-filter.dto';
-import { SaleMapper } from '../mappers/sale.mapper';
+  type ICreditApplicationRepository,
+  CREDIT_APPLICATION_REPOSITORY,
+} from '../../domain/interfaces/credit-application-repository.interface.js';
+import { CreditApplicationFilterDto } from '../dto/credit-application-filter.dto.js';
+import { CreditApplicationMapper } from '../mappers/credit-application.mapper.js';
 
 @Injectable()
-export class ListSalesUseCase {
+export class ListCreditApplicationsUseCase {
   constructor(
-    @Inject(SALE_REPOSITORY)
-    private readonly saleRepository: ISaleRepository,
+    @Inject(CREDIT_APPLICATION_REPOSITORY)
+    private readonly creditApplicationRepository: ICreditApplicationRepository,
   ) {}
 
-  async execute(filter: SaleFilterDto) {
-    const result = await this.saleRepository.findAll(filter);
+  async execute(filter: CreditApplicationFilterDto) {
+    const result =
+      await this.creditApplicationRepository.findAll(filter);
+
     return {
-      items: result.items.map((sale) => SaleMapper.toResponse(sale)),
+      items: result.items.map((creditApplication) =>
+        CreditApplicationMapper.toResponse(creditApplication),
+      ),
       meta: result.meta,
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2868060759.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add use case list-sales.use-case.ts"
+git commit -m "feat: add use case list-credit-applications.use-case.ts"
 ```
 
-#### 10.19 — features/business/sales/presentation/http/serializers/sale.serializer.ts
+![](images/clipboard-859053437.png)
+
+#### 10.16 — features/business/credit-applications/presentation/http/serializers/credit-application.serializer.ts
 
 Serializer de presentación (forma estable de la respuesta HTTP).
 
-**Archivo:** `src/features/business/sales/presentation/http/serializers/sale.serializer.ts`
+**Archivo:** src/features/business/credit-applications/presentation/http/serializers/credit-application.serializer.ts
 
 ``` bash
-mkdir -p src/features/business/sales/presentation/http/serializers
-cat > src/features/business/sales/presentation/http/serializers/sale.serializer.ts <<'EOF_BACKEND_IA'
-import { Sale } from '../../../domain/entities/sale.entity';
-import { SaleResponseDto } from '../../../application/dto/sale-response.dto';
-import { SaleMapper } from '../../../application/mappers/sale.mapper';
+mkdir -p src/features/business/credit-applications/presentation/http/serializers
 
-export class SaleSerializer {
-  static serialize(entity: Sale): SaleResponseDto {
-    return SaleMapper.toResponse(entity);
+cat > src/features/business/credit-applications/presentation/http/serializers/credit-application.serializer.ts <<'EOF_BACKEND-MANUAL'
+import { CreditApplication } from '../../../domain/entities/credit-application.entity.js';
+import { CreditApplicationResponseDto } from '../../../application/dto/credit-application-response.dto.js';
+import { CreditApplicationMapper } from '../../../application/mappers/credit-application.mapper.js';
+
+export class CreditApplicationSerializer {
+  static serialize(
+    entity: CreditApplication,
+  ): CreditApplicationResponseDto {
+    return CreditApplicationMapper.toResponse(entity);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2835179890.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add serializer sale.serializer.ts"
+git commit -m "feat: add serializer credit-application.serializer.ts"
 ```
 
-#### 10.20 — features/business/sales/presentation/http/controllers/sales.controller.ts
+![](images/clipboard-3922440693.png)
 
-Controller delgado: valida DTO, llama use-case, devuelve respuesta.
+#### 10.17 — features/business/credit-applications/presentation/http/controllers/credit-applications.controller.tsController delgado: valida DTO, llama use-case, devuelve respuesta.
 
-**Archivo:** `src/features/business/sales/presentation/http/controllers/sales.controller.ts`
+**Archivo:** src/features/business/credit-applications/presentation/http/controllers/credit-applications.controller.ts
 
 ``` bash
-mkdir -p src/features/business/sales/presentation/http/controllers
-cat > src/features/business/sales/presentation/http/controllers/sales.controller.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications/presentation/http/controllers
+
+cat > src/features/business/credit-applications/presentation/http/controllers/credit-applications.controller.ts <<'EOF_BACKEND-MANUAL'
 import {
   Body,
   Controller,
@@ -8814,128 +8648,144 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe';
-import { CreateSaleDto } from '../../../application/dto/create-sale.dto';
-import { SaleFilterDto } from '../../../application/dto/sale-filter.dto';
-import { SaleResponseDto } from '../../../application/dto/sale-response.dto';
-import { CreateSaleUseCase } from '../../../application/use-cases/create-sale.use-case';
-import { CancelSaleUseCase } from '../../../application/use-cases/cancel-sale.use-case';
-import { GetSaleUseCase } from '../../../application/use-cases/get-sale.use-case';
-import { ListSalesUseCase } from '../../../application/use-cases/list-sales.use-case';
+import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe.js';
+import { CreateCreditApplicationDto } from '../../../application/dto/create-credit-application.dto.js';
+import { CreditApplicationFilterDto } from '../../../application/dto/credit-application-filter.dto.js';
+import { CreditApplicationResponseDto } from '../../../application/dto/credit-application-response.dto.js';
+import { CreateCreditApplicationUseCase } from '../../../application/use-cases/create-credit-application.use-case.js';
+import { CancelCreditApplicationUseCase } from '../../../application/use-cases/cancel-credit-application.use-case.js';
+import { GetCreditApplicationUseCase } from '../../../application/use-cases/get-credit-application.use-case.js';
+import { ListCreditApplicationsUseCase } from '../../../application/use-cases/list-credit-applications.use-case.js';
 
-@ApiTags('Sales')
-@Controller('sales')
-export class SalesController {
+@ApiTags('Credit Applications')
+@Controller('credit-applications')
+export class CreditApplicationsController {
   constructor(
-    private readonly createSaleUseCase: CreateSaleUseCase,
-    private readonly cancelSaleUseCase: CancelSaleUseCase,
-    private readonly getSaleUseCase: GetSaleUseCase,
-    private readonly listSalesUseCase: ListSalesUseCase,
+    private readonly createCreditApplicationUseCase: CreateCreditApplicationUseCase,
+    private readonly cancelCreditApplicationUseCase: CancelCreditApplicationUseCase,
+    private readonly getCreditApplicationUseCase: GetCreditApplicationUseCase,
+    private readonly listCreditApplicationsUseCase: ListCreditApplicationsUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear una venta' })
-  @ApiCreatedResponse({ type: SaleResponseDto })
-  create(@Body() dto: CreateSaleDto) {
-    return this.createSaleUseCase.execute(dto);
+  @ApiOperation({ summary: 'Crear una solicitud de crédito' })
+  @ApiCreatedResponse({ type: CreditApplicationResponseDto })
+  create(@Body() dto: CreateCreditApplicationDto) {
+    return this.createCreditApplicationUseCase.execute(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar ventas' })
-  @ApiOkResponse({ type: [SaleResponseDto] })
-  findAll(@Query() filter: SaleFilterDto) {
-    return this.listSalesUseCase.execute(filter);
+  @ApiOperation({ summary: 'Listar solicitudes de crédito' })
+  @ApiOkResponse({ type: [CreditApplicationResponseDto] })
+  findAll(@Query() filter: CreditApplicationFilterDto) {
+    return this.listCreditApplicationsUseCase.execute(filter);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener una venta por ID' })
-  @ApiOkResponse({ type: SaleResponseDto })
+  @ApiOperation({ summary: 'Obtener una solicitud de crédito por ID' })
+  @ApiOkResponse({ type: CreditApplicationResponseDto })
   findOne(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.getSaleUseCase.execute(id);
+    return this.getCreditApplicationUseCase.execute(id);
   }
 
   @Patch(':id/cancel')
-  @ApiOperation({ summary: 'Cancelar una venta' })
-  @ApiOkResponse({ type: SaleResponseDto })
+  @ApiOperation({ summary: 'Cancelar una solicitud de crédito' })
+  @ApiOkResponse({ type: CreditApplicationResponseDto })
   cancel(@Param('id', ParsePositiveIntPipe) id: number) {
-    return this.cancelSaleUseCase.execute(id);
+    return this.cancelCreditApplicationUseCase.execute(id);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3903345942.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add controller sales.controller.ts"
+git commit -m "feat: add controller credit-applications.controller.ts"
 ```
 
-#### 10.21 — features/business/sales/index.ts
+![](images/clipboard-92870829.png)
+
+#### 10.18 — /features/business/credit-applications/index.ts
 
 Barrel export del feature para imports limpios.
 
-**Archivo:** `src/features/business/sales/index.ts`
+**Archivo:** src/features/business/credit-applications/index.ts
 
 ``` bash
-mkdir -p src/features/business/sales
-cat > src/features/business/sales/index.ts <<'EOF_BACKEND_IA'
-export { SalesModule } from './sales.module';
-EOF_BACKEND_IA
+mkdir -p src/features/business/credit-applications
+
+cat > src/features/business/credit-applications/index.ts <<'EOF_BACKEND-MANUAL'
+export { CreditApplicationsModule } from './credit-applications.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3127968327.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: add barrel export sales"
+git commit -m "chore: add barrel export credit-applications"
 ```
 
-#### 10.22 — features/business/sales/sales.module.ts
+![](images/clipboard-4235834426.png)
+
+#### 10.19 — features/business/credit-applications/credit-applications.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
-**Archivo:** `src/features/business/sales/sales.module.ts`
+**Archivo:** src/features/business/credit-applications/credit-applications.module.ts
 
 ``` bash
-mkdir -p src/features/business/sales
-cat > src/features/business/sales/sales.module.ts <<'EOF_BACKEND_IA'
+mkdir -p src/features/business/credit-applications
+
+cat > src/features/business/credit-applications/credit-applications.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { ClientsModule } from '../clients/clients.module';
-import { ProductsModule } from '../products/products.module';
-import { SALE_REPOSITORY } from './domain/interfaces/sale-repository.interface';
-import { SaleRepository } from './infrastructure/persistence/repositories/sale.repository';
-import { CreateSaleUseCase } from './application/use-cases/create-sale.use-case';
-import { CancelSaleUseCase } from './application/use-cases/cancel-sale.use-case';
-import { GetSaleUseCase } from './application/use-cases/get-sale.use-case';
-import { ListSalesUseCase } from './application/use-cases/list-sales.use-case';
-import { SalesController } from './presentation/http/controllers/sales.controller';
+import { MembersModule } from '../members/members.module.js';
+import { CREDIT_APPLICATION_REPOSITORY } from './domain/interfaces/credit-application-repository.interface.js';
+import { CreditApplicationRepository } from './infrastructure/persistence/repositories/credit-application.repository.js';
+import { CreateCreditApplicationUseCase } from './application/use-cases/create-credit-application.use-case.js';
+import { CancelCreditApplicationUseCase } from './application/use-cases/cancel-credit-application.use-case.js';
+import { GetCreditApplicationUseCase } from './application/use-cases/get-credit-application.use-case.js';
+import { ListCreditApplicationsUseCase } from './application/use-cases/list-credit-applications.use-case.js';
+import { CreditApplicationsController } from './presentation/http/controllers/credit-applications.controller.js';
 
 @Module({
-  imports: [ClientsModule, ProductsModule],
-  controllers: [SalesController],
+  imports: [MembersModule],
+  controllers: [CreditApplicationsController],
   providers: [
-    SaleRepository,
-    { provide: SALE_REPOSITORY, useExisting: SaleRepository },
-    CreateSaleUseCase,
-    CancelSaleUseCase,
-    GetSaleUseCase,
-    ListSalesUseCase,
+    CreditApplicationRepository,
+    {
+      provide: CREDIT_APPLICATION_REPOSITORY,
+      useExisting: CreditApplicationRepository,
+    },
+    CreateCreditApplicationUseCase,
+    CancelCreditApplicationUseCase,
+    GetCreditApplicationUseCase,
+    ListCreditApplicationsUseCase,
   ],
-  exports: [SALE_REPOSITORY],
+  exports: [CREDIT_APPLICATION_REPOSITORY],
 })
-export class SalesModule {}
-EOF_BACKEND_IA
+export class CreditApplicationsModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1051261806.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: wire nest module sales.module.ts"
+git commit -m "feat: wire nest module credit-applications.module.ts"
 ```
 
-#### 10.23 — Barrel business/index.ts
+![](images/clipboard-520051471.png)
+
+#### 10.20 — Barrel business/index.ts
 
 Exports públicos del bounded context business.
 
@@ -8943,10 +8793,13 @@ Exports públicos del bounded context business.
 
 ``` bash
 mkdir -p src/features/business
-cat > src/features/business/index.ts <<'EOF_BACKEND_IA'
-export { BusinessModule } from './business.module';
-EOF_BACKEND_IA
+
+cat > src/features/business/index.ts <<'EOF_BACKEND-MANUAL'
+export { BusinessModule } from './business.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2404331657.png)
 
 **Sugerencia de commit (issue):**
 
@@ -8955,7 +8808,9 @@ git add .
 git commit -m "chore: add business barrel exports"
 ```
 
-#### 10.24 — Actualizar sequelize.factory.ts (registrar modelos)
+![](images/clipboard-1980080581.png)
+
+#### 10.21 — Actualizar sequelize.factory.ts (registrar modelos)
 
 Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
@@ -9033,57 +8888,73 @@ export async function createSequelizeInstance(
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-3760981201.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: register SaleModel and ProductSaleModel"
+git commit -m "feat: register CreditApplicationModel"
 ```
 
-#### 10.25 — Actualizar business.module.ts
+![](images/clipboard-3258067995.png)
+
+#### 10.22 — Actualizar business.module.ts
 
 Agrega el feature module de negocio recién terminado.
 
 **Archivo:** `src/features/business/business.module.ts`
 
 ``` bash
-mkdir -p src/features/business
-cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA'
+cat > src/features/business/business.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
-import { ClientsModule } from './clients/clients.module';
-import { ProductTypesModule } from './product-types/product-types.module';
-import { ProductsModule } from './products/products.module';
-import { SalesModule } from './sales/sales.module';
+import { MembersModule } from './members/members.module.js';
+import { AccountsModule } from './accounts/accounts.module.js';
+import { MovementsModule } from './movements/movements.module.js';
+import { CreditApplicationsModule } from './credit-applications/credit-applications.module.js';
 
 @Module({
-  imports: [ClientsModule, ProductTypesModule, ProductsModule, SalesModule],
-  exports: [ClientsModule, ProductTypesModule, ProductsModule, SalesModule],
+  imports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+  ],
+  exports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+  ],
 })
 export class BusinessModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4017851951.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "feat: add SalesModule to BusinessModule"
+git commit -m "feat: add CreditApplicationsModule to BusinessModule"
 ```
 
-#### 10.26 — Actualizar database-seeder.service.ts
+![](images/clipboard-3588238481.png)
+
+#### 10.23 — Actualizar database-seeder.service.ts
 
 Ejecuta seeders en orden de dependencias al arrancar (dev).
 
 **Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
 
 ``` bash
-mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND-MANUAL'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder';
-import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';
-import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder';
-import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder';
+import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
+import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
+import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
+import { seedCreditApplications } from '../../../features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -9099,28 +8970,36 @@ export class DatabaseSeederService implements OnModuleInit {
     }
 
     try {
-      await seedClients();
-      await seedProductTypes();
-      await seedProducts();
-      await seedSales();
+      await seedMembers();
+      await seedAccounts();
+      await seedMovements();
+      await seedCreditApplications();
+
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
-      this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4130790259.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "chore: run seedSales on bootstrap"
+git commit -m "chore: run seedCreditApplications on bootstrap"
 ```
 
-#### 10.27 — Actualizar app.module.ts
+![](images/clipboard-2838391821.png)
+
+#### 10.24 — Actualizar app.module.ts
 
 Importa BusinessModule y/o AuthModule según el avance.
 Los guards globales llegan en la fase RBAC.
@@ -9128,19 +9007,17 @@ Los guards globales llegan en la fase RBAC.
 **Archivo:** `src/app.module.ts`
 
 ``` bash
-mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+cat > src/app.module.ts <<'EOF_BACKEND-MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { envConfig } from './config/environment/env.config';
-import { appConfig } from './config/app/app.config';
-import { jwtConfig } from './config/jwt/jwt.config';
-import { LoggerModule } from './config/logger/logger.module';
-import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module';
-import { SecurityModule } from './infrastructure/security/security.module';
-import { BusinessModule } from './features/business/business.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { envConfig } from './config/environment/env.config.js';
+import { appConfig } from './config/app/app.config.js';
+import { jwtConfig } from './config/jwt/jwt.config.js';
+import { LoggerModule } from './config/logger/logger.module.js';
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
+import { BusinessModule } from './features/business/business.module.js';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 
 @Module({
   imports: [
@@ -9150,18 +9027,17 @@ import { AppService } from './app.service';
       envFilePath: '.env',
     }),
     SequelizeDatabaseModule,
-    SecurityModule,
     LoggerModule,
     BusinessModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-  ],
+  providers: [AppService],
 })
 export class AppModule {}
-EOF_BACKEND_IA
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4217655330.png)
 
 **Sugerencia de commit (issue):**
 
@@ -9170,7 +9046,9 @@ git add .
 git commit -m "chore: keep BusinessModule wired in AppModule"
 ```
 
-#### 10.28 — Verificar tablas `sales` / `product_sales`
+![](images/clipboard-319295467.png)
+
+#### 10.25 — Verificar tablas `sales` / `product_sales`
 
 Prueba crear una venta y cancelarla.
 Revisa stock de productos y filas en product_sales.
@@ -9179,12 +9057,18 @@ Revisa stock de productos y filas en product_sales.
 npm run start:dev
 ```
 
+![](images/clipboard-4051692809.png)
+
+![](images/clipboard-3069012838.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "test: verify sales flow and stock side effects"
+git commit -m "test: verify credit application flow"
 ```
+
+![](images/clipboard-1547058097.png)
 
 ------------------------------------------------------------------------
 
