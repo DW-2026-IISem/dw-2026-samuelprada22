@@ -12,6 +12,7 @@ import { AccountModel } from '../../../features/business/accounts/infrastructure
 import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
 import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
 import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
+import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
 
 export const ALL_MODELS = [
   MemberModel,
@@ -19,6 +20,7 @@ export const ALL_MODELS = [
   MovementModel,
   CreditApplicationModel,
   CreditModel,
+  InstallmentModel,
 ];
 
 export async function createSequelizeInstance(
