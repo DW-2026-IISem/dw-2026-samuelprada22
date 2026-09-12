@@ -12163,6 +12163,1026 @@ git commit -m "test: verify installments table and endpoints"
 
 ## 
 
+## FASE 13 — `12_BUSINESS_InstallmentPayment`
+
+### Business — InstallmentPayment
+
+> **Objetivo de la fase:** Catálogo de Pago de cuotas.
+> Misma plantilla CA que Clients.
+
+#### 8.1 — features/business/InstallmentPayment/domain/entities/InstallmentPayment.entity.ts
+
+Entidad de dominio (TypeScript puro).
+No extiende Sequelize `Model`.
+Aquí viven las reglas del negocio.
+
+**Archivo:** src/features/business/installment-payments/domain/entities/installment-payment.entity.ts
+
+``` bash
+mkdir -p src/features/business/installment-payments/domain/entities
+
+cat > src/features/business/installment-payments/domain/entities/installment-payment.entity.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export interface InstallmentPaymentProps {
+  id?: number;
+  name: string;
+  description?: string;
+  isActive?: boolean;
+  status?: Status;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class InstallmentPayment {
+  id?: number;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  status: Status;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  private constructor(props: InstallmentPaymentProps) {
+    this.id = props.id;
+    this.name = props.name;
+    this.description = props.description;
+    this.isActive = props.isActive ?? true;
+    this.status = props.status ?? Status.ACTIVE;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
+  }
+
+  static create(
+    props: Omit<
+      InstallmentPaymentProps,
+      'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+    >,
+  ): InstallmentPayment {
+    if (!props.name?.trim()) {
+      throw new Error('El nombre del pago de cuota es requerido');
+    }
+
+    return new InstallmentPayment(props);
+  }
+
+  static reconstitute(
+    props: InstallmentPaymentProps,
+  ): InstallmentPayment {
+    return new InstallmentPayment(props);
+  }
+
+  update(
+    props: Partial<
+      Omit<
+        InstallmentPaymentProps,
+        'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+      >
+    >,
+  ): void {
+    if (props.name !== undefined) {
+      if (!props.name.trim()) {
+        throw new Error('El nombre del pago de cuota es requerido');
+      }
+
+      this.name = props.name;
+    }
+
+    if (props.description !== undefined) {
+      this.description = props.description;
+    }
+  }
+
+  deactivate(): void {
+    this.isActive = false;
+    this.status = Status.INACTIVE;
+  }
+
+  activate(): void {
+    this.isActive = true;
+    this.status = Status.ACTIVE;
+  }
+}
+EOF_BACKEND-MANUAL
+```
+
+![](images/clipboard-1447073822.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+ggit add .
+git commit -m "feat: add domain entity installment-payment.entity.ts"
+```
+
+![](images/clipboard-3753810158.png)
+
+#### 8.2 — features/business/installment-payments/domain/exceptions/installment-payment-not-found.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** src/features/business/installment-payments/domain/exceptions/installment-payment-not-found.exception.ts
+
+``` bash
+mkdir -p src/features/business/installment-payments/domain/exceptions
+
+cat > src/features/business/installment-payments/domain/exceptions/installment-payment-not-found.exception.ts <<'EOF_BACKEND-MANUAL'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
+
+export class InstallmentPaymentNotFoundException extends EntityNotFoundException {
+  constructor(id: number) {
+    super('Pago de cuota', id);
+  }
+}
+EOF_BACKEND-MANUAL
+```
+
+![](images/clipboard-3193992345.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add domain exception installment-payment-not-found.exception.ts"
+```
+
+![](images/clipboard-2678659119.png)
+
+#### 8.3 — features/business/installment-payments/domain/interfaces/pro-repository.interface.ts
+
+Puerto (contrato) del repositorio.
+La aplicación depende de esta interface, no de Sequelize
+
+**Archivo:** `src/features/business/product-types/domain/interfaces/product-type-repository.interface.ts`
+
+``` bash
+mkdir -p src/features/business/installment-payments/domain/interfaces
+
+cat > src/features/business/installment-payments/domain/interfaces/installment-payment-repository.interface.ts <<'EOF_BACKEND-MANUAL'
+import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface.js';
+import { InstallmentPayment } from '../entities/installment-payment.entity.js';
+
+export const INSTALLMENT_PAYMENT_REPOSITORY =
+  'INSTALLMENT_PAYMENT_REPOSITORY';
+
+export interface InstallmentPaymentFindAllParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface IInstallmentPaymentRepository {
+  create(
+    installmentPayment: InstallmentPayment,
+  ): Promise<InstallmentPayment>;
+
+  update(
+    installmentPayment: InstallmentPayment,
+  ): Promise<InstallmentPayment>;
+
+  delete(id: number): Promise<void>;
+
+  findById(id: number): Promise<InstallmentPayment | null>;
+
+  findAll(
+    params: InstallmentPaymentFindAllParams,
+  ): Promise<PaginatedResult<InstallmentPayment>>;
+}
+EOF_BACKEND-MANUAL
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add repository port product-type-repository.interface.ts"
+```
+
+#### 8.4 — features/business/product-types/infrastructure/persistence/models/product-type.model.ts
+
+Modelo Sequelize (`@Table`).
+Solo infraestructura: mapeo a tabla física.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/models cat > src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts <<'EOF_BACKEND_IA' import {   AutoIncrement,   Column,   CreatedAt,   DataType,   HasMany,   Model,   PrimaryKey,   Table,   UpdatedAt, } from 'sequelize-typescript'; import { Status } from '../../../../../../common/enums/status.enum';  @Table({ tableName: 'product_types' }) export class ProductTypeModel extends Model {   @PrimaryKey   @AutoIncrement   @Column(DataType.INTEGER)   declare id: number;    @Column({ type: DataType.STRING(100), allowNull: false })   declare name: string;    @Column({ type: DataType.TEXT, allowNull: true })   declare description: string | null;    @Column({     type: DataType.ENUM(...Object.values(Status)),     allowNull: false,     defaultValue: Status.ACTIVE,   })   declare status: Status;    @CreatedAt   declare createdAt: Date;    @UpdatedAt   declare updatedAt: Date;    @HasMany(     () =>       require('../../../../products/infrastructure/persistence/models/product.model')         .ProductModel,   )   declare products: unknown[]; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add sequelize model product-type.model.ts"
+```
+
+#### 8.5 — features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts
+
+Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/repositories cat > src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts <<'EOF_BACKEND_IA' import { Injectable } from '@nestjs/common'; import { Op } from 'sequelize'; import {   buildPaginatedResult,   normalizePagination, } from '../../../../../../common/utils/pagination.util'; import { ProductType } from '../../../domain/entities/product-type.entity'; import {   IProductTypeRepository,   ProductTypeFindAllParams, } from '../../../domain/interfaces/product-type-repository.interface'; import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper'; import { ProductTypeModel } from '../models/product-type.model';  @Injectable() export class ProductTypeRepository implements IProductTypeRepository {   async create(productType: ProductType): Promise<ProductType> {     const model = await ProductTypeModel.create(       ProductTypeMapper.toPersistence(productType),     );     return ProductTypeMapper.toDomain(model);   }    async update(productType: ProductType): Promise<ProductType> {     await ProductTypeModel.update(       ProductTypeMapper.toPersistence(productType),       { where: { id: productType.id } },     );     const updated = await ProductTypeModel.findByPk(productType.id!);     return ProductTypeMapper.toDomain(updated!);   }    async delete(id: number): Promise<void> {     await ProductTypeModel.destroy({ where: { id } });   }    async findById(id: number): Promise<ProductType | null> {     const model = await ProductTypeModel.findByPk(id);     return model ? ProductTypeMapper.toDomain(model) : null;   }    async findAll(params: ProductTypeFindAllParams) {     const { page, limit, offset } = normalizePagination(       params.page,       params.limit,     );      const where = params.search       ? {           [Op.or]: [             { name: { [Op.like]: `%${params.search}%` } },             { description: { [Op.like]: `%${params.search}%` } },           ],         }       : {};      const { rows, count } = await ProductTypeModel.findAndCountAll({       where,       limit,       offset,       order: [['createdAt', 'DESC']],     });      return buildPaginatedResult(       rows.map((row) => ProductTypeMapper.toDomain(row)),       count,       page,       limit,     );   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add sequelize repository product-type.repository.ts"
+```
+
+#### 8.6 — features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts
+
+Migración documental/auxiliar de la tabla.
+En dev el sync de Sequelize crea el esquema.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/migrations cat > src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts <<'EOF_BACKEND_IA' export const createProductTypesTableMigration = {   name: 'create-product-types-table',   async up(): Promise<void> {     // Sequelize sync handles table creation in development.     // Production: CREATE TABLE product_types (id, name, description, status, createdAt, updatedAt)   },   async down(): Promise<void> {     // Production: DROP TABLE product_types   }, }; EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add migration create-product-types-table.migration.ts"
+```
+
+#### 8.7 — features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts
+
+Seeder de datos iniciales para desarrollo y verificación física en BD.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/seeders cat > src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts <<'EOF_BACKEND_IA' import { ProductTypeModel } from '../models/product-type.model'; import { Status } from '../../../../../../common/enums/status.enum';  export async function seedProductTypes(): Promise<void> {   const count = await ProductTypeModel.count();   if (count > 0) {     return;   }    await ProductTypeModel.bulkCreate([     {       name: 'Electronics',       description: 'Electronic devices and accessories',       status: Status.ACTIVE,     },     {       name: 'Clothing',       description: 'Apparel and fashion items',       status: Status.ACTIVE,     },   ]); } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add seeder product-types.seeder.ts"
+```
+
+#### 8.8 — features/business/product-types/application/dto/create-product-type.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/create-product-type.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/create-product-type.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';  export class CreateProductTypeDto {   @ApiProperty({ example: 'Electronics' })   @IsString()   @IsNotEmpty()   @MaxLength(100)   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   @IsOptional()   @IsString()   description?: string; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto create-product-type.dto.ts"
+```
+
+#### 8.9 — features/business/product-types/application/dto/product-type-filter.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/product-type-filter.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-filter.dto.ts <<'EOF_BACKEND_IA' import { ApiPropertyOptional } from '@nestjs/swagger'; import { Type } from 'class-transformer'; import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';  export class ProductTypeFilterDto {   @ApiPropertyOptional({ example: 1, default: 1 })   @IsOptional()   @Type(() => Number)   @IsInt()   @Min(1)   page?: number;    @ApiPropertyOptional({ example: 10, default: 10 })   @IsOptional()   @Type(() => Number)   @IsInt()   @IsPositive()   limit?: number;    @ApiPropertyOptional({ example: 'electronics' })   @IsOptional()   @IsString()   search?: string; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto product-type-filter.dto.ts"
+```
+
+#### 8.10 — features/business/product-types/application/dto/product-type-response.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/product-type-response.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-response.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { Status } from '../../../../../common/enums/status.enum';  export class ProductTypeResponseDto {   @ApiProperty({ example: 1 })   id: number;    @ApiProperty({ example: 'Electronics' })   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   description?: string;    @ApiProperty({ enum: Status, example: Status.ACTIVE })   status: Status;    @ApiProperty()   createdAt: Date;    @ApiProperty()   updatedAt: Date; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto product-type-response.dto.ts"
+```
+
+#### 8.11 — features/business/product-types/application/dto/update-product-type.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/update-product-type.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/update-product-type.dto.ts <<'EOF_BACKEND_IA' import { PartialType } from '@nestjs/mapped-types'; import { CreateProductTypeDto } from './create-product-type.dto';  export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto update-product-type.dto.ts"
+```
+
+#### 8.12 — features/business/product-types/application/mappers/product-type.mapper.ts
+
+Mapper entre entidad de dominio y DTO de respuesta.
+
+**Archivo:** `src/features/business/product-types/application/mappers/product-type.mapper.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/mappers cat > src/features/business/product-types/application/mappers/product-type.mapper.ts <<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum'; import { ProductType } from '../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../dto/product-type-response.dto'; import { ProductTypeModel } from '../../infrastructure/persistence/models/product-type.model';  export class ProductTypeMapper {   static toDomain(model: ProductTypeModel): ProductType {     return ProductType.reconstitute({       id: model.id,       name: model.name,       description: model.description ?? undefined,       status: model.status,       createdAt: model.createdAt,       updatedAt: model.updatedAt,     });   }    static toResponse(entity: ProductType): ProductTypeResponseDto {     return {       id: entity.id!,       name: entity.name,       description: entity.description,       status: entity.status,       createdAt: entity.createdAt!,       updatedAt: entity.updatedAt!,     };   }    static toPersistence(entity: ProductType): Partial<ProductTypeModel> {     return {       id: entity.id,       name: entity.name,       description: entity.description ?? null,       status: entity.status ?? Status.ACTIVE,     };   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add mapper product-type.mapper.ts"
+```
+
+#### 8.13 — features/business/product-types/application/use-cases/create-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/create-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/create-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductType } from '../../domain/entities/product-type.entity'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { CreateProductTypeDto } from '../dto/create-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class CreateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(dto: CreateProductTypeDto) {     const productType = ProductType.create(dto);     const created = await this.productTypeRepository.create(productType);     return ProductTypeMapper.toResponse(created);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case create-product-type.use-case.ts"
+```
+
+#### 8.14 — features/business/product-types/application/use-cases/delete-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface';  @Injectable() export class DeleteProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number): Promise<void> {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      await this.productTypeRepository.delete(id);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case delete-product-type.use-case.ts"
+```
+
+#### 8.15 — features/business/product-types/application/use-cases/get-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/get-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/get-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class GetProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      return ProductTypeMapper.toResponse(productType);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case get-product-type.use-case.ts"
+```
+
+#### 8.16 — features/business/product-types/application/use-cases/list-product-types.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/list-product-types.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/list-product-types.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeFilterDto } from '../dto/product-type-filter.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class ListProductTypesUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(filter: ProductTypeFilterDto) {     const result = await this.productTypeRepository.findAll(filter);     return {       items: result.items.map((pt) => ProductTypeMapper.toResponse(pt)),       meta: result.meta,     };   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case list-product-types.use-case.ts"
+```
+
+#### 8.17 — features/business/product-types/application/use-cases/update-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/update-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/update-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { UpdateProductTypeDto } from '../dto/update-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class UpdateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number, dto: UpdateProductTypeDto) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      productType.update(dto);     const updated = await this.productTypeRepository.update(productType);     return ProductTypeMapper.toResponse(updated);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case update-product-type.use-case.ts"
+```
+
+#### 8.18 — features/business/product-types/presentation/http/serializers/product-type.serializer.ts
+
+Serializer de presentación (forma estable de la respuesta HTTP).
+
+**Archivo:** `src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/presentation/http/serializers cat > src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts <<'EOF_BACKEND_IA' import { ProductType } from '../../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper';  export class ProductTypeSerializer {   static serialize(entity: ProductType): ProductTypeResponseDto {     return ProductTypeMapper.toResponse(entity);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add serializer product-type.serializer.ts"
+```
+
+#### 8.19 — features/business/product-types/presentation/http/controllers/product-types.controller.ts
+
+Controller delgado: valida DTO, llama use-case, devuelve respuesta.
+
+**Archivo:** `src/features/business/product-types/presentation/http/controllers/product-types.controller.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/presentation/http/controllers cat > src/features/business/product-types/presentation/http/controllers/product-types.controller.ts <<'EOF_BACKEND_IA' import {   Body,   Controller,   Delete,   Get,   HttpCode,   HttpStatus,   Param,   Patch,   Post,   Query, } from '@nestjs/common'; import {   ApiCreatedResponse,   ApiNoContentResponse,   ApiOkResponse,   ApiOperation,   ApiTags, } from '@nestjs/swagger'; import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe'; import { CreateProductTypeDto } from '../../../application/dto/create-product-type.dto'; import { UpdateProductTypeDto } from '../../../application/dto/update-product-type.dto'; import { ProductTypeFilterDto } from '../../../application/dto/product-type-filter.dto'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { CreateProductTypeUseCase } from '../../../application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from '../../../application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from '../../../application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from '../../../application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from '../../../application/use-cases/list-product-types.use-case';  @ApiTags('Product Types') @Controller('product-types') export class ProductTypesController {   constructor(     private readonly createProductTypeUseCase: CreateProductTypeUseCase,     private readonly updateProductTypeUseCase: UpdateProductTypeUseCase,     private readonly deleteProductTypeUseCase: DeleteProductTypeUseCase,     private readonly getProductTypeUseCase: GetProductTypeUseCase,     private readonly listProductTypesUseCase: ListProductTypesUseCase,   ) {}    @Post()   @ApiOperation({ summary: 'Crear un tipo de producto' })   @ApiCreatedResponse({ type: ProductTypeResponseDto })   create(@Body() dto: CreateProductTypeDto) {     return this.createProductTypeUseCase.execute(dto);   }    @Get()   @ApiOperation({ summary: 'Listar tipos de producto' })   @ApiOkResponse({ type: [ProductTypeResponseDto] })   findAll(@Query() filter: ProductTypeFilterDto) {     return this.listProductTypesUseCase.execute(filter);   }    @Get(':id')   @ApiOperation({ summary: 'Obtener un tipo de producto por ID' })   @ApiOkResponse({ type: ProductTypeResponseDto })   findOne(@Param('id', ParsePositiveIntPipe) id: number) {     return this.getProductTypeUseCase.execute(id);   }    @Patch(':id')   @ApiOperation({ summary: 'Actualizar un tipo de producto' })   @ApiOkResponse({ type: ProductTypeResponseDto })   update(     @Param('id', ParsePositiveIntPipe) id: number,     @Body() dto: UpdateProductTypeDto,   ) {     return this.updateProductTypeUseCase.execute(id, dto);   }    @Delete(':id')   @HttpCode(HttpStatus.NO_CONTENT)   @ApiOperation({ summary: 'Eliminar un tipo de producto' })   @ApiNoContentResponse()   remove(@Param('id', ParsePositiveIntPipe) id: number) {     return this.deleteProductTypeUseCase.execute(id);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add controller product-types.controller.ts"
+```
+
+#### 8.20 — features/business/product-types/index.ts
+
+Barrel export del feature para imports limpios.
+
+**Archivo:** `src/features/business/product-types/index.ts`
+
+``` bash
+mkdir -p src/features/business/product-types cat > src/features/business/product-types/index.ts <<'EOF_BACKEND_IA' export { ProductTypesModule } from './product-types.module'; EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add barrel export product-types"
+```
+
+#### 8.21 — features/business/product-types/product-types.module.ts
+
+Módulo Nest del feature: cablea providers, tokens DI y controller.
+
+**Archivo:** `src/features/business/product-types/product-types.module.ts`
+
+``` bash
+mkdir -p src/features/business/product-types cat > src/features/business/product-types/product-types.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { PRODUCT_TYPE_REPOSITORY } from './domain/interfaces/product-type-repository.interface'; import { ProductTypeRepository } from './infrastructure/persistence/repositories/product-type.repository'; import { CreateProductTypeUseCase } from './application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from './application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from './application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from './application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from './application/use-cases/list-product-types.use-case'; import { ProductTypesController } from './presentation/http/controllers/product-types.controller';  @Module({   controllers: [ProductTypesController],   providers: [     ProductTypeRepository,     { provide: PRODUCT_TYPE_REPOSITORY, useExisting: ProductTypeRepository },     CreateProductTypeUseCase,     UpdateProductTypeUseCase,     DeleteProductTypeUseCase,     GetProductTypeUseCase,     ListProductTypesUseCase,   ],   exports: [PRODUCT_TYPE_REPOSITORY], }) export class ProductTypesModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: wire nest module product-types.module.ts"
+```
+
+#### 8.22 — Actualizar sequelize.factory.ts (registrar modelos)
+
+Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
+
+**Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/sequelize cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA' import { Sequelize } from 'sequelize-typescript'; import { DatabaseDialect } from '../../../config/environment/env.interface'; import { getSequelizeOptions } from './sequelize.options';  import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model'; import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';  export const ALL_MODELS = [   ClientModel,   ProductTypeModel, ];  export async function createSequelizeInstance(   dialect: DatabaseDialect, ): Promise<Sequelize> {   const options = getSequelizeOptions(dialect);    let dialectModule: any;    switch (dialect) {     case DatabaseDialect.MySQL:       dialectModule = require('mysql2');       break;     case DatabaseDialect.Postgres:       dialectModule = require('pg');       break;     case DatabaseDialect.MSSQL:       dialectModule = require('tedious');       break;     case DatabaseDialect.Oracle:       dialectModule = require('oracledb');       break;     default:       throw new Error(`Dialecto no soportado: ${dialect}`);   }    const sequelize = new Sequelize({     ...options,     dialectModule,     models: ALL_MODELS,   } as any);    try {     await sequelize.authenticate();     console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);   } catch (error: any) {     console.error(       `❌ Error conectando a ${dialect.toUpperCase()}:`,       error.message,     );     throw error;   }    if (process.env.NODE_ENV !== 'production') {     await sequelize.sync({ alter: false });     console.log('✅ Tablas sincronizadas');   }    return sequelize; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: register ProductTypeModel in sequelize factory"
+```
+
+#### 8.23 — Actualizar business.module.ts
+
+Agrega el feature module de negocio recién terminado.
+
+**Archivo:** `src/features/business/business.module.ts`
+
+``` bash
+mkdir -p src/features/business cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ClientsModule } from './clients/clients.module'; import { ProductTypesModule } from './product-types/product-types.module';  @Module({   imports: [ClientsModule, ProductTypesModule],   exports: [ClientsModule, ProductTypesModule], }) export class BusinessModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add ProductTypesModule to BusinessModule"
+```
+
+#### 8.24 — Actualizar database-seeder.service.ts
+
+Ejecuta seeders en orden de dependencias al arrancar (dev).
+
+**Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/seeders cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA' import { Injectable, Logger, OnModuleInit } from '@nestjs/common'; import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder'; import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';  /**  * Ejecuta seeders en orden de dependencias.  * Solo en entornos no productivos.  */ @Injectable() export class DatabaseSeederService implements OnModuleInit {   private readonly logger = new Logger(DatabaseSeederService.name);    async onModuleInit(): Promise<void> {     if (process.env.NODE_ENV === 'production') {       return;     }      try {       await seedClients();       await seedProductTypes();       this.logger.log('✅ Seeders ejecutados');     } catch (error: any) {       this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);       throw error;     }   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: run seedProductTypes on bootstrap"
+```
+
+#### 8.25 — Actualizar app.module.ts
+
+Importa BusinessModule y/o AuthModule según el avance.
+Los guards globales llegan en la fase RBAC.
+
+**Archivo:** `src/app.module.ts`
+
+``` bash
+mkdir -p src cat > src/app.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ConfigModule } from '@nestjs/config'; import { envConfig } from './config/environment/env.config'; import { appConfig } from './config/app/app.config'; import { jwtConfig } from './config/jwt/jwt.config'; import { LoggerModule } from './config/logger/logger.module'; import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module'; import { SecurityModule } from './infrastructure/security/security.module'; import { BusinessModule } from './features/business/business.module'; import { AppController } from './app.controller'; import { AppService } from './app.service';  @Module({   imports: [     ConfigModule.forRoot({       isGlobal: true,       load: [envConfig, appConfig, jwtConfig],       envFilePath: '.env',     }),     SequelizeDatabaseModule,     SecurityModule,     LoggerModule,     BusinessModule,   ],   controllers: [AppController],   providers: [     AppService,   ], }) export class AppModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: keep BusinessModule wired in AppModule"
+```
+
+#### 8.26 — Verificar tabla `product_types`
+
+Confirma sync/seeder y endpoints `/api/product-types`.
+
+``` bash
+npm run start:dev
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "test: verify product_types table and endpoints"
+```
+
+------------------------------------------------------------------------
+
+## 
+
+## FASE 8 — `07_BUSINESS_PRODUCT_TYPES`
+
+### Business — ProductTypes
+
+> **Objetivo de la fase:** Catálogo de tipos de producto.
+> Misma plantilla CA que Clients.
+
+#### 8.1 — features/business/product-types/domain/entities/product-type.entity.ts
+
+Entidad de dominio (TypeScript puro).
+No extiende Sequelize `Model`.
+Aquí viven las reglas del negocio.
+
+**Archivo:** `src/features/business/product-types/domain/entities/product-type.entity.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/domain/entities cat > src/features/business/product-types/domain/entities/product-type.entity.ts <<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum';  export interface ProductTypeProps {   id?: number;   name: string;   description?: string;   status?: Status;   createdAt?: Date;   updatedAt?: Date; }  export class ProductType {   id?: number;   name: string;   description?: string;   status: Status;   createdAt?: Date;   updatedAt?: Date;    private constructor(props: ProductTypeProps) {     this.id = props.id;     this.name = props.name;     this.description = props.description;     this.status = props.status ?? Status.ACTIVE;     this.createdAt = props.createdAt;     this.updatedAt = props.updatedAt;   }    static create(     props: Omit<ProductTypeProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>,   ): ProductType {     if (!props.name?.trim()) {       throw new Error('El nombre del tipo de producto es requerido');     }      return new ProductType(props);   }    static reconstitute(props: ProductTypeProps): ProductType {     return new ProductType(props);   }    update(     props: Partial<       Omit<ProductTypeProps, 'id' | 'status' | 'createdAt' | 'updatedAt'>     >,   ): void {     if (props.name !== undefined) {       if (!props.name.trim()) {         throw new Error('El nombre del tipo de producto es requerido');       }       this.name = props.name;     }      if (props.description !== undefined) {       this.description = props.description;     }   }    deactivate(): void {     this.status = Status.INACTIVE;   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add domain entity product-type.entity.ts"
+```
+
+#### 8.2 — features/business/product-types/domain/exceptions/product-type-not-found.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** `src/features/business/product-types/domain/exceptions/product-type-not-found.exception.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/domain/exceptions cat > src/features/business/product-types/domain/exceptions/product-type-not-found.exception.ts <<'EOF_BACKEND_IA' import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception';  export class ProductTypeNotFoundException extends EntityNotFoundException {   constructor(id: number) {     super('Tipo de producto', id);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add domain exception product-type-not-found.exception.ts"
+```
+
+#### 8.3 — features/business/product-types/domain/interfaces/product-type-repository.interface.ts
+
+Puerto (contrato) del repositorio.
+La aplicación depende de esta interface, no de Sequelize.
+
+**Archivo:** `src/features/business/product-types/domain/interfaces/product-type-repository.interface.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/domain/interfaces cat > src/features/business/product-types/domain/interfaces/product-type-repository.interface.ts <<'EOF_BACKEND_IA' import { PaginatedResult } from '../../../../../common/interfaces/pagination.interface'; import { ProductType } from '../entities/product-type.entity';  export const PRODUCT_TYPE_REPOSITORY = 'PRODUCT_TYPE_REPOSITORY';  export interface ProductTypeFindAllParams {   page?: number;   limit?: number;   search?: string; }  export interface IProductTypeRepository {   create(productType: ProductType): Promise<ProductType>;   update(productType: ProductType): Promise<ProductType>;   delete(id: number): Promise<void>;   findById(id: number): Promise<ProductType | null>;   findAll(params: ProductTypeFindAllParams): Promise<PaginatedResult<ProductType>>; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add repository port product-type-repository.interface.ts"
+```
+
+#### 8.4 — features/business/product-types/infrastructure/persistence/models/product-type.model.ts
+
+Modelo Sequelize (`@Table`).
+Solo infraestructura: mapeo a tabla física.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/models cat > src/features/business/product-types/infrastructure/persistence/models/product-type.model.ts <<'EOF_BACKEND_IA' import {   AutoIncrement,   Column,   CreatedAt,   DataType,   HasMany,   Model,   PrimaryKey,   Table,   UpdatedAt, } from 'sequelize-typescript'; import { Status } from '../../../../../../common/enums/status.enum';  @Table({ tableName: 'product_types' }) export class ProductTypeModel extends Model {   @PrimaryKey   @AutoIncrement   @Column(DataType.INTEGER)   declare id: number;    @Column({ type: DataType.STRING(100), allowNull: false })   declare name: string;    @Column({ type: DataType.TEXT, allowNull: true })   declare description: string | null;    @Column({     type: DataType.ENUM(...Object.values(Status)),     allowNull: false,     defaultValue: Status.ACTIVE,   })   declare status: Status;    @CreatedAt   declare createdAt: Date;    @UpdatedAt   declare updatedAt: Date;    @HasMany(     () =>       require('../../../../products/infrastructure/persistence/models/product.model')         .ProductModel,   )   declare products: unknown[]; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add sequelize model product-type.model.ts"
+```
+
+#### 8.5 — features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts
+
+Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/repositories cat > src/features/business/product-types/infrastructure/persistence/repositories/product-type.repository.ts <<'EOF_BACKEND_IA' import { Injectable } from '@nestjs/common'; import { Op } from 'sequelize'; import {   buildPaginatedResult,   normalizePagination, } from '../../../../../../common/utils/pagination.util'; import { ProductType } from '../../../domain/entities/product-type.entity'; import {   IProductTypeRepository,   ProductTypeFindAllParams, } from '../../../domain/interfaces/product-type-repository.interface'; import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper'; import { ProductTypeModel } from '../models/product-type.model';  @Injectable() export class ProductTypeRepository implements IProductTypeRepository {   async create(productType: ProductType): Promise<ProductType> {     const model = await ProductTypeModel.create(       ProductTypeMapper.toPersistence(productType),     );     return ProductTypeMapper.toDomain(model);   }    async update(productType: ProductType): Promise<ProductType> {     await ProductTypeModel.update(       ProductTypeMapper.toPersistence(productType),       { where: { id: productType.id } },     );     const updated = await ProductTypeModel.findByPk(productType.id!);     return ProductTypeMapper.toDomain(updated!);   }    async delete(id: number): Promise<void> {     await ProductTypeModel.destroy({ where: { id } });   }    async findById(id: number): Promise<ProductType | null> {     const model = await ProductTypeModel.findByPk(id);     return model ? ProductTypeMapper.toDomain(model) : null;   }    async findAll(params: ProductTypeFindAllParams) {     const { page, limit, offset } = normalizePagination(       params.page,       params.limit,     );      const where = params.search       ? {           [Op.or]: [             { name: { [Op.like]: `%${params.search}%` } },             { description: { [Op.like]: `%${params.search}%` } },           ],         }       : {};      const { rows, count } = await ProductTypeModel.findAndCountAll({       where,       limit,       offset,       order: [['createdAt', 'DESC']],     });      return buildPaginatedResult(       rows.map((row) => ProductTypeMapper.toDomain(row)),       count,       page,       limit,     );   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add sequelize repository product-type.repository.ts"
+```
+
+#### 8.6 — features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts
+
+Migración documental/auxiliar de la tabla.
+En dev el sync de Sequelize crea el esquema.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/migrations cat > src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts <<'EOF_BACKEND_IA' export const createProductTypesTableMigration = {   name: 'create-product-types-table',   async up(): Promise<void> {     // Sequelize sync handles table creation in development.     // Production: CREATE TABLE product_types (id, name, description, status, createdAt, updatedAt)   },   async down(): Promise<void> {     // Production: DROP TABLE product_types   }, }; EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add migration create-product-types-table.migration.ts"
+```
+
+#### 8.7 — features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts
+
+Seeder de datos iniciales para desarrollo y verificación física en BD.
+
+**Archivo:** `src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/infrastructure/persistence/seeders cat > src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts <<'EOF_BACKEND_IA' import { ProductTypeModel } from '../models/product-type.model'; import { Status } from '../../../../../../common/enums/status.enum';  export async function seedProductTypes(): Promise<void> {   const count = await ProductTypeModel.count();   if (count > 0) {     return;   }    await ProductTypeModel.bulkCreate([     {       name: 'Electronics',       description: 'Electronic devices and accessories',       status: Status.ACTIVE,     },     {       name: 'Clothing',       description: 'Apparel and fashion items',       status: Status.ACTIVE,     },   ]); } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add seeder product-types.seeder.ts"
+```
+
+#### 8.8 — features/business/product-types/application/dto/create-product-type.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/create-product-type.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/create-product-type.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';  export class CreateProductTypeDto {   @ApiProperty({ example: 'Electronics' })   @IsString()   @IsNotEmpty()   @MaxLength(100)   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   @IsOptional()   @IsString()   description?: string; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto create-product-type.dto.ts"
+```
+
+#### 8.9 — features/business/product-types/application/dto/product-type-filter.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/product-type-filter.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-filter.dto.ts <<'EOF_BACKEND_IA' import { ApiPropertyOptional } from '@nestjs/swagger'; import { Type } from 'class-transformer'; import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';  export class ProductTypeFilterDto {   @ApiPropertyOptional({ example: 1, default: 1 })   @IsOptional()   @Type(() => Number)   @IsInt()   @Min(1)   page?: number;    @ApiPropertyOptional({ example: 10, default: 10 })   @IsOptional()   @Type(() => Number)   @IsInt()   @IsPositive()   limit?: number;    @ApiPropertyOptional({ example: 'electronics' })   @IsOptional()   @IsString()   search?: string; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto product-type-filter.dto.ts"
+```
+
+#### 8.10 — features/business/product-types/application/dto/product-type-response.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/product-type-response.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-response.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { Status } from '../../../../../common/enums/status.enum';  export class ProductTypeResponseDto {   @ApiProperty({ example: 1 })   id: number;    @ApiProperty({ example: 'Electronics' })   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   description?: string;    @ApiProperty({ enum: Status, example: Status.ACTIVE })   status: Status;    @ApiProperty()   createdAt: Date;    @ApiProperty()   updatedAt: Date; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto product-type-response.dto.ts"
+```
+
+#### 8.11 — features/business/product-types/application/dto/update-product-type.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/business/product-types/application/dto/update-product-type.dto.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/update-product-type.dto.ts <<'EOF_BACKEND_IA' import { PartialType } from '@nestjs/mapped-types'; import { CreateProductTypeDto } from './create-product-type.dto';  export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add dto update-product-type.dto.ts"
+```
+
+#### 8.12 — features/business/product-types/application/mappers/product-type.mapper.ts
+
+Mapper entre entidad de dominio y DTO de respuesta.
+
+**Archivo:** `src/features/business/product-types/application/mappers/product-type.mapper.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/mappers cat > src/features/business/product-types/application/mappers/product-type.mapper.ts <<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum'; import { ProductType } from '../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../dto/product-type-response.dto'; import { ProductTypeModel } from '../../infrastructure/persistence/models/product-type.model';  export class ProductTypeMapper {   static toDomain(model: ProductTypeModel): ProductType {     return ProductType.reconstitute({       id: model.id,       name: model.name,       description: model.description ?? undefined,       status: model.status,       createdAt: model.createdAt,       updatedAt: model.updatedAt,     });   }    static toResponse(entity: ProductType): ProductTypeResponseDto {     return {       id: entity.id!,       name: entity.name,       description: entity.description,       status: entity.status,       createdAt: entity.createdAt!,       updatedAt: entity.updatedAt!,     };   }    static toPersistence(entity: ProductType): Partial<ProductTypeModel> {     return {       id: entity.id,       name: entity.name,       description: entity.description ?? null,       status: entity.status ?? Status.ACTIVE,     };   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add mapper product-type.mapper.ts"
+```
+
+#### 8.13 — features/business/product-types/application/use-cases/create-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/create-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/create-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductType } from '../../domain/entities/product-type.entity'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { CreateProductTypeDto } from '../dto/create-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class CreateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(dto: CreateProductTypeDto) {     const productType = ProductType.create(dto);     const created = await this.productTypeRepository.create(productType);     return ProductTypeMapper.toResponse(created);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case create-product-type.use-case.ts"
+```
+
+#### 8.14 — features/business/product-types/application/use-cases/delete-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface';  @Injectable() export class DeleteProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number): Promise<void> {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      await this.productTypeRepository.delete(id);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case delete-product-type.use-case.ts"
+```
+
+#### 8.15 — features/business/product-types/application/use-cases/get-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/get-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/get-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class GetProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      return ProductTypeMapper.toResponse(productType);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case get-product-type.use-case.ts"
+```
+
+#### 8.16 — features/business/product-types/application/use-cases/list-product-types.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/list-product-types.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/list-product-types.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeFilterDto } from '../dto/product-type-filter.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class ListProductTypesUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(filter: ProductTypeFilterDto) {     const result = await this.productTypeRepository.findAll(filter);     return {       items: result.items.map((pt) => ProductTypeMapper.toResponse(pt)),       meta: result.meta,     };   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case list-product-types.use-case.ts"
+```
+
+#### 8.17 — features/business/product-types/application/use-cases/update-product-type.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/business/product-types/application/use-cases/update-product-type.use-case.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/update-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { UpdateProductTypeDto } from '../dto/update-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class UpdateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number, dto: UpdateProductTypeDto) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      productType.update(dto);     const updated = await this.productTypeRepository.update(productType);     return ProductTypeMapper.toResponse(updated);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add use case update-product-type.use-case.ts"
+```
+
+#### 8.18 — features/business/product-types/presentation/http/serializers/product-type.serializer.ts
+
+Serializer de presentación (forma estable de la respuesta HTTP).
+
+**Archivo:** `src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/presentation/http/serializers cat > src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts <<'EOF_BACKEND_IA' import { ProductType } from '../../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper';  export class ProductTypeSerializer {   static serialize(entity: ProductType): ProductTypeResponseDto {     return ProductTypeMapper.toResponse(entity);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add serializer product-type.serializer.ts"
+```
+
+#### 8.19 — features/business/product-types/presentation/http/controllers/product-types.controller.ts
+
+Controller delgado: valida DTO, llama use-case, devuelve respuesta.
+
+**Archivo:** `src/features/business/product-types/presentation/http/controllers/product-types.controller.ts`
+
+``` bash
+mkdir -p src/features/business/product-types/presentation/http/controllers cat > src/features/business/product-types/presentation/http/controllers/product-types.controller.ts <<'EOF_BACKEND_IA' import {   Body,   Controller,   Delete,   Get,   HttpCode,   HttpStatus,   Param,   Patch,   Post,   Query, } from '@nestjs/common'; import {   ApiCreatedResponse,   ApiNoContentResponse,   ApiOkResponse,   ApiOperation,   ApiTags, } from '@nestjs/swagger'; import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe'; import { CreateProductTypeDto } from '../../../application/dto/create-product-type.dto'; import { UpdateProductTypeDto } from '../../../application/dto/update-product-type.dto'; import { ProductTypeFilterDto } from '../../../application/dto/product-type-filter.dto'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { CreateProductTypeUseCase } from '../../../application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from '../../../application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from '../../../application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from '../../../application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from '../../../application/use-cases/list-product-types.use-case';  @ApiTags('Product Types') @Controller('product-types') export class ProductTypesController {   constructor(     private readonly createProductTypeUseCase: CreateProductTypeUseCase,     private readonly updateProductTypeUseCase: UpdateProductTypeUseCase,     private readonly deleteProductTypeUseCase: DeleteProductTypeUseCase,     private readonly getProductTypeUseCase: GetProductTypeUseCase,     private readonly listProductTypesUseCase: ListProductTypesUseCase,   ) {}    @Post()   @ApiOperation({ summary: 'Crear un tipo de producto' })   @ApiCreatedResponse({ type: ProductTypeResponseDto })   create(@Body() dto: CreateProductTypeDto) {     return this.createProductTypeUseCase.execute(dto);   }    @Get()   @ApiOperation({ summary: 'Listar tipos de producto' })   @ApiOkResponse({ type: [ProductTypeResponseDto] })   findAll(@Query() filter: ProductTypeFilterDto) {     return this.listProductTypesUseCase.execute(filter);   }    @Get(':id')   @ApiOperation({ summary: 'Obtener un tipo de producto por ID' })   @ApiOkResponse({ type: ProductTypeResponseDto })   findOne(@Param('id', ParsePositiveIntPipe) id: number) {     return this.getProductTypeUseCase.execute(id);   }    @Patch(':id')   @ApiOperation({ summary: 'Actualizar un tipo de producto' })   @ApiOkResponse({ type: ProductTypeResponseDto })   update(     @Param('id', ParsePositiveIntPipe) id: number,     @Body() dto: UpdateProductTypeDto,   ) {     return this.updateProductTypeUseCase.execute(id, dto);   }    @Delete(':id')   @HttpCode(HttpStatus.NO_CONTENT)   @ApiOperation({ summary: 'Eliminar un tipo de producto' })   @ApiNoContentResponse()   remove(@Param('id', ParsePositiveIntPipe) id: number) {     return this.deleteProductTypeUseCase.execute(id);   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add controller product-types.controller.ts"
+```
+
+#### 8.20 — features/business/product-types/index.ts
+
+Barrel export del feature para imports limpios.
+
+**Archivo:** `src/features/business/product-types/index.ts`
+
+``` bash
+mkdir -p src/features/business/product-types cat > src/features/business/product-types/index.ts <<'EOF_BACKEND_IA' export { ProductTypesModule } from './product-types.module'; EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: add barrel export product-types"
+```
+
+#### 8.21 — features/business/product-types/product-types.module.ts
+
+Módulo Nest del feature: cablea providers, tokens DI y controller.
+
+**Archivo:** `src/features/business/product-types/product-types.module.ts`
+
+``` bash
+mkdir -p src/features/business/product-types cat > src/features/business/product-types/product-types.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { PRODUCT_TYPE_REPOSITORY } from './domain/interfaces/product-type-repository.interface'; import { ProductTypeRepository } from './infrastructure/persistence/repositories/product-type.repository'; import { CreateProductTypeUseCase } from './application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from './application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from './application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from './application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from './application/use-cases/list-product-types.use-case'; import { ProductTypesController } from './presentation/http/controllers/product-types.controller';  @Module({   controllers: [ProductTypesController],   providers: [     ProductTypeRepository,     { provide: PRODUCT_TYPE_REPOSITORY, useExisting: ProductTypeRepository },     CreateProductTypeUseCase,     UpdateProductTypeUseCase,     DeleteProductTypeUseCase,     GetProductTypeUseCase,     ListProductTypesUseCase,   ],   exports: [PRODUCT_TYPE_REPOSITORY], }) export class ProductTypesModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: wire nest module product-types.module.ts"
+```
+
+#### 8.22 — Actualizar sequelize.factory.ts (registrar modelos)
+
+Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
+
+**Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/sequelize cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA' import { Sequelize } from 'sequelize-typescript'; import { DatabaseDialect } from '../../../config/environment/env.interface'; import { getSequelizeOptions } from './sequelize.options';  import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model'; import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';  export const ALL_MODELS = [   ClientModel,   ProductTypeModel, ];  export async function createSequelizeInstance(   dialect: DatabaseDialect, ): Promise<Sequelize> {   const options = getSequelizeOptions(dialect);    let dialectModule: any;    switch (dialect) {     case DatabaseDialect.MySQL:       dialectModule = require('mysql2');       break;     case DatabaseDialect.Postgres:       dialectModule = require('pg');       break;     case DatabaseDialect.MSSQL:       dialectModule = require('tedious');       break;     case DatabaseDialect.Oracle:       dialectModule = require('oracledb');       break;     default:       throw new Error(`Dialecto no soportado: ${dialect}`);   }    const sequelize = new Sequelize({     ...options,     dialectModule,     models: ALL_MODELS,   } as any);    try {     await sequelize.authenticate();     console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);   } catch (error: any) {     console.error(       `❌ Error conectando a ${dialect.toUpperCase()}:`,       error.message,     );     throw error;   }    if (process.env.NODE_ENV !== 'production') {     await sequelize.sync({ alter: false });     console.log('✅ Tablas sincronizadas');   }    return sequelize; } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: register ProductTypeModel in sequelize factory"
+```
+
+#### 8.23 — Actualizar business.module.ts
+
+Agrega el feature module de negocio recién terminado.
+
+**Archivo:** `src/features/business/business.module.ts`
+
+``` bash
+mkdir -p src/features/business cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ClientsModule } from './clients/clients.module'; import { ProductTypesModule } from './product-types/product-types.module';  @Module({   imports: [ClientsModule, ProductTypesModule],   exports: [ClientsModule, ProductTypesModule], }) export class BusinessModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "feat: add ProductTypesModule to BusinessModule"
+```
+
+#### 8.24 — Actualizar database-seeder.service.ts
+
+Ejecuta seeders en orden de dependencias al arrancar (dev).
+
+**Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/seeders cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA' import { Injectable, Logger, OnModuleInit } from '@nestjs/common'; import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder'; import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';  /**  * Ejecuta seeders en orden de dependencias.  * Solo en entornos no productivos.  */ @Injectable() export class DatabaseSeederService implements OnModuleInit {   private readonly logger = new Logger(DatabaseSeederService.name);    async onModuleInit(): Promise<void> {     if (process.env.NODE_ENV === 'production') {       return;     }      try {       await seedClients();       await seedProductTypes();       this.logger.log('✅ Seeders ejecutados');     } catch (error: any) {       this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);       throw error;     }   } } EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: run seedProductTypes on bootstrap"
+```
+
+#### 8.25 — Actualizar app.module.ts
+
+Importa BusinessModule y/o AuthModule según el avance.
+Los guards globales llegan en la fase RBAC.
+
+**Archivo:** `src/app.module.ts`
+
+``` bash
+mkdir -p src cat > src/app.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ConfigModule } from '@nestjs/config'; import { envConfig } from './config/environment/env.config'; import { appConfig } from './config/app/app.config'; import { jwtConfig } from './config/jwt/jwt.config'; import { LoggerModule } from './config/logger/logger.module'; import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module'; import { SecurityModule } from './infrastructure/security/security.module'; import { BusinessModule } from './features/business/business.module'; import { AppController } from './app.controller'; import { AppService } from './app.service';  @Module({   imports: [     ConfigModule.forRoot({       isGlobal: true,       load: [envConfig, appConfig, jwtConfig],       envFilePath: '.env',     }),     SequelizeDatabaseModule,     SecurityModule,     LoggerModule,     BusinessModule,   ],   controllers: [AppController],   providers: [     AppService,   ], }) export class AppModule {} EOF_BACKEND_IA
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "chore: keep BusinessModule wired in AppModule"
+```
+
+#### 8.26 — Verificar tabla `product_types`
+
+Confirma sync/seeder y endpoints `/api/product-types`.
+
+``` bash
+npm run start:dev
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . git commit -m "test: verify product_types table and endpoints"
+```
+
+------------------------------------------------------------------------
+
+## 
+
 | \## `10_BUSINESS_credits` \|
 | 
 | 
