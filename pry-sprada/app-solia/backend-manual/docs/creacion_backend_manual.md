@@ -12704,7 +12704,7 @@ git commit -m "feat: add dto create-installment-payment.dto.ts"
 
 ![](images/clipboard-219147402.png)
 
-####   13.9 — features/business/installment-payments/application/dto/installment-payment-filter.dto.ts
+#### 13.9 — features/business/installment-payments/application/dto/installment-payment-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -13708,7 +13708,7 @@ git commit -m "test: verify InstallmentPayment table and endpoints"
 
 ## FASE 14 — `13_BUSINESS_RATES`
 
-### Business — Rates 
+### Business — Rates
 
 > **Objetivo de la fase:** Catálogo de Tasas.
 > Misma plantilla CA que Clients.
@@ -14082,70 +14082,214 @@ git commit -m "feat: add sequelize repository rate.repository.ts"
 
 ![](images/clipboard-1928760409.png)
 
-#### 8.6 — features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts
+#### 8.6 — features/business/rates/infrastructure/persistence/migrations/create-rates-table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
 
-**Archivo:** `src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts`
+**Archivo:** src/features/business/rates/infrastructure/persistence/migrations/create-rates-table.migration.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/migrations cat > src/features/business/product-types/infrastructure/persistence/migrations/create-product-types-table.migration.ts <<'EOF_BACKEND_IA' export const createProductTypesTableMigration = {   name: 'create-product-types-table',   async up(): Promise<void> {     // Sequelize sync handles table creation in development.     // Production: CREATE TABLE product_types (id, name, description, status, createdAt, updatedAt)   },   async down(): Promise<void> {     // Production: DROP TABLE product_types   }, }; EOF_BACKEND_IA
+mkdir -p src/features/business/rates/infrastructure/persistence/migrations
+
+cat > src/features/business/rates/infrastructure/persistence/migrations/create-rates-table.migration.ts <<'EOF_BACKEND-MANUAL'
+export const createRatesTableMigration = {
+  name: 'create-rates-table',
+
+  async up(): Promise<void> {
+    // Sequelize sync handles table creation in development.
+    // Production:
+    // CREATE TABLE rates (
+    //   id,
+    //   name,
+    //   description,
+    //   isActive,
+    //   status,
+    //   createdAt,
+    //   updatedAt
+    // )
+  },
+
+  async down(): Promise<void> {
+    // Production: DROP TABLE rates
+  },
+};
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3375472728.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "chore: add migration create-product-types-table.migration.ts"
+git add . 
+git commit -m "chore: add migration create-rates-table.migration.ts"
 ```
 
-#### 8.7 — features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts
+![](images/clipboard-2084198926.png)
+
+#### 8.7 — features/business/rates/infrastructure/persistence/seeders/rates.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
-**Archivo:** `src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts`
+**Archivo:** src/features/business/rates/infrastructure/persistence/seeders/rates.seeder.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/infrastructure/persistence/seeders cat > src/features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.ts <<'EOF_BACKEND_IA' import { ProductTypeModel } from '../models/product-type.model'; import { Status } from '../../../../../../common/enums/status.enum';  export async function seedProductTypes(): Promise<void> {   const count = await ProductTypeModel.count();   if (count > 0) {     return;   }    await ProductTypeModel.bulkCreate([     {       name: 'Electronics',       description: 'Electronic devices and accessories',       status: Status.ACTIVE,     },     {       name: 'Clothing',       description: 'Apparel and fashion items',       status: Status.ACTIVE,     },   ]); } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/infrastructure/persistence/seeders
+
+cat > src/features/business/rates/infrastructure/persistence/seeders/rates.seeder.ts <<'EOF_BACKEND-MANUAL'
+import { RateModel } from '../models/rate.model.js';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+
+export async function seedRates(): Promise<void> {
+  const count = await RateModel.count();
+
+  if (count > 0) {
+    return;
+  }
+
+  await RateModel.bulkCreate([
+    {
+      name: 'Tasa ordinaria',
+      description: 'Tasa de interés ordinaria para operaciones de crédito',
+      isActive: true,
+      status: Status.ACTIVE,
+    },
+    {
+      name: 'Tasa especial',
+      description: 'Tasa de interés especial para operaciones autorizadas',
+      isActive: true,
+      status: Status.ACTIVE,
+    },
+  ]);
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3885312770.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "chore: add seeder product-types.seeder.ts"
+git add . 
+git commit -m "chore: add seeder rates.seeder.ts"
 ```
 
-#### 8.8 — features/business/product-types/application/dto/create-product-type.dto.ts
+![](images/clipboard-3529053208.png)
+
+#### 8.8 — src/features/business/rates/application/dto/create-rate.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/create-product-type.dto.ts`
+**Archivo:** src/features/business/rates/application/dto/create-rate.dto.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/create-product-type.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';  export class CreateProductTypeDto {   @ApiProperty({ example: 'Electronics' })   @IsString()   @IsNotEmpty()   @MaxLength(100)   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   @IsOptional()   @IsString()   description?: string; } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/dto
+
+cat > src/features/business/rates/application/dto/create-rate.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+
+export class CreateRateDto {
+  @ApiProperty({
+    example: 'Tasa ordinaria',
+    description: 'Nombre de la tasa',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  name: string;
+
+  @ApiPropertyOptional({
+    example: 'Tasa de interés ordinaria para operaciones de crédito',
+    description: 'Descripción de la tasa',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  description?: string;
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-779722988.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add dto create-product-type.dto.ts"
+git add . 
+git commit -m "feat: add dto create-rate.dto.ts"
 ```
 
-#### 8.9 — features/business/product-types/application/dto/product-type-filter.dto.ts
+![](images/clipboard-1567038196.png)
+
+#### 8.9 — features/business/rates/application/dto/rate-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/product-type-filter.dto.ts`
+**Archivo:** src/features/business/rates/application/dto/rate-filter.dto.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-filter.dto.ts <<'EOF_BACKEND_IA' import { ApiPropertyOptional } from '@nestjs/swagger'; import { Type } from 'class-transformer'; import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';  export class ProductTypeFilterDto {   @ApiPropertyOptional({ example: 1, default: 1 })   @IsOptional()   @Type(() => Number)   @IsInt()   @Min(1)   page?: number;    @ApiPropertyOptional({ example: 10, default: 10 })   @IsOptional()   @Type(() => Number)   @IsInt()   @IsPositive()   limit?: number;    @ApiPropertyOptional({ example: 'electronics' })   @IsOptional()   @IsString()   search?: string; } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/dto
+
+cat > src/features/business/rates/application/dto/rate-filter.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
+
+export class RateFilterDto {
+  @ApiPropertyOptional({
+    example: 1,
+    default: 1,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({
+    example: 10,
+    default: 10,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  limit?: number;
+
+  @ApiPropertyOptional({
+    example: 'ordinaria',
+    description: 'Texto para buscar en el nombre o descripción de la tasa',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2705654851.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add dto product-type-filter.dto.ts"
+git add . 
+git commit -m "feat: add dto rate-filter.dto.ts"
 ```
+
+![](images/clipboard-2771096778.png)
 
 #### 8.10 — features/business/product-types/application/dto/product-type-response.dto.ts
 
@@ -14154,64 +14298,203 @@ DTO de entrada/salida HTTP con `class-validator` / Swagger.
 **Archivo:** `src/features/business/product-types/application/dto/product-type-response.dto.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/product-type-response.dto.ts <<'EOF_BACKEND_IA' import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'; import { Status } from '../../../../../common/enums/status.enum';  export class ProductTypeResponseDto {   @ApiProperty({ example: 1 })   id: number;    @ApiProperty({ example: 'Electronics' })   name: string;    @ApiPropertyOptional({ example: 'Electronic devices and accessories' })   description?: string;    @ApiProperty({ enum: Status, example: Status.ACTIVE })   status: Status;    @ApiProperty()   createdAt: Date;    @ApiProperty()   updatedAt: Date; } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/dto
+
+cat > src/features/business/rates/application/dto/rate-response.dto.ts <<'EOF_BACKEND-MANUAL'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class RateResponseDto {
+  @ApiProperty({
+    example: 1,
+  })
+  id: number;
+
+  @ApiProperty({
+    example: 'Tasa ordinaria',
+    description: 'Nombre de la tasa',
+  })
+  name: string;
+
+  @ApiPropertyOptional({
+    example: 'Tasa de interés ordinaria para operaciones de crédito',
+    description: 'Descripción de la tasa',
+  })
+  description?: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Indica si la tasa está activa',
+  })
+  isActive: boolean;
+
+  @ApiProperty({
+    enum: Status,
+    example: Status.ACTIVE,
+  })
+  status: Status;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1005391830.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add dto product-type-response.dto.ts"
+git add . 
+git commit -m "feat: add dto rate-response.dto.ts"
 ```
 
-#### 8.11 — features/business/product-types/application/dto/update-product-type.dto.ts
+![](images/clipboard-596649017.png)
+
+#### 8.11 — features/business/rates/application/dto/update-rate.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
-**Archivo:** `src/features/business/product-types/application/dto/update-product-type.dto.ts`
+**Archivo:** src/features/business/rates/application/dto/update-rate.dto.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/dto cat > src/features/business/product-types/application/dto/update-product-type.dto.ts <<'EOF_BACKEND_IA' import { PartialType } from '@nestjs/mapped-types'; import { CreateProductTypeDto } from './create-product-type.dto';  export class UpdateProductTypeDto extends PartialType(CreateProductTypeDto) {} EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/dto
+
+cat > src/features/business/rates/application/dto/update-rate.dto.ts <<'EOF_BACKEND-MANUAL'
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateRateDto } from './create-rate.dto.js';
+
+export class UpdateRateDto extends PartialType(CreateRateDto) {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4149457953.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add dto update-product-type.dto.ts"
+git add .
+git commit -m "feat: add dto update-rate.dto.ts"
 ```
 
-#### 8.12 — features/business/product-types/application/mappers/product-type.mapper.ts
+![](images/clipboard-1936807174.png)
+
+#### 8.12 — features/business/rates/application/mappers/rate.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
-**Archivo:** `src/features/business/product-types/application/mappers/product-type.mapper.ts`
+**Archivo:** src/features/business/rates/application/mappers/rate.mapper.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/mappers cat > src/features/business/product-types/application/mappers/product-type.mapper.ts <<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum'; import { ProductType } from '../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../dto/product-type-response.dto'; import { ProductTypeModel } from '../../infrastructure/persistence/models/product-type.model';  export class ProductTypeMapper {   static toDomain(model: ProductTypeModel): ProductType {     return ProductType.reconstitute({       id: model.id,       name: model.name,       description: model.description ?? undefined,       status: model.status,       createdAt: model.createdAt,       updatedAt: model.updatedAt,     });   }    static toResponse(entity: ProductType): ProductTypeResponseDto {     return {       id: entity.id!,       name: entity.name,       description: entity.description,       status: entity.status,       createdAt: entity.createdAt!,       updatedAt: entity.updatedAt!,     };   }    static toPersistence(entity: ProductType): Partial<ProductTypeModel> {     return {       id: entity.id,       name: entity.name,       description: entity.description ?? null,       status: entity.status ?? Status.ACTIVE,     };   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/mappers
+
+cat > src/features/business/rates/application/mappers/rate.mapper.ts <<'EOF_BACKEND-MANUAL'
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { Rate } from '../../domain/entities/rate.entity.js';
+import { RateResponseDto } from '../dto/rate-response.dto.js';
+import { RateModel } from '../../infrastructure/persistence/models/rate.model.js';
+
+export class RateMapper {
+  static toDomain(model: RateModel): Rate {
+    return Rate.reconstitute({
+      id: model.id,
+      name: model.name,
+      description: model.description ?? undefined,
+      isActive: model.isActive,
+      status: model.status,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+    });
+  }
+
+  static toResponse(entity: Rate): RateResponseDto {
+    return {
+      id: entity.id!,
+      name: entity.name,
+      description: entity.description,
+      isActive: entity.isActive,
+      status: entity.status,
+      createdAt: entity.createdAt!,
+      updatedAt: entity.updatedAt!,
+    };
+  }
+
+  static toPersistence(entity: Rate): Partial<RateModel> {
+    return {
+      id: entity.id,
+      name: entity.name,
+      description: entity.description ?? null,
+      isActive: entity.isActive,
+      status: entity.status ?? Status.ACTIVE,
+    };
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3301797520.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add mapper product-type.mapper.ts"
+git add . 
+git commit -m "feat: add mapper rate.mapper.ts"
 ```
 
-#### 8.13 — features/business/product-types/application/use-cases/create-product-type.use-case.ts
+![](images/clipboard-3706374567.png)
+
+#### 8.13 —features/business/rates/application/use-cases/create-rate.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/create-product-type.use-case.ts`
+**Archivo:** src/features/business/rates/application/use-cases/create-rate.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/create-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductType } from '../../domain/entities/product-type.entity'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { CreateProductTypeDto } from '../dto/create-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class CreateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(dto: CreateProductTypeDto) {     const productType = ProductType.create(dto);     const created = await this.productTypeRepository.create(productType);     return ProductTypeMapper.toResponse(created);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/use-cases
+
+cat > src/features/business/rates/application/use-cases/create-rate.use-case.ts <<'EOF_BACKEND-MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+import { Rate } from '../../domain/entities/rate.entity.js';
+import {
+  type IRateRepository,
+  RATE_REPOSITORY,
+} from '../../domain/interfaces/rate-repository.interface.js';
+import { CreateRateDto } from '../dto/create-rate.dto.js';
+import { RateMapper } from '../mappers/rate.mapper.js';
+
+@Injectable()
+export class CreateRateUseCase {
+  constructor(
+    @Inject(RATE_REPOSITORY)
+    private readonly rateRepository: IRateRepository,
+  ) {}
+
+  async execute(dto: CreateRateDto) {
+    const rate = Rate.create(dto);
+
+    const created = await this.rateRepository.create(rate);
+
+    return RateMapper.toResponse(created);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3447853797.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add use case create-product-type.use-case.ts"
+git add . 
+git commit -m "feat: add use case create-rate.use-case.ts"
 ```
+
+![](images/clipboard-2782150760.png)
 
 #### 8.14 — features/business/product-types/application/use-cases/delete-product-type.use-case.ts
 
@@ -14436,11 +14719,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \## FASE 11 — `10_AUTH_USERS` \|
 | 
 | 
 | 
+| 
 | \### Auth — Users \|
+| 
 | 
 | 
 | 
@@ -14450,7 +14736,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.1 — features/auth/users/domain/entities/user.entity.ts \|
+| 
 | 
 | 
 | 
@@ -14461,11 +14749,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/domain/entities/user.entity.ts` \|
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/domain/entities cat \> src/features/auth/users/domain/entities/user.entity.ts \<\<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum'; \|
+| 
 | 
 | 
 | 
@@ -14477,11 +14768,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | constructor(partial: Partial<User>) { Object.assign(this, partial); } } EOF_BACKEND_IA \`\`\` \|
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14489,13 +14783,16 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.2 — features/auth/users/domain/exceptions/user-email-exists.exception.ts \|
+| 
 | 
 | 
 | 
 | Excepción de dominio. 
   El caso de uso la lanza; el filter HTTP la traduce a status code. 
   \|
+| 
 | 
 | 
 | 
@@ -14503,7 +14800,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/domain/exceptions cat \> src/features/auth/users/domain/exceptions/user-email-exists.exception.ts \<\<'EOF_BACKEND_IA' import { DomainException } from '../../../../../common/exceptions/domain.exception'; \|
+| 
 | 
 | 
 | 
@@ -14511,7 +14810,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14519,13 +14820,16 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.3 — features/auth/users/domain/exceptions/user-not-found.exception.ts \|
+| 
 | 
 | 
 | 
 | Excepción de dominio. 
   El caso de uso la lanza; el filter HTTP la traduce a status code. 
   \|
+| 
 | 
 | 
 | 
@@ -14533,7 +14837,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/domain/exceptions cat \> src/features/auth/users/domain/exceptions/user-not-found.exception.ts \<\<'EOF_BACKEND_IA' import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception'; \|
+| 
 | 
 | 
 | 
@@ -14541,7 +14847,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14549,7 +14857,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.4 — features/auth/users/domain/exceptions/user-username-exists.exception.ts \|
+| 
 | 
 | 
 | 
@@ -14559,7 +14869,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/domain/exceptions/user-username-exists.exception.ts` \|
+| 
 | 
 | 
 | 
@@ -14567,7 +14879,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export class UserUsernameExistsException extends DomainException { constructor(username: string) { super(`El username ${username} ya está registrado`); } } EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -14575,11 +14889,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: add domain exception user-username-exists.exception.ts"` \|
 | 
 | 
 | 
+| 
 | \#### 11.5 — features/auth/users/domain/interfaces/user-repository.interface.ts \|
+| 
 | 
 | 
 | 
@@ -14589,7 +14906,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/domain/interfaces/user-repository.interface.ts` \|
+| 
 | 
 | 
 | 
@@ -14597,7 +14916,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export const USER_REPOSITORY = 'USER_REPOSITORY'; \|
+| 
 | 
 | 
 | 
@@ -14605,7 +14926,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14613,7 +14936,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.6 — features/auth/users/infrastructure/persistence/models/user.model.ts (sin asociaciones cruzadas aún) \|
+| 
 | 
 | 
 | 
@@ -14624,7 +14949,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/infrastructure/persistence/models/user.model.ts` \|
+| 
 | 
 | 
 | 
@@ -14632,7 +14959,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Table({ tableName: 'users' }) export class UserModel extends Model { @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true, }) declare id: number; \|
+| 
 | 
 | 
 | 
@@ -14640,7 +14969,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Column({ type: DataType.STRING(150), allowNull: false, unique: true }) declare email: string; \|
+| 
 | 
 | 
 | 
@@ -14648,7 +14979,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Column({ type: DataType.ENUM(...Object.values(Status)), allowNull: false, defaultValue: Status.ACTIVE, }) declare isActive: Status; \|
+| 
 | 
 | 
 | 
@@ -14656,7 +14989,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @CreatedAt declare createdAt: Date; \|
+| 
 | 
 | 
 | 
@@ -14664,7 +14999,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14672,7 +15009,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.7 — features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts \|
+| 
 | 
 | 
 | 
@@ -14681,7 +15020,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts` \|
+| 
 | 
 | 
 | 
@@ -14689,11 +15030,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Injectable() export class SequelizeUserRepository implements IUserRepository { async create(user: User): Promise<User> { const model = await UserModel.create(UserMapper.toPersistence(user)); return UserMapper.toDomain(model); } \|
 | 
 | 
 | 
+| 
 | async findAll(): Promise\<User[]\> { const models = await UserModel.findAll({ order: [['id', 'ASC']] }); return models.map(UserMapper.toDomain); } \|
+| 
 | 
 | 
 | 
@@ -14702,8 +15046,10 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async findByEmail(email: string): Promise\<User \| null\> { const model = await UserModel.findOne({ where: { email } }); return model ? 
   UserMapper.toDomain(model) : null; } \|
+| 
 | 
 | 
 | 
@@ -14712,7 +15058,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async update(id: number, data: Partial<User>): Promise<User> { const model = await UserModel.findByPk(id); if (!model) { throw new Error(`User ${id} not found`); } await model.update(UserMapper.toPersistence({ ...UserMapper.toDomain(model), ...data })); return UserMapper.toDomain(model); } \|
+| 
 | 
 | 
 | 
@@ -14720,7 +15068,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export const userRepositoryProvider = { provide: USER_REPOSITORY, useClass: SequelizeUserRepository, }; EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -14728,11 +15078,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: add sequelize repository sequelize-user.repository.ts"` \|
 | 
 | 
 | 
+| 
 | \#### 11.8 — features/auth/users/infrastructure/persistence/seeders/users.seeder.ts \|
+| 
 | 
 | 
 | 
@@ -14741,7 +15094,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/infrastructure/persistence/seeders/users.seeder.ts` \|
+| 
 | 
 | 
 | 
@@ -14749,7 +15104,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14757,7 +15114,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.9 — features/auth/users/application/dto/create-user.dto.ts \|
+| 
 | 
 | 
 | 
@@ -14766,7 +15125,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/application/dto/create-user.dto.ts` \|
+| 
 | 
 | 
 | 
@@ -14774,7 +15135,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export class CreateUserDto { @IsString() @IsNotEmpty() username: string; \|
+| 
 | 
 | 
 | 
@@ -14782,12 +15145,15 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @IsString() @MinLength(6) password: string; \|
+| 
 | 
 | 
 | 
 | @IsOptional() @IsEnum(Status) isActive?:
    Status; \|
+| 
 | 
 | 
 | 
@@ -14796,8 +15162,10 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export class UpdateUserDto { @IsOptional() @IsString() @IsNotEmpty() username?:
    string; \|
+| 
 | 
 | 
 | 
@@ -14806,8 +15174,10 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @IsOptional() @IsString() @MinLength(6) password?:
    string; \|
+| 
 | 
 | 
 | 
@@ -14816,8 +15186,10 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @IsOptional() @IsString() avatar?:
    string; } EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -14825,11 +15197,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: add dto create-user.dto.ts"` \|
 | 
 | 
 | 
+| 
 | \#### 11.10 — features/auth/users/application/dto/update-user.dto.ts \|
+| 
 | 
 | 
 | 
@@ -14838,7 +15213,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/application/dto/update-user.dto.ts` \|
+| 
 | 
 | 
 | 
@@ -14846,7 +15223,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14854,7 +15233,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.11 — features/auth/users/application/mappers/user.mapper.ts \|
+| 
 | 
 | 
 | 
@@ -14863,7 +15244,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/application/mappers/user.mapper.ts` \|
+| 
 | 
 | 
 | 
@@ -14871,7 +15254,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export class UserMapper { static toDomain(model: UserModel): User { return new User({ id: model.id, username: model.username, email: model.email, password: model.password, isActive: model.isActive, avatar: model.avatar ?? undefined, createdAt: model.createdAt, updatedAt: model.updatedAt, }); } \|
+| 
 | 
 | 
 | 
@@ -14880,11 +15265,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | static toResponse(entity: User) { return { id: entity.id, username: entity.username, email: entity.email, isActive: entity.isActive, avatar: entity.avatar, createdAt: entity.createdAt, updatedAt: entity.updatedAt, }; } } EOF_BACKEND_IA \`\`\` \|
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14892,7 +15280,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.12 — features/auth/users/application/use-cases/create-user.use-case.ts \|
+| 
 | 
 | 
 | 
@@ -14900,6 +15290,7 @@ git add . git commit -m "test: verify product_types table and endpoints"
   Orquesta dominio + repositorio. 
   El controller solo lo invoca. 
   \|
+| 
 | 
 | 
 | 
@@ -14907,7 +15298,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/create-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { Status } from '../../../../../common/enums/status.enum'; import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import { User } from '../../domain/entities/user.entity'; import { UserEmailExistsException } from '../../domain/exceptions/user-email-exists.exception'; import { UserUsernameExistsException } from '../../domain/exceptions/user-username-exists.exception'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { CreateUserDto } from '../dto/create-user.dto'; import { UserMapper } from '../mappers/user.mapper'; \|
+| 
 | 
 | 
 | 
@@ -14915,7 +15308,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async execute(dto: CreateUserDto) { const existingEmail = await this.userRepository.findByEmail(dto.email); if (existingEmail) { throw new UserEmailExistsException(dto.email); } \|
+| 
 | 
 | 
 | 
@@ -14923,7 +15318,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | const hashedPassword = await this.passwordHasher.hash(dto.password); \|
+| 
 | 
 | 
 | 
@@ -14931,11 +15328,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | const created = await this.userRepository.create(user); return UserMapper.toResponse(created); } } EOF_BACKEND_IA \`\`\` \|
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14943,7 +15343,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.13 — features/auth/users/application/use-cases/delete-user.use-case.ts \|
+| 
 | 
 | 
 | 
@@ -14951,6 +15353,7 @@ git add . git commit -m "test: verify product_types table and endpoints"
   Orquesta dominio + repositorio. 
   El controller solo lo invoca. 
   \|
+| 
 | 
 | 
 | 
@@ -14958,7 +15361,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/delete-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception'; \|
+| 
 | 
 | 
 | 
@@ -14966,11 +15371,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async execute(id: number): Promise<void> { const existing = await this.userRepository.findById(id); if (!existing) { throw new UserNotFoundException(id); } await this.userRepository.delete(id); } } EOF_BACKEND_IA \`\`\` \|
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -14978,7 +15386,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.14 — features/auth/users/application/use-cases/get-user.use-case.ts \|
+| 
 | 
 | 
 | 
@@ -14986,6 +15396,7 @@ git add . git commit -m "test: verify product_types table and endpoints"
   Orquesta dominio + repositorio. 
   El controller solo lo invoca. 
   \|
+| 
 | 
 | 
 | 
@@ -14993,7 +15404,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/get-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception'; import { UserMapper } from '../mappers/user.mapper'; \|
+| 
 | 
 | 
 | 
@@ -15001,11 +15414,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async execute(id: number) { const user = await this.userRepository.findById(id); if (!user) { throw new UserNotFoundException(id); } return UserMapper.toResponse(user); } } EOF_BACKEND_IA \`\`\` \|
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -15013,7 +15429,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.15 — features/auth/users/application/use-cases/list-users.use-case.ts \|
+| 
 | 
 | 
 | 
@@ -15021,6 +15439,7 @@ git add . git commit -m "test: verify product_types table and endpoints"
   Orquesta dominio + repositorio. 
   El controller solo lo invoca. 
   \|
+| 
 | 
 | 
 | 
@@ -15028,7 +15447,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/list-users.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserMapper } from '../mappers/user.mapper'; \|
+| 
 | 
 | 
 | 
@@ -15036,7 +15457,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async execute() { const users = await this.userRepository.findAll(); return users.map(UserMapper.toResponse); } } EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -15044,11 +15467,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: add use case list-users.use-case.ts"` \|
 | 
 | 
 | 
+| 
 | \#### 11.16 — features/auth/users/application/use-cases/update-user.use-case.ts \|
+| 
 | 
 | 
 | 
@@ -15059,7 +15485,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/application/use-cases/update-user.use-case.ts` \|
+| 
 | 
 | 
 | 
@@ -15067,7 +15495,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Injectable() export class UpdateUserUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, @Inject(PASSWORD_HASHER) private readonly passwordHasher: IPasswordHasher, ) {} \|
+| 
 | 
 | 
 | 
@@ -15075,7 +15505,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | if (dto.email && dto.email !== existing.email) { const emailTaken = await this.userRepository.findByEmail(dto.email); if (emailTaken) { throw new UserEmailExistsException(dto.email); } } \|
+| 
 | 
 | 
 | 
@@ -15083,7 +15515,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | const updateData: Partial<typeof existing> = { ...dto }; if (dto.password) { updateData.password = await this.passwordHasher.hash(dto.password); } \|
+| 
 | 
 | 
 | 
@@ -15091,7 +15525,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -15099,7 +15535,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.17 — features/auth/users/presentation/http/controllers/users.controller.ts \|
+| 
 | 
 | 
 | 
@@ -15108,7 +15546,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/presentation/http/controllers/users.controller.ts` \|
+| 
 | 
 | 
 | 
@@ -15116,7 +15556,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Controller('users') export class UsersController { constructor( private readonly createUserUseCase: CreateUserUseCase, private readonly listUsersUseCase: ListUsersUseCase, private readonly getUserUseCase: GetUserUseCase, private readonly updateUserUseCase: UpdateUserUseCase, private readonly deleteUserUseCase: DeleteUserUseCase, ) {} \|
+| 
 | 
 | 
 | 
@@ -15124,7 +15566,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Get() findAll() { return this.listUsersUseCase.execute(); } \|
+| 
 | 
 | 
 | 
@@ -15132,7 +15576,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Put(':id') update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) { return this.updateUserUseCase.execute(id, dto); } \|
+| 
 | 
 | 
 | 
@@ -15140,7 +15586,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -15148,7 +15596,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.18 — features/auth/users/users.module.ts \|
+| 
 | 
 | 
 | 
@@ -15157,7 +15607,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/users/users.module.ts` \|
+| 
 | 
 | 
 | 
@@ -15165,7 +15617,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Module({ controllers: [UsersController], providers: [ userRepositoryProvider, CreateUserUseCase, GetUserUseCase, ListUsersUseCase, UpdateUserUseCase, DeleteUserUseCase,], exports: [userRepositoryProvider], }) export class UsersModule {} EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -15173,11 +15627,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: wire nest module users.module.ts"` \|
 | 
 | 
 | 
+| 
 | \#### 11.19 — Actualizar sequelize.factory.ts (registrar modelos) \|
+| 
 | 
 | 
 | 
@@ -15186,7 +15643,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts` \|
+| 
 | 
 | 
 | 
@@ -15194,7 +15653,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model'; import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model'; import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model'; import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model'; import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model'; import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model'; \|
+| 
 | 
 | 
 | 
@@ -15202,7 +15663,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | export async function createSequelizeInstance( dialect: DatabaseDialect, ): Promise<Sequelize> { const options = getSequelizeOptions(dialect); \|
+| 
 | 
 | 
 | 
@@ -15210,7 +15673,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | switch (dialect) { case DatabaseDialect.MySQL: dialectModule = require('mysql2'); break; case DatabaseDialect.Postgres: dialectModule = require('pg'); break; case DatabaseDialect.MSSQL: dialectModule = require('tedious'); break; case DatabaseDialect.Oracle: dialectModule = require('oracledb'); break; default: throw new Error(`Dialecto no soportado: ${dialect}`); } \|
+| 
 | 
 | 
 | 
@@ -15218,7 +15683,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | try { await sequelize.authenticate(); console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`); } catch (error: any) { console.error( `❌ Error conectando a ${dialect.toUpperCase()}:`, error.message, ); throw error; } \|
+| 
 | 
 | 
 | 
@@ -15226,7 +15693,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | return sequelize; } EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -15234,11 +15703,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: register auth models up to user"` \|
 | 
 | 
 | 
+| 
 | \#### 11.20 — Actualizar auth.module.ts \|
+| 
 | 
 | 
 | 
@@ -15247,7 +15719,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/features/auth/auth.module.ts` \|
+| 
 | 
 | 
 | 
@@ -15255,7 +15729,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Module({ imports: [UsersModule], exports: [UsersModule], }) export class AuthModule {} EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -15263,11 +15739,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: add users to AuthModule"` \|
 | 
 | 
 | 
+| 
 | \#### 11.21 — Actualizar database-seeder.service.ts \|
+| 
 | 
 | 
 | 
@@ -15276,11 +15755,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts` \|
 | 
 | 
 | 
+| 
 | \`\`\` bash mkdir -p src/infrastructure/database/seeders cat \> src/infrastructure/database/seeders/database-seeder.service.ts \<\<'EOF_BACKEND_IA' import { Injectable, Logger, OnModuleInit } from '@nestjs/common'; import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder'; import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder'; import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder'; import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder'; \|
+| 
 | 
 | 
 | 
@@ -15290,7 +15772,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | async onModuleInit(): Promise<void> { if (process.env.NODE_ENV === 'production') { return; } \|
+| 
 | 
 | 
 | 
@@ -15298,7 +15782,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Sugerencia de commit (issue):** \|
+| 
 | 
 | 
 | 
@@ -15306,7 +15792,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | \#### 11.22 — Actualizar app.module.ts \|
+| 
 | 
 | 
 | 
@@ -15316,7 +15804,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | **Archivo:** `src/app.module.ts` \|
+| 
 | 
 | 
 | 
@@ -15324,7 +15814,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | @Module({ imports: [ ConfigModule.forRoot({ isGlobal: true, load: [envConfig, appConfig, jwtConfig], envFilePath: '.env', }), SequelizeDatabaseModule, SecurityModule, LoggerModule, BusinessModule, AuthModule,], controllers: [AppController], providers: [ AppService,], }) export class AppModule {} EOF_BACKEND_IA \`\`\` \|
+| 
 | 
 | 
 | 
@@ -15332,11 +15824,14 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "feat: import AuthModule into AppModule"` \|
 | 
 | 
 | 
+| 
 | \#### 11.23 — Verificar feature auth (Auth — Users) \|
+| 
 | 
 | 
 | 
@@ -15346,7 +15841,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash npm run start:dev` \|
+| 
 | 
 | 
 | 
@@ -15354,7 +15851,9 @@ git add . git commit -m "test: verify product_types table and endpoints"
 | 
 | 
 | 
+| 
 | `bash git add . git commit -m "test: verify 10_auth_users auth feature"` \|
+| 
 | 
 | 
 | 
