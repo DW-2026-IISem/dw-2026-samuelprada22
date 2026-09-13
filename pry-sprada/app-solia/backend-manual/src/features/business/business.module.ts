@@ -8,6 +8,7 @@ import { CreditsModule } from './credits/credits.module.js';
 import { InstallmentsModule } from './installments/installments.module.js';
 import { InstallmentPaymentsModule } from './installment-payments/installment-payments.module.js';
 import { RatesModule } from './rates/rates.module.js';
+import { DecisionCommitteesModule } from './decision-committees/decision-committees.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RatesModule } from './rates/rates.module.js';
     InstallmentsModule,
     InstallmentPaymentsModule,
     RatesModule,
+    DecisionCommitteesModule,
   ],
   exports: [
     MembersModule,
@@ -29,6 +31,7 @@ import { RatesModule } from './rates/rates.module.js';
     InstallmentsModule,
     InstallmentPaymentsModule,
     RatesModule,
+    DecisionCommitteesModule,
   ],
 })
 export class BusinessModule {}

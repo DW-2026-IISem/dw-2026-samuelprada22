@@ -1,4 +1,8 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 
 import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
 import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
@@ -10,12 +14,14 @@ import { seedInstallmentPayments } from '../../../features/business/installment-
 import { seedRates } from '../../../features/business/rates/infrastructure/persistence/seeders/rates.seeder.js';
 
 /**
- * Ejecuta seeders en orden de dependencias.
- * Solo en entornos no productivos.
+ * Ejecuta los seeders en orden de dependencias.
+ * Solo se ejecuta en entornos no productivos.
  */
 @Injectable()
 export class DatabaseSeederService implements OnModuleInit {
-  private readonly logger = new Logger(DatabaseSeederService.name);
+  private readonly logger = new Logger(
+    DatabaseSeederService.name,
+  );
 
   async onModuleInit(): Promise<void> {
     if (process.env.NODE_ENV === 'production') {
@@ -38,6 +44,7 @@ export class DatabaseSeederService implements OnModuleInit {
         `❌ Error en seeders: ${error.message}`,
         error.stack,
       );
+
       throw error;
     }
   }
