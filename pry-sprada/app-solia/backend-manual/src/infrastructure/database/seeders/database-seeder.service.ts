@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+
 import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
 import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
 import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
@@ -6,6 +7,7 @@ import { seedCreditApplications } from '../../../features/business/credit-applic
 import { seedCredits } from '../../../features/business/credits/infrastructure/persistence/seeders/credits.seeder.js';
 import { seedInstallments } from '../../../features/business/installments/infrastructure/persistence/seeders/installments.seeder.js';
 import { seedInstallmentPayments } from '../../../features/business/installment-payments/infrastructure/persistence/seeders/installment-payments.seeder.js';
+import { seedRates } from '../../../features/business/rates/infrastructure/persistence/seeders/rates.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias.
@@ -28,6 +30,7 @@ export class DatabaseSeederService implements OnModuleInit {
       await seedCredits();
       await seedInstallments();
       await seedInstallmentPayments();
+      await seedRates();
 
       this.logger.log('✅ Seeders ejecutados');
     } catch (error: any) {
