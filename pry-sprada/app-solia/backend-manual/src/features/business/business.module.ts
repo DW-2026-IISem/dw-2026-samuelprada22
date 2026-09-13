@@ -5,6 +5,7 @@ import { MovementsModule } from './movements/movements.module.js';
 import { CreditApplicationsModule } from './credit-applications/credit-applications.module.js';
 import { CreditsModule } from './credits/credits.module.js';
 import { InstallmentsModule } from './installments/installments.module.js';
+import { InstallmentPaymentsModule } from './installment-payments/installment-payments.module.js';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { InstallmentsModule } from './installments/installments.module.js';
     CreditApplicationsModule,
     CreditsModule,
     InstallmentsModule,
+    InstallmentPaymentsModule,
   ],
   exports: [
     MembersModule,
@@ -22,6 +24,7 @@ import { InstallmentsModule } from './installments/installments.module.js';
     CreditApplicationsModule,
     CreditsModule,
     InstallmentsModule,
+    InstallmentPaymentsModule,
   ],
 })
 export class BusinessModule {}
