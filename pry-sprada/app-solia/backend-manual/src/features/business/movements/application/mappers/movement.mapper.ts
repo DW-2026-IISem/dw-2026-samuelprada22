@@ -7,7 +7,7 @@ export class MovementMapper {
   static toDomain(model: MovementModel): Movement {
     return Movement.reconstitute({
       id: model.id,
-      referenceId: model.referenceId,
+      accountId: model.accountId,
       type: model.type,
       date: model.date,
       amount: Number(model.amount),
@@ -21,7 +21,7 @@ export class MovementMapper {
   static toResponse(entity: Movement): MovementResponseDto {
     return {
       id: entity.id!,
-      referenceId: entity.referenceId,
+      accountId: entity.accountId,
       type: entity.type,
       date: entity.date,
       amount: entity.amount,
@@ -35,7 +35,7 @@ export class MovementMapper {
   static toPersistence(entity: Movement): Partial<MovementModel> {
     return {
       id: entity.id,
-      referenceId: entity.referenceId,
+      accountId: entity.accountId,
       type: entity.type,
       date: entity.date,
       amount: entity.amount,

@@ -1,14 +1,17 @@
 import {
   AutoIncrement,
+  BelongsTo,
   Column,
   CreatedAt,
   DataType,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
 import { Status } from '../../../../../../common/enums/status.enum.js';
+import { CreditModel } from '../../../../credits/infrastructure/persistence/models/credit.model.js';
 
 @Table({ tableName: 'installments' })
 export class InstallmentModel extends Model {
@@ -16,6 +19,16 @@ export class InstallmentModel extends Model {
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
+
+  @ForeignKey(() => CreditModel)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare creditId: number;
+
+  @BelongsTo(() => CreditModel)
+  declare credit: CreditModel;
 
   @Column({
     type: DataType.STRING(100),

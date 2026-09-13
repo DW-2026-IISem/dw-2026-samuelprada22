@@ -1,5 +1,6 @@
 import { CreditModel } from '../models/credit.model.js';
 import { CreditApplicationModel } from '../../../../credit-applications/infrastructure/persistence/models/credit-application.model.js';
+import { RateModel } from '../../../../rates/infrastructure/persistence/models/rate.model.js';
 import { Status } from '../../../../../../common/enums/status.enum.js';
 
 export async function seedCredits(): Promise<void> {
@@ -15,8 +16,15 @@ export async function seedCredits(): Promise<void> {
     return;
   }
 
+  const rate = await RateModel.findByPk(1);
+
+  if (!rate) {
+    return;
+  }
+
   await CreditModel.create({
-    referenceId: creditApplication.id,
+    creditApplicationId: creditApplication.id,
+    rateId: rate.id,
     date: new Date(),
     amount: creditApplication.amount,
     status: Status.ACTIVE,

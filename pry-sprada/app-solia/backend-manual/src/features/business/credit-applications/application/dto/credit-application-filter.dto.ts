@@ -39,5 +39,5 @@ export class CreditApplicationFilterDto {
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  referenceId?: number;
+  memberId?: number;
 }

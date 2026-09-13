@@ -6,7 +6,7 @@ export const createMovementsTableMigration = {
     // Production:
     // CREATE TABLE movements (
     //   id,
-    //   referenceId,
+    //   accountId,
     //   type,
     //   date,
     //   amount,

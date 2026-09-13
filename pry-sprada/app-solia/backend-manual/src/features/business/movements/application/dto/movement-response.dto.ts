@@ -9,7 +9,7 @@ export class MovementResponseDto {
     example: 1,
     description: 'ID de la cuenta asociada al movimiento',
   })
-  referenceId: number;
+  accountId: number;
 
   @ApiProperty({
     example: 'APORTE',

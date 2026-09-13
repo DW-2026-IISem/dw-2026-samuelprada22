@@ -2,7 +2,7 @@ import { Status } from '../../../../../common/enums/status.enum.js';
 
 export interface CreditApplicationProps {
   id?: number;
-  referenceId: number;
+  memberId: number;
   date: Date;
   amount: number;
   status?: Status;
@@ -13,7 +13,7 @@ export interface CreditApplicationProps {
 
 export class CreditApplication {
   id?: number;
-  referenceId: number;
+  memberId: number;
   date: Date;
   amount: number;
   status: Status;
@@ -23,7 +23,7 @@ export class CreditApplication {
 
   private constructor(props: CreditApplicationProps) {
     this.id = props.id;
-    this.referenceId = props.referenceId;
+    this.memberId = props.memberId;
     this.date = props.date;
     this.amount = props.amount;
     this.status = props.status ?? Status.ACTIVE;
@@ -38,7 +38,7 @@ export class CreditApplication {
       'id' | 'status' | 'createdAt' | 'updatedAt'
     >,
   ): CreditApplication {
-    if (!props.referenceId || props.referenceId <= 0) {
+    if (!props.memberId || props.memberId <= 0) {
       throw new Error('La referencia de la solicitud de crédito es requerida');
     }
 
@@ -67,14 +67,14 @@ export class CreditApplication {
       >
     >,
   ): void {
-    if (props.referenceId !== undefined) {
-      if (props.referenceId <= 0) {
+    if (props.memberId !== undefined) {
+      if (props.memberId <= 0) {
         throw new Error(
           'La referencia de la solicitud de crédito debe ser válida',
         );
       }
 
-      this.referenceId = props.referenceId;
+      this.memberId = props.memberId;
     }
 
     if (props.date !== undefined) {

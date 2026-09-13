@@ -17,7 +17,7 @@ export class CreateMovementDto {
   })
   @IsInt()
   @IsPositive()
-  referenceId: number;
+  accountId: number;
 
   @ApiProperty({
     example: 'APORTE',

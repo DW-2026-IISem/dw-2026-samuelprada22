@@ -2,6 +2,7 @@ import { Status } from '../../../../../common/enums/status.enum.js';
 
 export interface InstallmentProps {
   id?: number;
+  creditId: number;
   name: string;
   description?: string;
   isActive?: boolean;
@@ -12,6 +13,7 @@ export interface InstallmentProps {
 
 export class Installment {
   id?: number;
+  creditId: number;
   name: string;
   description?: string;
   isActive: boolean;
@@ -21,6 +23,7 @@ export class Installment {
 
   private constructor(props: InstallmentProps) {
     this.id = props.id;
+    this.creditId = props.creditId;
     this.name = props.name;
     this.description = props.description;
     this.isActive = props.isActive ?? true;
@@ -35,6 +38,10 @@ export class Installment {
       'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
     >,
   ): Installment {
+    if (!props.creditId || props.creditId <= 0) {
+      throw new Error('El crédito es requerido');
+    }
+
     if (!props.name?.trim()) {
       throw new Error('El nombre de la cuota es requerido');
     }
@@ -54,6 +61,14 @@ export class Installment {
       >
     >,
   ): void {
+    if (props.creditId !== undefined) {
+      if (props.creditId <= 0) {
+        throw new Error('El crédito debe ser válido');
+      }
+
+      this.creditId = props.creditId;
+    }
+
     if (props.name !== undefined) {
       if (!props.name.trim()) {
         throw new Error('El nombre de la cuota es requerido');

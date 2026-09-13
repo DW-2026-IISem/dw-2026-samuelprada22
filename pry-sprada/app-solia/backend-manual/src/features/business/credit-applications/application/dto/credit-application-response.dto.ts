@@ -9,7 +9,7 @@ export class CreditApplicationResponseDto {
     example: 1,
     description: 'ID del socio asociado a la solicitud',
   })
-  referenceId: number;
+  memberId: number;
 
   @ApiProperty({
     example: '2026-09-11',

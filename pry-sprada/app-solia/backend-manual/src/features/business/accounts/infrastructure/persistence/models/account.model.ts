@@ -3,12 +3,14 @@ import {
   Column,
   CreatedAt,
   DataType,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
 import { Status } from '../../../../../../common/enums/status.enum.js';
+import { MemberModel } from '../../../../members/infrastructure/persistence/models/member.model.js';
 
 @Table({ tableName: 'accounts' })
 export class AccountModel extends Model {
@@ -16,6 +18,13 @@ export class AccountModel extends Model {
   @AutoIncrement
   @Column(DataType.INTEGER)
   declare id: number;
+
+  @ForeignKey(() => MemberModel)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare memberId: number;
 
   @Column({
     type: DataType.STRING(150),

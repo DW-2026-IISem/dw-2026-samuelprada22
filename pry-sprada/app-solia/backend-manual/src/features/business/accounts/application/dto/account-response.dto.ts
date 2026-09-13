@@ -5,11 +5,17 @@ export class AccountResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
+  @ApiProperty({
+    example: 1,
+    description: 'ID del socio propietario de la cuenta',
+  })
+  memberId: number;
+
   @ApiProperty({ example: 'Cuenta de Ahorros' })
   name: string;
 
   @ApiPropertyOptional({
-    example: 'Cuenta destinada al ahorro de los socios de FondoSolidario',
+    example: 'Cuenta destinada al ahorro del socio de FondoSolidario',
   })
   description?: string;
 

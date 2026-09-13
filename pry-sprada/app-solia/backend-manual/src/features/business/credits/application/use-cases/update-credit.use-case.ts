@@ -22,7 +22,8 @@ export class UpdateCreditUseCase {
     }
 
     credit.update({
-      referenceId: dto.referenceId,
+      creditApplicationId: dto.creditApplicationId,
+      rateId: dto.rateId,
       date: dto.date ? new Date(dto.date) : undefined,
       amount: dto.amount,
       observations: dto.observations,

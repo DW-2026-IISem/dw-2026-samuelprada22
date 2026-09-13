@@ -11,6 +11,7 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript';
 import { Status } from '../../../../../../common/enums/status.enum.js';
+import { RateModel } from '../../../../rates/infrastructure/persistence/models/rate.model.js';
 import { CreditApplicationModel } from '../../../../credit-applications/infrastructure/persistence/models/credit-application.model.js';
 
 @Table({ tableName: 'credits' })
@@ -25,10 +26,20 @@ export class CreditModel extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare referenceId: number;
+  declare creditApplicationId: number;
+
+  @ForeignKey(() => RateModel)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare rateId: number;
 
   @BelongsTo(() => CreditApplicationModel)
   declare creditApplication: CreditApplicationModel;
+
+  @BelongsTo(() => RateModel)
+  declare rate: RateModel;
 
   @Column({
     type: DataType.DATE,

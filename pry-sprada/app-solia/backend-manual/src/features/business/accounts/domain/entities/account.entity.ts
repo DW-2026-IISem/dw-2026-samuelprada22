@@ -2,6 +2,7 @@ import { Status } from '../../../../../common/enums/status.enum.js';
 
 export interface AccountProps {
   id?: number;
+  memberId: number;
   name: string;
   description?: string;
   isActive?: boolean;
@@ -12,6 +13,7 @@ export interface AccountProps {
 
 export class Account {
   id?: number;
+  memberId: number;
   name: string;
   description?: string;
   isActive: boolean;
@@ -21,6 +23,7 @@ export class Account {
 
   private constructor(props: AccountProps) {
     this.id = props.id;
+    this.memberId = props.memberId;
     this.name = props.name;
     this.description = props.description;
     this.isActive = props.isActive ?? true;
@@ -35,6 +38,10 @@ export class Account {
       'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
     >,
   ): Account {
+    if (!props.memberId || props.memberId <= 0) {
+      throw new Error('El socio es requerido');
+    }
+
     if (!props.name?.trim()) {
       throw new Error('El nombre de la cuenta es requerido');
     }
@@ -50,7 +57,7 @@ export class Account {
     props: Partial<
       Omit<
         AccountProps,
-        'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
+        'id' | 'memberId' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
       >
     >,
   ): void {

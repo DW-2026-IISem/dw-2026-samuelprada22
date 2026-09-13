@@ -10,7 +10,7 @@ export async function seedMovements(): Promise<void> {
 
   await MovementModel.bulkCreate([
     {
-      referenceId: 1,
+      accountId: 1,
       type: 'APORTE',
       date: new Date(),
       amount: 50000,
@@ -18,7 +18,7 @@ export async function seedMovements(): Promise<void> {
       status: Status.ACTIVE,
     },
     {
-      referenceId: 1,
+      accountId: 1,
       type: 'ABONO',
       date: new Date(),
       amount: 100000,
@@ -26,7 +26,7 @@ export async function seedMovements(): Promise<void> {
       status: Status.ACTIVE,
     },
     {
-      referenceId: 2,
+      accountId: 2,
       type: 'APORTE',
       date: new Date(),
       amount: 75000,

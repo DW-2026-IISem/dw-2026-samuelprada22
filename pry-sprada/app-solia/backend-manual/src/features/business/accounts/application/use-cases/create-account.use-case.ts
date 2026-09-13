@@ -16,6 +16,7 @@ export class CreateAccountUseCase {
 
   async execute(dto: CreateAccountDto) {
     const account = Account.create({
+      memberId: dto.memberId,
       name: dto.name,
       description: dto.description,
     });

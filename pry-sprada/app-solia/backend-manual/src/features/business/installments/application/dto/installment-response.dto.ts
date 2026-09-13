@@ -6,6 +6,12 @@ export class InstallmentResponseDto {
   id: number;
 
   @ApiProperty({
+    example: 1,
+    description: 'ID del crédito al que pertenece la cuota',
+  })
+  creditId: number;
+
+  @ApiProperty({
     example: 'Cuota mensual',
     description: 'Nombre de la cuota',
   })

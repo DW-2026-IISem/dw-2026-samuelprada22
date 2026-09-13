@@ -25,7 +25,7 @@ export class CreditApplicationModel extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare referenceId: number;
+  declare memberId: number;
 
   @BelongsTo(() => MemberModel)
   declare member: MemberModel;

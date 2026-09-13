@@ -3,13 +3,24 @@ import {
   ApiPropertyOptional,
 } from '@nestjs/swagger';
 import {
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateInstallmentPaymentDto {
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la cuota a la que pertenece el pago',
+  })
+  @IsInt()
+  @Min(1)
+  @IsNotEmpty()
+  installmentId: number;
+
   @ApiProperty({
     example: 'Pago de cuota mensual',
     description: 'Nombre del pago de cuota',

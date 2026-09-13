@@ -36,7 +36,7 @@ export class MovementFilterDto {
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  referenceId?: number;
+  accountId?: number;
 
   @ApiPropertyOptional({
     example: 'APORTE',

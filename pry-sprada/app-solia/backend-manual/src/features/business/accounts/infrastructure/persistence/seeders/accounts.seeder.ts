@@ -10,14 +10,23 @@ export async function seedAccounts(): Promise<void> {
 
   await AccountModel.bulkCreate([
     {
+      memberId: 1,
       name: 'Cuenta de Ahorros',
-      description: 'Cuenta destinada al ahorro de los socios de FondoSolidario',
+      description: 'Cuenta destinada al ahorro del socio Juan Pérez',
       isActive: true,
       status: Status.ACTIVE,
     },
     {
+      memberId: 1,
       name: 'Cuenta de Aportes',
-      description: 'Cuenta para registrar los aportes de los socios de FondoSolidario',
+      description: 'Cuenta para registrar los aportes del socio Juan Pérez',
+      isActive: true,
+      status: Status.ACTIVE,
+    },
+    {
+      memberId: 2,
+      name: 'Cuenta de Ahorros',
+      description: 'Cuenta destinada al ahorro de la socia María García',
       isActive: true,
       status: Status.ACTIVE,
     },

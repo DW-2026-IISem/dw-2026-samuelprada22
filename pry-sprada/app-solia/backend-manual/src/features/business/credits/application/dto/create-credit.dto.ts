@@ -17,7 +17,15 @@ export class CreateCreditDto {
   })
   @IsInt()
   @IsPositive()
-  referenceId: number;
+  creditApplicationId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la tasa asociada al crédito',
+  })
+  @IsInt()
+  @IsPositive()
+  rateId: number;
 
   @ApiProperty({
     example: '2026-09-11',

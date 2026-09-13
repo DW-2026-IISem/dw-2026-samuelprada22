@@ -17,7 +17,7 @@ export class CreateCreditApplicationDto {
   })
   @IsInt()
   @IsPositive()
-  referenceId: number;
+  memberId: number;
 
   @ApiProperty({
     example: '2026-09-11',

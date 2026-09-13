@@ -2,7 +2,7 @@ import { Status } from '../../../../../common/enums/status.enum.js';
 
 export interface MovementProps {
   id?: number;
-  referenceId: number;
+  accountId: number;
   type: string;
   date: Date;
   amount: number;
@@ -14,7 +14,7 @@ export interface MovementProps {
 
 export class Movement {
   id?: number;
-  referenceId: number;
+  accountId: number;
   type: string;
   date: Date;
   amount: number;
@@ -25,7 +25,7 @@ export class Movement {
 
   private constructor(props: MovementProps) {
     this.id = props.id;
-    this.referenceId = props.referenceId;
+    this.accountId = props.accountId;
     this.type = props.type;
     this.date = props.date;
     this.amount = props.amount;
@@ -41,7 +41,7 @@ export class Movement {
       'id' | 'status' | 'createdAt' | 'updatedAt'
     >,
   ): Movement {
-    if (!props.referenceId || props.referenceId <= 0) {
+    if (!props.accountId || props.accountId <= 0) {
       throw new Error('La referencia del movimiento es requerida');
     }
 
@@ -72,12 +72,12 @@ export class Movement {
       >
     >,
   ): void {
-    if (props.referenceId !== undefined) {
-      if (props.referenceId <= 0) {
+    if (props.accountId !== undefined) {
+      if (props.accountId <= 0) {
         throw new Error('La referencia del movimiento debe ser válida');
       }
 
-      this.referenceId = props.referenceId;
+      this.accountId = props.accountId;
     }
 
     if (props.type !== undefined) {

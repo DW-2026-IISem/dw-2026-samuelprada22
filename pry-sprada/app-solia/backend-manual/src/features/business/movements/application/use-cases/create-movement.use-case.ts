@@ -16,7 +16,7 @@ export class CreateMovementUseCase {
 
   async execute(dto: CreateMovementDto) {
     const movement = Movement.create({
-      referenceId: dto.referenceId,
+      accountId: dto.accountId,
       type: dto.type,
       date: new Date(dto.date),
       amount: dto.amount,

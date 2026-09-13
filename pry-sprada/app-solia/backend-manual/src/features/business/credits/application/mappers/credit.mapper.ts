@@ -7,7 +7,8 @@ export class CreditMapper {
   static toDomain(model: CreditModel): Credit {
     return Credit.reconstitute({
       id: model.id,
-      referenceId: model.referenceId,
+      creditApplicationId: model.creditApplicationId,
+      rateId: model.rateId,
       date: model.date,
       amount: Number(model.amount),
       status: model.status,
@@ -20,7 +21,8 @@ export class CreditMapper {
   static toResponse(entity: Credit): CreditResponseDto {
     return {
       id: entity.id!,
-      referenceId: entity.referenceId,
+      creditApplicationId: entity.creditApplicationId,
+      rateId: entity.rateId,
       date: entity.date,
       amount: entity.amount,
       status: entity.status,
@@ -35,7 +37,8 @@ export class CreditMapper {
   ): Partial<CreditModel> {
     return {
       id: entity.id,
-      referenceId: entity.referenceId,
+      creditApplicationId: entity.creditApplicationId,
+      rateId: entity.rateId,
       date: entity.date,
       amount: entity.amount,
       status: entity.status ?? Status.ACTIVE,

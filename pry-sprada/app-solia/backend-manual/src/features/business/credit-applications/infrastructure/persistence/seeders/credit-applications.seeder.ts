@@ -22,7 +22,7 @@ export async function seedCreditApplications(): Promise<void> {
   }
 
   await CreditApplicationModel.create({
-    referenceId: member.id,
+    memberId: member.id,
     date: new Date(),
     amount: 1000000,
     status: Status.ACTIVE,

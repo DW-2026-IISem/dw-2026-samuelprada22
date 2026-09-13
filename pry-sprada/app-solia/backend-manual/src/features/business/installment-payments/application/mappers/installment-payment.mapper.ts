@@ -9,6 +9,7 @@ export class InstallmentPaymentMapper {
   ): InstallmentPayment {
     return InstallmentPayment.reconstitute({
       id: model.id,
+      installmentId: model.installmentId,
       name: model.name,
       description: model.description ?? undefined,
       isActive: model.isActive,
@@ -23,6 +24,7 @@ export class InstallmentPaymentMapper {
   ): InstallmentPaymentResponseDto {
     return {
       id: entity.id!,
+      installmentId: entity.installmentId,
       name: entity.name,
       description: entity.description,
       isActive: entity.isActive,
@@ -37,6 +39,7 @@ export class InstallmentPaymentMapper {
   ): Partial<InstallmentPaymentModel> {
     return {
       id: entity.id,
+      installmentId: entity.installmentId,
       name: entity.name,
       description: entity.description ?? null,
       isActive: entity.isActive,

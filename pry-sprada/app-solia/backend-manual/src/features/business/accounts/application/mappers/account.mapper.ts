@@ -7,6 +7,7 @@ export class AccountMapper {
   static toDomain(model: AccountModel): Account {
     return Account.reconstitute({
       id: model.id,
+      memberId: model.memberId,
       name: model.name,
       description: model.description ?? undefined,
       isActive: model.isActive,
@@ -19,6 +20,7 @@ export class AccountMapper {
   static toResponse(entity: Account): AccountResponseDto {
     return {
       id: entity.id!,
+      memberId: entity.memberId,
       name: entity.name,
       description: entity.description,
       isActive: entity.isActive,
@@ -31,6 +33,7 @@ export class AccountMapper {
   static toPersistence(entity: Account): Partial<AccountModel> {
     return {
       id: entity.id,
+      memberId: entity.memberId,
       name: entity.name,
       description: entity.description ?? null,
       isActive: entity.isActive,

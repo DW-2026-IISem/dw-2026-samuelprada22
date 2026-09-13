@@ -64,8 +64,8 @@ export class MovementRepository implements IMovementRepository {
       });
     }
 
-    if (params.referenceId) {
-      where.referenceId = params.referenceId;
+    if (params.accountId) {
+      where.accountId = params.accountId;
     }
 
     if (params.type) {

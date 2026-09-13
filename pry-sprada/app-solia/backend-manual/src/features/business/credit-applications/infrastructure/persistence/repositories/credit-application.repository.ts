@@ -79,8 +79,8 @@ export class CreditApplicationRepository
       });
     }
 
-    if (params.referenceId) {
-      where.referenceId = params.referenceId;
+    if (params.memberId) {
+      where.memberId = params.memberId;
     }
 
     const { rows, count } =

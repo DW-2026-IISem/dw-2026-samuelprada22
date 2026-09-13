@@ -9,6 +9,12 @@ export class InstallmentPaymentResponseDto {
   id: number;
 
   @ApiProperty({
+    example: 1,
+    description: 'ID de la cuota a la que pertenece el pago',
+  })
+  installmentId: number;
+
+  @ApiProperty({
     example: 'Pago de cuota mensual',
     description: 'Nombre del pago de cuota',
   })

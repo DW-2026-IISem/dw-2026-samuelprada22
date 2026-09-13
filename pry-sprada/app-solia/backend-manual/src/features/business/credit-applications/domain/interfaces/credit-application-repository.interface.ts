@@ -8,7 +8,7 @@ export interface CreditApplicationFindAllParams {
   page?: number;
   limit?: number;
   search?: string;
-  referenceId?: number;
+  memberId?: number;
 }
 
 export interface ICreditApplicationRepository {

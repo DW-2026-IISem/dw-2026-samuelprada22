@@ -24,14 +24,15 @@ export class CreateCreditUseCase {
 
   async execute(dto: CreateCreditDto) {
     const creditApplication =
-      await this.creditApplicationRepository.findById(dto.referenceId);
+      await this.creditApplicationRepository.findById(dto.creditApplicationId);
 
     if (!creditApplication) {
-      throw new CreditNotFoundException(dto.referenceId);
+      throw new CreditNotFoundException(dto.creditApplicationId);
     }
 
     const credit = Credit.create({
-      referenceId: dto.referenceId,
+      creditApplicationId: dto.creditApplicationId,
+      rateId: dto.rateId,
       date: new Date(dto.date),
       amount: dto.amount,
       observations: dto.observations,

@@ -2,6 +2,7 @@ import { Status } from '../../../../../common/enums/status.enum.js';
 
 export interface InstallmentPaymentProps {
   id?: number;
+  installmentId: number;
   name: string;
   description?: string;
   isActive?: boolean;
@@ -12,6 +13,7 @@ export interface InstallmentPaymentProps {
 
 export class InstallmentPayment {
   id?: number;
+  installmentId: number;
   name: string;
   description?: string;
   isActive: boolean;
@@ -21,6 +23,7 @@ export class InstallmentPayment {
 
   private constructor(props: InstallmentPaymentProps) {
     this.id = props.id;
+    this.installmentId = props.installmentId;
     this.name = props.name;
     this.description = props.description;
     this.isActive = props.isActive ?? true;
@@ -35,16 +38,18 @@ export class InstallmentPayment {
       'id' | 'isActive' | 'status' | 'createdAt' | 'updatedAt'
     >,
   ): InstallmentPayment {
+    if (!props.installmentId || props.installmentId <= 0) {
+      throw new Error('La cuota es requerida');
+    }
+
     if (!props.name?.trim()) {
-      throw new Error('El nombre del pago de cuota es requerido');
+      throw new Error('El nombre del pago es requerido');
     }
 
     return new InstallmentPayment(props);
   }
 
-  static reconstitute(
-    props: InstallmentPaymentProps,
-  ): InstallmentPayment {
+  static reconstitute(props: InstallmentPaymentProps): InstallmentPayment {
     return new InstallmentPayment(props);
   }
 
@@ -56,9 +61,17 @@ export class InstallmentPayment {
       >
     >,
   ): void {
+    if (props.installmentId !== undefined) {
+      if (props.installmentId <= 0) {
+        throw new Error('La cuota debe ser válida');
+      }
+
+      this.installmentId = props.installmentId;
+    }
+
     if (props.name !== undefined) {
       if (!props.name.trim()) {
-        throw new Error('El nombre del pago de cuota es requerido');
+        throw new Error('El nombre del pago es requerido');
       }
 
       this.name = props.name;

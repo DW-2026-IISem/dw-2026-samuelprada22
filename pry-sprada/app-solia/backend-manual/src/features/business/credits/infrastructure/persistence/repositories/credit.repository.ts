@@ -67,8 +67,12 @@ export class CreditRepository implements ICreditRepository {
       });
     }
 
-    if (params.referenceId) {
-      where.referenceId = params.referenceId;
+    if (params.creditApplicationId) {
+      where.creditApplicationId = params.creditApplicationId;
+    }
+
+    if (params.rateId) {
+      where.rateId = params.rateId;
     }
 
     const { rows, count } = await CreditModel.findAndCountAll({

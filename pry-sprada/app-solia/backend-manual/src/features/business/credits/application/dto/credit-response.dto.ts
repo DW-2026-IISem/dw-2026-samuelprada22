@@ -9,7 +9,13 @@ export class CreditResponseDto {
     example: 1,
     description: 'ID de la solicitud de crédito asociada',
   })
-  referenceId: number;
+  creditApplicationId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID de la tasa asociada al crédito',
+  })
+  rateId: number;
 
   @ApiProperty({
     example: '2026-09-11',

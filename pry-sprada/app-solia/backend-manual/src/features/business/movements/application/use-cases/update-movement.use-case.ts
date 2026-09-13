@@ -22,7 +22,7 @@ export class UpdateMovementUseCase {
     }
 
     movement.update({
-      referenceId: dto.referenceId,
+      accountId: dto.accountId,
       type: dto.type,
       date: dto.date ? new Date(dto.date) : undefined,
       amount: dto.amount,

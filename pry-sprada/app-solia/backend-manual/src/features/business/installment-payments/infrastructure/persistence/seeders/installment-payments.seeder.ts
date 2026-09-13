@@ -10,12 +10,14 @@ export async function seedInstallmentPayments(): Promise<void> {
 
   await InstallmentPaymentModel.bulkCreate([
     {
+      installmentId: 1,
       name: 'Pago de cuota mensual',
       description: 'Registro de pago correspondiente a una cuota mensual',
       isActive: true,
       status: Status.ACTIVE,
     },
     {
+      installmentId: 2,
       name: 'Pago de cuota extraordinaria',
       description: 'Registro de pago correspondiente a una cuota extraordinaria',
       isActive: true,

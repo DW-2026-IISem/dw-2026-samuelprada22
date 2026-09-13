@@ -6,7 +6,7 @@ export const createCreditsTableMigration = {
     // Production:
     // CREATE TABLE credits (
     //   id,
-    //   referenceId,
+    //   creditApplicationId,
     //   date,
     //   amount,
     //   status,

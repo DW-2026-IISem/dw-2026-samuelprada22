@@ -53,7 +53,7 @@ export class InstallmentRepository implements IInstallmentRepository {
       params.limit,
     );
 
-    const where = params.search
+    const where: Record<string | symbol, any> = params.search
       ? {
           [Op.or]: [
             {
@@ -69,6 +69,10 @@ export class InstallmentRepository implements IInstallmentRepository {
           ],
         }
       : {};
+
+    if (params.creditId) {
+      where.creditId = params.creditId;
+    }
 
     const { rows, count } =
       await InstallmentModel.findAndCountAll({

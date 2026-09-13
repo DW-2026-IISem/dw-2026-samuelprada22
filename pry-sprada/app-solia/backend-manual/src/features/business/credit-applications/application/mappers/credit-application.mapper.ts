@@ -9,7 +9,7 @@ export class CreditApplicationMapper {
   ): CreditApplication {
     return CreditApplication.reconstitute({
       id: model.id,
-      referenceId: model.referenceId,
+      memberId: model.memberId,
       date: model.date,
       amount: Number(model.amount),
       status: model.status,
@@ -24,7 +24,7 @@ export class CreditApplicationMapper {
   ): CreditApplicationResponseDto {
     return {
       id: entity.id!,
-      referenceId: entity.referenceId,
+      memberId: entity.memberId,
       date: entity.date,
       amount: entity.amount,
       status: entity.status,
@@ -39,7 +39,7 @@ export class CreditApplicationMapper {
   ): Partial<CreditApplicationModel> {
     return {
       id: entity.id,
-      referenceId: entity.referenceId,
+      memberId: entity.memberId,
       date: entity.date,
       amount: entity.amount,
       status: entity.status ?? Status.ACTIVE,

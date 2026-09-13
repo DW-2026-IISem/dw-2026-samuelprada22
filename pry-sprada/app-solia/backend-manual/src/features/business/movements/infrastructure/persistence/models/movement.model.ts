@@ -25,7 +25,7 @@ export class MovementModel extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare referenceId: number;
+  declare accountId: number;
 
   @BelongsTo(() => AccountModel)
   declare account: AccountModel;

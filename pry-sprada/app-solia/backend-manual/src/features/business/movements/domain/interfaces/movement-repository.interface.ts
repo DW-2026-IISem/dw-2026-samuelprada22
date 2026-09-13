@@ -7,7 +7,7 @@ export interface MovementFindAllParams {
   page?: number;
   limit?: number;
   search?: string;
-  referenceId?: number;
+  accountId?: number;
   type?: string;
 }
 

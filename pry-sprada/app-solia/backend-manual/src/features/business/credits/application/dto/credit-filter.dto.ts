@@ -39,5 +39,15 @@ export class CreditFilterDto {
   @Type(() => Number)
   @IsInt()
   @IsPositive()
-  referenceId?: number;
+  creditApplicationId?: number;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'ID de la tasa asociada al crédito',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  rateId?: number;
 }

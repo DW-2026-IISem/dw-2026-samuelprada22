@@ -9,6 +9,16 @@ import {
 } from 'class-validator';
 
 export class InstallmentFilterDto {
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'ID del crédito al que pertenecen las cuotas',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  creditId?: number;
+
   @ApiPropertyOptional({ example: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)
