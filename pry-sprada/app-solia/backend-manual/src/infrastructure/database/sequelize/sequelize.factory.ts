@@ -2,33 +2,20 @@ import { Sequelize } from 'sequelize-typescript';
 import { DatabaseDialect } from '../../../config/environment/env.interface.js';
 import { getSequelizeOptions } from './sequelize.options.js';
 
-import mysql2 from 'mysql2';
-import pg from 'pg';
-import tedious from 'tedious';
-import oracledb from 'oracledb';
-
-import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
-import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
-import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
-import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
-import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
-import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
-import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
-import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
-import { DecisionCommitteeModel } from '../../../features/business/decision-committees/infrastructure/persistence/models/decision-committee.model.js';
-import { AuditModel } from '../../../features/business/audits/infrastructure/persistence/models/audit.model.js';
+import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model.js';
+import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model.js';
+import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model.js';
+import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model.js';
+import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model.js';
+import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
 
 export const ALL_MODELS = [
-  MemberModel,
-  AccountModel,
-  MovementModel,
-  CreditApplicationModel,
-  CreditModel,
-  InstallmentModel,
-  InstallmentPaymentModel,
-  RateModel,
-  DecisionCommitteeModel,
-  AuditModel,
+  ClientModel,
+  ProductTypeModel,
+  ProductModel,
+  SaleModel,
+  ProductSaleModel,
+  UserModel,
 ];
 
 export async function createSequelizeInstance(
@@ -40,19 +27,19 @@ export async function createSequelizeInstance(
 
   switch (dialect) {
     case DatabaseDialect.MySQL:
-      dialectModule = mysql2;
+      dialectModule = require('mysql2');
       break;
 
     case DatabaseDialect.Postgres:
-      dialectModule = pg;
+      dialectModule = require('pg');
       break;
 
     case DatabaseDialect.MSSQL:
-      dialectModule = tedious;
+      dialectModule = require('tedious');
       break;
 
     case DatabaseDialect.Oracle:
-      dialectModule = oracledb;
+      dialectModule = require('oracledb');
       break;
 
     default:
