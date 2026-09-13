@@ -1,9 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
-
-import {
-  DatabaseDialect,
-} from '../../../config/environment/env.interface.js';
-
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
 import { getSequelizeOptions } from './sequelize.options.js';
 
 import mysql2 from 'mysql2';
@@ -20,6 +16,7 @@ import { InstallmentModel } from '../../../features/business/installments/infras
 import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
 import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
 import { DecisionCommitteeModel } from '../../../features/business/decision-committees/infrastructure/persistence/models/decision-committee.model.js';
+import { AuditModel } from '../../../features/business/audits/infrastructure/persistence/models/audit.model.js';
 
 export const ALL_MODELS = [
   MemberModel,
@@ -31,6 +28,7 @@ export const ALL_MODELS = [
   InstallmentPaymentModel,
   RateModel,
   DecisionCommitteeModel,
+  AuditModel,
 ];
 
 export async function createSequelizeInstance(
@@ -69,24 +67,17 @@ export async function createSequelizeInstance(
 
   try {
     await sequelize.authenticate();
-
-    console.log(
-      `✅ Conexión exitosa a ${dialect.toUpperCase()}`,
-    );
+    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
   } catch (error: any) {
     console.error(
       `❌ Error conectando a ${dialect.toUpperCase()}:`,
       error.message,
     );
-
     throw error;
   }
 
   if (process.env.NODE_ENV !== 'production') {
-    await sequelize.sync({
-      alter: false,
-    });
-
+    await sequelize.sync({ alter: false });
     console.log('✅ Tablas sincronizadas');
   }
 
