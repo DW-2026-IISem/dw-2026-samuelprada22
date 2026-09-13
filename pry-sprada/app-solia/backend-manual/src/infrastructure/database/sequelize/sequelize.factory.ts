@@ -14,6 +14,7 @@ import { CreditApplicationModel } from '../../../features/business/credit-applic
 import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
 import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
 import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
+import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
 
 export const ALL_MODELS = [
   MemberModel,
@@ -23,6 +24,7 @@ export const ALL_MODELS = [
   CreditModel,
   InstallmentModel,
   InstallmentPaymentModel,
+  RateModel,
 ];
 
 export async function createSequelizeInstance(
