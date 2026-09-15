@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ROLE_REPOSITORY } from '../../domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../domain/interfaces/role-repository.interface';
-import { RoleNotFoundException } from '../../domain/exceptions/role-not-found.exception';
+import { ROLE_REPOSITORY } from '../../domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../domain/interfaces/role-repository.interface.js';
+import { RoleNotFoundException } from '../../domain/exceptions/role-not-found.exception.js';
 
 @Injectable()
 export class DeleteRoleUseCase {

@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { RoleNameExistsException } from '../../domain/exceptions/role-name-exists.exception';
-import { RoleNotFoundException } from '../../domain/exceptions/role-not-found.exception';
-import { ROLE_REPOSITORY } from '../../domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../domain/interfaces/role-repository.interface';
-import { UpdateRoleDto } from '../dto/update-role.dto';
-import { RoleMapper } from '../mappers/role.mapper';
+import { RoleNameExistsException } from '../../domain/exceptions/role-name-exists.exception.js';
+import { RoleNotFoundException } from '../../domain/exceptions/role-not-found.exception.js';
+import { ROLE_REPOSITORY } from '../../domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../domain/interfaces/role-repository.interface.js';
+import { UpdateRoleDto } from '../dto/update-role.dto.js';
+import { RoleMapper } from '../mappers/role.mapper.js';
 
 @Injectable()
 export class UpdateRoleUseCase {

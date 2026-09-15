@@ -8,13 +8,13 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateRoleDto } from '../../../application/dto/create-role.dto';
-import { UpdateRoleDto } from '../../../application/dto/update-role.dto';
-import { CreateRoleUseCase } from '../../../application/use-cases/create-role.use-case';
-import { DeleteRoleUseCase } from '../../../application/use-cases/delete-role.use-case';
-import { GetRoleUseCase } from '../../../application/use-cases/get-role.use-case';
-import { ListRolesUseCase } from '../../../application/use-cases/list-roles.use-case';
-import { UpdateRoleUseCase } from '../../../application/use-cases/update-role.use-case';
+import { CreateRoleDto } from '../../../application/dto/create-role.dto.js';
+import { UpdateRoleDto } from '../../../application/dto/update-role.dto.js';
+import { CreateRoleUseCase } from '../../../application/use-cases/create-role.use-case.js';
+import { DeleteRoleUseCase } from '../../../application/use-cases/delete-role.use-case.js';
+import { GetRoleUseCase } from '../../../application/use-cases/get-role.use-case.js';
+import { ListRolesUseCase } from '../../../application/use-cases/list-roles.use-case.js';
+import { UpdateRoleUseCase } from '../../../application/use-cases/update-role.use-case.js';
 
 @Controller('roles')
 export class RolesController {

@@ -1,5 +1,8 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Status } from '../../../../../common/enums/status.enum';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateRoleDto {
   @IsString()
@@ -7,17 +10,6 @@ export class CreateRoleDto {
   name: string;
 
   @IsOptional()
-  @IsEnum(Status)
-  isActive?: Status;
-}
-
-export class UpdateRoleDto {
-  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  name?: string;
-
-  @IsOptional()
-  @IsEnum(Status)
-  isActive?: Status;
+  description?: string;
 }
