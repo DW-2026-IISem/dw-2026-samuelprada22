@@ -3079,7 +3079,7 @@ La app debe arrancar, mostrar Swagger en `/api/docs` y conectar a BD.
 Todavía no hay endpoints de negocio.
 
 ``` bash
-npm run start:dev
+ 
 # Abre http://localhost:3002/api/docs
 # Ctrl+C
 ```
@@ -13713,7 +13713,7 @@ git commit -m "test: verify InstallmentPayment table and endpoints"
 > **Objetivo de la fase:** Catálogo de Tasas.
 > Misma plantilla CA que Clients.
 
-#### 8.1 — features/business/rates/domain/entities/rate.entity.ts
+#### 14.1 — features/business/rates/domain/entities/rate.entity.ts
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
@@ -13820,7 +13820,7 @@ git commit -m "feat: add domain entity rate.entity.ts"
 
 ![](images/clipboard-776280051.png)
 
-#### 8.2 — features/business/rates/domain/exceptions/rate-not-found.exception.ts
+#### 14.2 — features/business/rates/domain/exceptions/rate-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
@@ -13852,7 +13852,7 @@ git commit -m "feat: add domain exception rate-not-found.exception.ts"
 
 ![](images/clipboard-413137437.png)
 
-#### 8.3 — features/business/rates/domain/interfaces/rate-repository.interface.ts
+#### 14.3 — features/business/rates/domain/interfaces/rate-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
@@ -13895,7 +13895,7 @@ git commit -m "feat: add repository port rate-repository.interface.ts"
 
 ![](images/clipboard-3189128889.png)
 
-#### 8.4 — features/business/product-types/infrastructure/persistence/models/product-type.model.ts
+#### 14.4 — features/business/product-types/infrastructure/persistence/models/product-type.model.ts
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
@@ -13971,7 +13971,7 @@ git commit -m "feat: add sequelize model rate.model.ts"
 
  
 
-#### 8.5 — features/business/rates/infrastructure/persistence/repositories/rate.repository.ts
+#### 14.5 — features/business/rates/infrastructure/persistence/repositories/rate.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
@@ -14082,7 +14082,7 @@ git commit -m "feat: add sequelize repository rate.repository.ts"
 
 ![](images/clipboard-1928760409.png)
 
-#### 8.6 — features/business/rates/infrastructure/persistence/migrations/create-rates-table.migration.ts
+#### 14.6 — features/business/rates/infrastructure/persistence/migrations/create-rates-table.migration.ts
 
 Migración documental/auxiliar de la tabla.
 En dev el sync de Sequelize crea el esquema.
@@ -14128,7 +14128,7 @@ git commit -m "chore: add migration create-rates-table.migration.ts"
 
 ![](images/clipboard-2084198926.png)
 
-#### 8.7 — features/business/rates/infrastructure/persistence/seeders/rates.seeder.ts
+#### 14.7 — features/business/rates/infrastructure/persistence/seeders/rates.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
@@ -14177,7 +14177,7 @@ git commit -m "chore: add seeder rates.seeder.ts"
 
 ![](images/clipboard-3529053208.png)
 
-#### 8.8 — src/features/business/rates/application/dto/create-rate.dto.ts
+#### 14.8 — src/features/business/rates/application/dto/create-rate.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -14228,7 +14228,7 @@ git commit -m "feat: add dto create-rate.dto.ts"
 
 ![](images/clipboard-1567038196.png)
 
-#### 8.9 — features/business/rates/application/dto/rate-filter.dto.ts
+#### 14.9 — features/business/rates/application/dto/rate-filter.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -14291,7 +14291,7 @@ git commit -m "feat: add dto rate-filter.dto.ts"
 
 ![](images/clipboard-2771096778.png)
 
-#### 8.10 — features/business/product-types/application/dto/product-type-response.dto.ts
+#### 14.10 — features/business/product-types/application/dto/product-type-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -14354,7 +14354,7 @@ git commit -m "feat: add dto rate-response.dto.ts"
 
 ![](images/clipboard-596649017.png)
 
-#### 8.11 — features/business/rates/application/dto/update-rate.dto.ts
+#### 14.11 — features/business/rates/application/dto/update-rate.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -14382,7 +14382,7 @@ git commit -m "feat: add dto update-rate.dto.ts"
 
 ![](images/clipboard-1936807174.png)
 
-#### 8.12 — features/business/rates/application/mappers/rate.mapper.ts
+#### 14.12 — features/business/rates/application/mappers/rate.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
@@ -14446,7 +14446,7 @@ git commit -m "feat: add mapper rate.mapper.ts"
 
 ![](images/clipboard-3706374567.png)
 
-#### 8.13 —features/business/rates/application/use-cases/create-rate.use-case.ts
+#### 14.13 —features/business/rates/application/use-cases/create-rate.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -14496,191 +14496,605 @@ git commit -m "feat: add use case create-rate.use-case.ts"
 
 ![](images/clipboard-2782150760.png)
 
-#### 8.14 — features/business/product-types/application/use-cases/delete-product-type.use-case.ts
+#### 14.14 — features/business/rates/application/use-cases/delete-rate.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts`
+**Archivo:** src/features/business/rates/application/use-cases/delete-rate.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/delete-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface';  @Injectable() export class DeleteProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number): Promise<void> {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      await this.productTypeRepository.delete(id);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/use-cases
+
+cat > src/features/business/rates/application/use-cases/delete-rate.use-case.ts <<'EOF_BACKEND-MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+import { RateNotFoundException } from '../../domain/exceptions/rate-not-found.exception.js';
+import {
+  type IRateRepository,
+  RATE_REPOSITORY,
+} from '../../domain/interfaces/rate-repository.interface.js';
+
+@Injectable()
+export class DeleteRateUseCase {
+  constructor(
+    @Inject(RATE_REPOSITORY)
+    private readonly rateRepository: IRateRepository,
+  ) {}
+
+  async execute(id: number): Promise<void> {
+    const rate = await this.rateRepository.findById(id);
+
+    if (!rate) {
+      throw new RateNotFoundException(id);
+    }
+
+    await this.rateRepository.delete(id);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-257661574.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add use case delete-product-type.use-case.ts"
+git add .
+git commit -m "feat: add use case delete-rate.use-case.ts"
 ```
 
-#### 8.15 — features/business/product-types/application/use-cases/get-product-type.use-case.ts
+![](images/clipboard-3383817704.png)
+
+#### 14.15 — features/business/rates/application/use-cases/get-rate.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/get-product-type.use-case.ts`
+**Archivo:** src/features/business/rates/application/use-cases/get-rate.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/get-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class GetProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      return ProductTypeMapper.toResponse(productType);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/use-cases
+
+cat > src/features/business/rates/application/use-cases/get-rate.use-case.ts <<'EOF_BACKEND-MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+import { RateNotFoundException } from '../../domain/exceptions/rate-not-found.exception.js';
+import {
+  type IRateRepository,
+  RATE_REPOSITORY,
+} from '../../domain/interfaces/rate-repository.interface.js';
+import { RateMapper } from '../mappers/rate.mapper.js';
+
+@Injectable()
+export class GetRateUseCase {
+  constructor(
+    @Inject(RATE_REPOSITORY)
+    private readonly rateRepository: IRateRepository,
+  ) {}
+
+  async execute(id: number) {
+    const rate = await this.rateRepository.findById(id);
+
+    if (!rate) {
+      throw new RateNotFoundException(id);
+    }
+
+    return RateMapper.toResponse(rate);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2284102459.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add use case get-product-type.use-case.ts"
+git add . 
+git commit -m "feat: add use case get-rate.use-case.ts"
 ```
 
-#### 8.16 — features/business/product-types/application/use-cases/list-product-types.use-case.ts
+![](images/clipboard-1849118220.png)
+
+#### 14.16 — features/business/rates/application/use-cases/list-rates.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/list-product-types.use-case.ts`
+**Archivo:** src/features/business/rates/application/use-cases/list-rates.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/list-product-types.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { ProductTypeFilterDto } from '../dto/product-type-filter.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class ListProductTypesUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(filter: ProductTypeFilterDto) {     const result = await this.productTypeRepository.findAll(filter);     return {       items: result.items.map((pt) => ProductTypeMapper.toResponse(pt)),       meta: result.meta,     };   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/use-cases
+
+cat > src/features/business/rates/application/use-cases/list-rates.use-case.ts <<'EOF_BACKEND-MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  type IRateRepository,
+  RATE_REPOSITORY,
+} from '../../domain/interfaces/rate-repository.interface.js';
+import { RateFilterDto } from '../dto/rate-filter.dto.js';
+import { RateMapper } from '../mappers/rate.mapper.js';
+
+@Injectable()
+export class ListRatesUseCase {
+  constructor(
+    @Inject(RATE_REPOSITORY)
+    private readonly rateRepository: IRateRepository,
+  ) {}
+
+  async execute(filter: RateFilterDto) {
+    const result = await this.rateRepository.findAll(filter);
+
+    return {
+      items: result.items.map((rate) =>
+        RateMapper.toResponse(rate),
+      ),
+      meta: result.meta,
+    };
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1020158403.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add use case list-product-types.use-case.ts"
+git add . 
+git commit -m "feat: add use case list-rates.use-case.ts"
 ```
 
-#### 8.17 — features/business/product-types/application/use-cases/update-product-type.use-case.ts
+![](images/clipboard-372033136.png)
+
+#### 14.17 — features/business/rates/application/use-cases/update-rate.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
 El controller solo lo invoca.
 
-**Archivo:** `src/features/business/product-types/application/use-cases/update-product-type.use-case.ts`
+**Archivo:** src/features/business/rates/application/use-cases/update-rate.use-case.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/application/use-cases cat > src/features/business/product-types/application/use-cases/update-product-type.use-case.ts <<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { ProductTypeNotFoundException } from '../../domain/exceptions/product-type-not-found.exception'; import {   type IProductTypeRepository,   PRODUCT_TYPE_REPOSITORY, } from '../../domain/interfaces/product-type-repository.interface'; import { UpdateProductTypeDto } from '../dto/update-product-type.dto'; import { ProductTypeMapper } from '../mappers/product-type.mapper';  @Injectable() export class UpdateProductTypeUseCase {   constructor(     @Inject(PRODUCT_TYPE_REPOSITORY)     private readonly productTypeRepository: IProductTypeRepository,   ) {}    async execute(id: number, dto: UpdateProductTypeDto) {     const productType = await this.productTypeRepository.findById(id);     if (!productType) {       throw new ProductTypeNotFoundException(id);     }      productType.update(dto);     const updated = await this.productTypeRepository.update(productType);     return ProductTypeMapper.toResponse(updated);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/application/use-cases
+
+cat > src/features/business/rates/application/use-cases/update-rate.use-case.ts <<'EOF_BACKEND-MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+import { RateNotFoundException } from '../../domain/exceptions/rate-not-found.exception.js';
+import {
+  type IRateRepository,
+  RATE_REPOSITORY,
+} from '../../domain/interfaces/rate-repository.interface.js';
+import { UpdateRateDto } from '../dto/update-rate.dto.js';
+import { RateMapper } from '../mappers/rate.mapper.js';
+
+@Injectable()
+export class UpdateRateUseCase {
+  constructor(
+    @Inject(RATE_REPOSITORY)
+    private readonly rateRepository: IRateRepository,
+  ) {}
+
+  async execute(id: number, dto: UpdateRateDto) {
+    const rate = await this.rateRepository.findById(id);
+
+    if (!rate) {
+      throw new RateNotFoundException(id);
+    }
+
+    rate.update(dto);
+
+    const updated = await this.rateRepository.update(rate);
+
+    return RateMapper.toResponse(updated);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2900528864.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add use case update-product-type.use-case.ts"
+git add . 
+git commit -m "feat: add use case update-rate.use-case.ts"
 ```
 
-#### 8.18 — features/business/product-types/presentation/http/serializers/product-type.serializer.ts
+![](images/clipboard-924178309.png)
+
+#### 14.18 — features/business/rates/presentation/http/serializers/rate.serializer.ts
 
 Serializer de presentación (forma estable de la respuesta HTTP).
 
-**Archivo:** `src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts`
+**Archivo:** `ssrc/features/business/rates/presentation/http/serializers/rate.serializer.ts`
 
 ``` bash
-mkdir -p src/features/business/product-types/presentation/http/serializers cat > src/features/business/product-types/presentation/http/serializers/product-type.serializer.ts <<'EOF_BACKEND_IA' import { ProductType } from '../../../domain/entities/product-type.entity'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { ProductTypeMapper } from '../../../application/mappers/product-type.mapper';  export class ProductTypeSerializer {   static serialize(entity: ProductType): ProductTypeResponseDto {     return ProductTypeMapper.toResponse(entity);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/presentation/http/serializers
+
+cat > src/features/business/rates/presentation/http/serializers/rate.serializer.ts <<'EOF_BACKEND-MANUAL'
+import { Rate } from '../../../domain/entities/rate.entity.js';
+import { RateResponseDto } from '../../../application/dto/rate-response.dto.js';
+import { RateMapper } from '../../../application/mappers/rate.mapper.js';
+
+export class RateSerializer {
+  static serialize(entity: Rate): RateResponseDto {
+    return RateMapper.toResponse(entity);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1802086019.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add serializer product-type.serializer.ts"
+git add . 
+git commit -m "feat: add serializer rate.serializer.ts"
 ```
 
-#### 8.19 — features/business/product-types/presentation/http/controllers/product-types.controller.ts
+![](images/clipboard-133177184.png)
+
+#### 14.19 — features/business/rates/presentation/http/controllers/rates.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
-**Archivo:** `src/features/business/product-types/presentation/http/controllers/product-types.controller.ts`
+**Archivo:** src/features/business/rates/presentation/http/controllers/rates.controller.ts
 
 ``` bash
-mkdir -p src/features/business/product-types/presentation/http/controllers cat > src/features/business/product-types/presentation/http/controllers/product-types.controller.ts <<'EOF_BACKEND_IA' import {   Body,   Controller,   Delete,   Get,   HttpCode,   HttpStatus,   Param,   Patch,   Post,   Query, } from '@nestjs/common'; import {   ApiCreatedResponse,   ApiNoContentResponse,   ApiOkResponse,   ApiOperation,   ApiTags, } from '@nestjs/swagger'; import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe'; import { CreateProductTypeDto } from '../../../application/dto/create-product-type.dto'; import { UpdateProductTypeDto } from '../../../application/dto/update-product-type.dto'; import { ProductTypeFilterDto } from '../../../application/dto/product-type-filter.dto'; import { ProductTypeResponseDto } from '../../../application/dto/product-type-response.dto'; import { CreateProductTypeUseCase } from '../../../application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from '../../../application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from '../../../application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from '../../../application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from '../../../application/use-cases/list-product-types.use-case';  @ApiTags('Product Types') @Controller('product-types') export class ProductTypesController {   constructor(     private readonly createProductTypeUseCase: CreateProductTypeUseCase,     private readonly updateProductTypeUseCase: UpdateProductTypeUseCase,     private readonly deleteProductTypeUseCase: DeleteProductTypeUseCase,     private readonly getProductTypeUseCase: GetProductTypeUseCase,     private readonly listProductTypesUseCase: ListProductTypesUseCase,   ) {}    @Post()   @ApiOperation({ summary: 'Crear un tipo de producto' })   @ApiCreatedResponse({ type: ProductTypeResponseDto })   create(@Body() dto: CreateProductTypeDto) {     return this.createProductTypeUseCase.execute(dto);   }    @Get()   @ApiOperation({ summary: 'Listar tipos de producto' })   @ApiOkResponse({ type: [ProductTypeResponseDto] })   findAll(@Query() filter: ProductTypeFilterDto) {     return this.listProductTypesUseCase.execute(filter);   }    @Get(':id')   @ApiOperation({ summary: 'Obtener un tipo de producto por ID' })   @ApiOkResponse({ type: ProductTypeResponseDto })   findOne(@Param('id', ParsePositiveIntPipe) id: number) {     return this.getProductTypeUseCase.execute(id);   }    @Patch(':id')   @ApiOperation({ summary: 'Actualizar un tipo de producto' })   @ApiOkResponse({ type: ProductTypeResponseDto })   update(     @Param('id', ParsePositiveIntPipe) id: number,     @Body() dto: UpdateProductTypeDto,   ) {     return this.updateProductTypeUseCase.execute(id, dto);   }    @Delete(':id')   @HttpCode(HttpStatus.NO_CONTENT)   @ApiOperation({ summary: 'Eliminar un tipo de producto' })   @ApiNoContentResponse()   remove(@Param('id', ParsePositiveIntPipe) id: number) {     return this.deleteProductTypeUseCase.execute(id);   } } EOF_BACKEND_IA
+mkdir -p src/features/business/rates/presentation/http/controllers
+
+cat > src/features/business/rates/presentation/http/controllers/rates.controller.ts <<'EOF_BACKEND-MANUAL'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ParsePositiveIntPipe } from '../../../../../../common/pipes/parse-positive-int.pipe.js';
+import { CreateRateDto } from '../../../application/dto/create-rate.dto.js';
+import { UpdateRateDto } from '../../../application/dto/update-rate.dto.js';
+import { RateFilterDto } from '../../../application/dto/rate-filter.dto.js';
+import { RateResponseDto } from '../../../application/dto/rate-response.dto.js';
+import { CreateRateUseCase } from '../../../application/use-cases/create-rate.use-case.js';
+import { UpdateRateUseCase } from '../../../application/use-cases/update-rate.use-case.js';
+import { DeleteRateUseCase } from '../../../application/use-cases/delete-rate.use-case.js';
+import { GetRateUseCase } from '../../../application/use-cases/get-rate.use-case.js';
+import { ListRatesUseCase } from '../../../application/use-cases/list-rates.use-case.js';
+
+@ApiTags('Rates')
+@Controller('rates')
+export class RatesController {
+  constructor(
+    private readonly createRateUseCase: CreateRateUseCase,
+    private readonly updateRateUseCase: UpdateRateUseCase,
+    private readonly deleteRateUseCase: DeleteRateUseCase,
+    private readonly getRateUseCase: GetRateUseCase,
+    private readonly listRatesUseCase: ListRatesUseCase,
+  ) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Crear una tasa' })
+  @ApiCreatedResponse({ type: RateResponseDto })
+  create(@Body() dto: CreateRateDto) {
+    return this.createRateUseCase.execute(dto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar tasas' })
+  @ApiOkResponse({ type: [RateResponseDto] })
+  findAll(@Query() filter: RateFilterDto) {
+    return this.listRatesUseCase.execute(filter);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener una tasa por ID' })
+  @ApiOkResponse({ type: RateResponseDto })
+  findOne(@Param('id', ParsePositiveIntPipe) id: number) {
+    return this.getRateUseCase.execute(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar una tasa' })
+  @ApiOkResponse({ type: RateResponseDto })
+  update(
+    @Param('id', ParsePositiveIntPipe) id: number,
+    @Body() dto: UpdateRateDto,
+  ) {
+    return this.updateRateUseCase.execute(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Eliminar una tasa' })
+  @ApiNoContentResponse()
+  remove(@Param('id', ParsePositiveIntPipe) id: number) {
+    return this.deleteRateUseCase.execute(id);
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2577261578.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add controller product-types.controller.ts"
+git add .
+git commit -m "feat: add controller rates.controller.ts"
 ```
 
-#### 8.20 — features/business/product-types/index.ts
+![](images/clipboard-3916922984.png)
+
+#### 14.20 — features/business/rates/index.ts
 
 Barrel export del feature para imports limpios.
 
-**Archivo:** `src/features/business/product-types/index.ts`
+**Archivo:** src/features/business/rates/index.ts
 
 ``` bash
-mkdir -p src/features/business/product-types cat > src/features/business/product-types/index.ts <<'EOF_BACKEND_IA' export { ProductTypesModule } from './product-types.module'; EOF_BACKEND_IA
+mkdir -p src/features/business/rates
+
+cat > src/features/business/rates/index.ts <<'EOF_BACKEND-MANUAL'
+export { RatesModule } from './rates.module.js';
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-4167860875.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "chore: add barrel export product-types"
+git add . 
+git commit -m "chore: add barrel export rates"
 ```
 
-#### 8.21 — features/business/product-types/product-types.module.ts
+![](images/clipboard-70333188.png)
 
-Módulo Nest del feature: cablea providers, tokens DI y controller.
-
-**Archivo:** `src/features/business/product-types/product-types.module.ts`
-
-``` bash
-mkdir -p src/features/business/product-types cat > src/features/business/product-types/product-types.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { PRODUCT_TYPE_REPOSITORY } from './domain/interfaces/product-type-repository.interface'; import { ProductTypeRepository } from './infrastructure/persistence/repositories/product-type.repository'; import { CreateProductTypeUseCase } from './application/use-cases/create-product-type.use-case'; import { UpdateProductTypeUseCase } from './application/use-cases/update-product-type.use-case'; import { DeleteProductTypeUseCase } from './application/use-cases/delete-product-type.use-case'; import { GetProductTypeUseCase } from './application/use-cases/get-product-type.use-case'; import { ListProductTypesUseCase } from './application/use-cases/list-product-types.use-case'; import { ProductTypesController } from './presentation/http/controllers/product-types.controller';  @Module({   controllers: [ProductTypesController],   providers: [     ProductTypeRepository,     { provide: PRODUCT_TYPE_REPOSITORY, useExisting: ProductTypeRepository },     CreateProductTypeUseCase,     UpdateProductTypeUseCase,     DeleteProductTypeUseCase,     GetProductTypeUseCase,     ListProductTypesUseCase,   ],   exports: [PRODUCT_TYPE_REPOSITORY], }) export class ProductTypesModule {} EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add . git commit -m "feat: wire nest module product-types.module.ts"
-```
-
-#### 8.22 — Actualizar sequelize.factory.ts (registrar modelos)
+#### 14.21— Actualizar sequelize.factory.ts (registrar modelos)
 
 Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
 **Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts`
 
 ``` bash
-mkdir -p src/infrastructure/database/sequelize cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA' import { Sequelize } from 'sequelize-typescript'; import { DatabaseDialect } from '../../../config/environment/env.interface'; import { getSequelizeOptions } from './sequelize.options';  import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model'; import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';  export const ALL_MODELS = [   ClientModel,   ProductTypeModel, ];  export async function createSequelizeInstance(   dialect: DatabaseDialect, ): Promise<Sequelize> {   const options = getSequelizeOptions(dialect);    let dialectModule: any;    switch (dialect) {     case DatabaseDialect.MySQL:       dialectModule = require('mysql2');       break;     case DatabaseDialect.Postgres:       dialectModule = require('pg');       break;     case DatabaseDialect.MSSQL:       dialectModule = require('tedious');       break;     case DatabaseDialect.Oracle:       dialectModule = require('oracledb');       break;     default:       throw new Error(`Dialecto no soportado: ${dialect}`);   }    const sequelize = new Sequelize({     ...options,     dialectModule,     models: ALL_MODELS,   } as any);    try {     await sequelize.authenticate();     console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);   } catch (error: any) {     console.error(       `❌ Error conectando a ${dialect.toUpperCase()}:`,       error.message,     );     throw error;   }    if (process.env.NODE_ENV !== 'production') {     await sequelize.sync({ alter: false });     console.log('✅ Tablas sincronizadas');   }    return sequelize; } EOF_BACKEND_IA
+mkdir -p src/infrastructure/database/sequelize
+
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND-MANUAL'
+import { Sequelize } from 'sequelize-typescript';
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
+
+import mysql2 from 'mysql2';
+import pg from 'pg';
+import tedious from 'tedious';
+import oracledb from 'oracledb';
+
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
+import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
+import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
+import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
+import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
+import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
+import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
+
+export const ALL_MODELS = [
+  MemberModel,
+  AccountModel,
+  MovementModel,
+  CreditApplicationModel,
+  CreditModel,
+  InstallmentModel,
+  InstallmentPaymentModel,
+  RateModel,
+];
+
+export async function createSequelizeInstance(
+  dialect: DatabaseDialect,
+): Promise<Sequelize> {
+  const options = getSequelizeOptions(dialect);
+
+  let dialectModule: any;
+
+  switch (dialect) {
+    case DatabaseDialect.MySQL:
+      dialectModule = mysql2;
+      break;
+    case DatabaseDialect.Postgres:
+      dialectModule = pg;
+      break;
+    case DatabaseDialect.MSSQL:
+      dialectModule = tedious;
+      break;
+    case DatabaseDialect.Oracle:
+      dialectModule = oracledb;
+      break;
+    default:
+      throw new Error(`Dialecto no soportado: ${dialect}`);
+  }
+
+  const sequelize = new Sequelize({
+    ...options,
+    dialectModule,
+    models: ALL_MODELS,
+  } as any);
+
+  try {
+    await sequelize.authenticate();
+    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
+  } catch (error: any) {
+    console.error(
+      `❌ Error conectando a ${dialect.toUpperCase()}:`,
+      error.message,
+    );
+    throw error;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    await sequelize.sync({ alter: false });
+    console.log('✅ Tablas sincronizadas');
+  }
+
+  return sequelize;
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-3107617591.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: register ProductTypeModel in sequelize factory"
+git add .
+git commit -m "feat: register RateModel in sequelize factory"
 ```
 
-#### 8.23 — Actualizar business.module.ts
+![](images/clipboard-4278326834.png)
+
+#### 14.23 — Actualizar business.module.ts
 
 Agrega el feature module de negocio recién terminado.
 
 **Archivo:** `src/features/business/business.module.ts`
 
 ``` bash
-mkdir -p src/features/business cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ClientsModule } from './clients/clients.module'; import { ProductTypesModule } from './product-types/product-types.module';  @Module({   imports: [ClientsModule, ProductTypesModule],   exports: [ClientsModule, ProductTypesModule], }) export class BusinessModule {} EOF_BACKEND_IA
+mkdir -p src/features/business
+
+cat > src/features/business/business.module.ts <<'EOF_BACKEND-MANUAL'
+import { Module } from '@nestjs/common';
+
+import { MembersModule } from './members/members.module.js';
+import { AccountsModule } from './accounts/accounts.module.js';
+import { MovementsModule } from './movements/movements.module.js';
+import { CreditApplicationsModule } from './credit-applications/credit-applications.module.js';
+import { CreditsModule } from './credits/credits.module.js';
+import { InstallmentsModule } from './installments/installments.module.js';
+import { InstallmentPaymentsModule } from './installment-payments/installment-payments.module.js';
+import { RatesModule } from './rates/rates.module.js';
+
+@Module({
+  imports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+    CreditsModule,
+    InstallmentsModule,
+    InstallmentPaymentsModule,
+    RatesModule,
+  ],
+  exports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+    CreditsModule,
+    InstallmentsModule,
+    InstallmentPaymentsModule,
+    RatesModule,
+  ],
+})
+export class BusinessModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2674168218.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "feat: add ProductTypesModule to BusinessModule"
+git add .
+git commit -m "feat: add RatesModule to BusinessModule"
 ```
 
-#### 8.24 — Actualizar database-seeder.service.ts
+![](images/clipboard-2932620112.png)
+
+#### 14.24 — Actualizar database-seeder.service.ts
 
 Ejecuta seeders en orden de dependencias al arrancar (dev).
 
 **Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
 
 ``` bash
-mkdir -p src/infrastructure/database/seeders cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA' import { Injectable, Logger, OnModuleInit } from '@nestjs/common'; import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder'; import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';  /**  * Ejecuta seeders en orden de dependencias.  * Solo en entornos no productivos.  */ @Injectable() export class DatabaseSeederService implements OnModuleInit {   private readonly logger = new Logger(DatabaseSeederService.name);    async onModuleInit(): Promise<void> {     if (process.env.NODE_ENV === 'production') {       return;     }      try {       await seedClients();       await seedProductTypes();       this.logger.log('✅ Seeders ejecutados');     } catch (error: any) {       this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);       throw error;     }   } } EOF_BACKEND_IA
+mkdir -p src/infrastructure/database/seeders
+
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND-MANUAL'
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+
+import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
+import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
+import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
+import { seedCreditApplications } from '../../../features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.js';
+import { seedCredits } from '../../../features/business/credits/infrastructure/persistence/seeders/credits.seeder.js';
+import { seedInstallments } from '../../../features/business/installments/infrastructure/persistence/seeders/installments.seeder.js';
+import { seedInstallmentPayments } from '../../../features/business/installment-payments/infrastructure/persistence/seeders/installment-payments.seeder.js';
+import { seedRates } from '../../../features/business/rates/infrastructure/persistence/seeders/rates.seeder.js';
+
+/**
+ * Ejecuta seeders en orden de dependencias.
+ * Solo en entornos no productivos.
+ */
+@Injectable()
+export class DatabaseSeederService implements OnModuleInit {
+  private readonly logger = new Logger(DatabaseSeederService.name);
+
+  async onModuleInit(): Promise<void> {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+
+    try {
+      await seedMembers();
+      await seedAccounts();
+      await seedMovements();
+      await seedCreditApplications();
+      await seedCredits();
+      await seedInstallments();
+      await seedInstallmentPayments();
+      await seedRates();
+
+      this.logger.log('✅ Seeders ejecutados');
+    } catch (error: any) {
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-2061890203.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "chore: run seedProductTypes on bootstrap"
+git add .
+git commit -m "chore: run seedRates on bootstrap"
 ```
 
-#### 8.25 — Actualizar app.module.ts
+![](images/clipboard-1311729490.png)
+
+#### 14.25 — Actualizar app.module.ts
 
 Importa BusinessModule y/o AuthModule según el avance.
 Los guards globales llegan en la fase RBAC.
@@ -14688,1177 +15102,1342 @@ Los guards globales llegan en la fase RBAC.
 **Archivo:** `src/app.module.ts`
 
 ``` bash
-mkdir -p src cat > src/app.module.ts <<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ConfigModule } from '@nestjs/config'; import { envConfig } from './config/environment/env.config'; import { appConfig } from './config/app/app.config'; import { jwtConfig } from './config/jwt/jwt.config'; import { LoggerModule } from './config/logger/logger.module'; import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module'; import { SecurityModule } from './infrastructure/security/security.module'; import { BusinessModule } from './features/business/business.module'; import { AppController } from './app.controller'; import { AppService } from './app.service';  @Module({   imports: [     ConfigModule.forRoot({       isGlobal: true,       load: [envConfig, appConfig, jwtConfig],       envFilePath: '.env',     }),     SequelizeDatabaseModule,     SecurityModule,     LoggerModule,     BusinessModule,   ],   controllers: [AppController],   providers: [     AppService,   ], }) export class AppModule {} EOF_BACKEND_IA
+mkdir -p src
+
+cat > src/app.module.ts <<'EOF_BACKEND-MANUAL'
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+import { envConfig } from './config/environment/env.config.js';
+import { appConfig } from './config/app/app.config.js';
+import { jwtConfig } from './config/jwt/jwt.config.js';
+import { LoggerModule } from './config/logger/logger.module.js';
+
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
+import { BusinessModule } from './features/business/business.module.js';
+
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [envConfig, appConfig, jwtConfig],
+      envFilePath: '.env',
+    }),
+    SequelizeDatabaseModule,
+    LoggerModule,
+    BusinessModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+EOF_BACKEND-MANUAL
 ```
+
+![](images/clipboard-1072419968.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "chore: keep BusinessModule wired in AppModule"
+git add .
+git commit -m "chore: keep BusinessModule wired in AppModule"
 ```
 
-#### 8.26 — Verificar tabla `product_types`
+![](images/clipboard-1648681044.png)
 
-Confirma sync/seeder y endpoints `/api/product-types`.
+#### 14.26 — Verificar tabla Rates
+
+Confirma sync/seeder y endpoints `/api/Rates`.
 
 ``` bash
 npm run start:dev
 ```
 
+![](images/clipboard-1743533045.png)
+
+![](images/clipboard-2344732298.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add . git commit -m "test: verify product_types table and endpoints"
+git add . git commit -m "test: verify Rates table and endpoints"
 ```
+
+------------------------------------------------------------------------
+
+## FASE 15 — `14_AUTH_USERS`
+
+### Auth — Users
+
+> **Objetivo de la fase:** Usuarios del sistema (credenciales).
+> Modelo sin asociaciones a Roles/RefreshTokens todavía.
+
+#### 15.1 — features/auth/users/domain/entities/user.entity.ts
+
+Entidad de dominio (TypeScript puro).
+No extiende Sequelize `Model`.
+Aquí viven las reglas del negocio.
+
+**Archivo:** `src/features/auth/users/domain/entities/user.entity.ts`
+
+``` bash
+mkdir -p src/features/auth/users/domain/entities
+
+cat > src/features/auth/users/domain/entities/user.entity.ts <<'EOF'
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class User {
+  id?: number;
+  username: string;
+  email: string;
+  password: string;
+  isActive: Status;
+  avatar?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
+}
+EOF
+```
+
+![](images/clipboard-696778982.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add domain entity user.entity.ts"
+```
+
+![](images/clipboard-4122578353.png)
+
+#### 15.2 — features/auth/users/domain/exceptions/user-email-exists.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** `src/features/auth/users/domain/exceptions/user-email-exists.exception.ts`
+
+``` bash
+mkdir -p src/features/auth/users/domain/exceptions
+
+cat > src/features/auth/users/domain/exceptions/user-email-exists.exception.ts <<'EOF'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
+
+export class UserEmailExistsException extends DomainException {
+  constructor(email: string) {
+    super(`El email ${email} ya está registrado`);
+  }
+}
+EOF
+```
+
+![](images/clipboard-388894926.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add domain exception user-email-exists.exception.ts"
+```
+
+![](images/clipboard-1123620389.png)
+
+#### 15.3 — features/auth/users/domain/exceptions/user-not-found.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** `src/features/auth/users/domain/exceptions/user-not-found.exception.ts`
+
+``` bash
+mkdir -p src/features/auth/users/domain/exceptions
+
+cat > src/features/auth/users/domain/exceptions/user-not-found.exception.ts <<'EOF'
+import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception.js';
+
+export class UserNotFoundException extends EntityNotFoundException {
+  constructor(identifier: string | number) {
+    super('Usuario', identifier);
+  }
+}
+EOF
+```
+
+![](images/clipboard-4123419382.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add domain exception user-not-found.exception.ts"
+```
+
+![](images/clipboard-2112069627.png)
+
+#### 15.4 — features/auth/users/domain/exceptions/user-username-exists.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** `src/features/auth/users/domain/exceptions/user-username-exists.exception.ts`
+
+``` bash
+mkdir -p src/features/auth/users/domain/exceptions
+
+cat > src/features/auth/users/domain/exceptions/user-username-exists.exception.ts <<'EOF'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
+
+export class UserUsernameExistsException extends DomainException {
+  constructor(username: string) {
+    super(`El username ${username} ya está registrado`);
+  }
+}
+EOF
+```
+
+![](images/clipboard-3115124744.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add domain exception user-username-exists.exception.ts"
+```
+
+![](images/clipboard-513851781.png)
+
+#### 15.5 — features/auth/users/domain/interfaces/user-repository.interface.ts
+
+Puerto (contrato) del repositorio.
+La aplicación depende de esta interface, no de Sequelize.
+
+**Archivo:** `src/features/auth/users/domain/interfaces/user-repository.interface.ts`
+
+``` bash
+mkdir -p src/features/auth/users/domain/interfaces
+
+cat > src/features/auth/users/domain/interfaces/user-repository.interface.ts <<'EOF'
+import { User } from '../entities/user.entity.js';
+
+export const USER_REPOSITORY = 'USER_REPOSITORY';
+
+export interface IUserRepository {
+  create(user: User): Promise<User>;
+  findAll(): Promise<User[]>;
+  findById(id: number): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
+  findByUsername(username: string): Promise<User | null>;
+  update(id: number, data: Partial<User>): Promise<User>;
+  delete(id: number): Promise<void>;
+}
+EOF
+```
+
+![](images/clipboard-3567328089.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add repository port user-repository.interface.ts"
+```
+
+![](images/clipboard-1193370542.png)
+
+#### 15.6 — features/auth/users/infrastructure/persistence/models/user.model.ts (sin asociaciones cruzadas aún)
+
+Modelo Sequelize (`@Table`).
+Solo infraestructura: mapeo a tabla física.
+En esta fase se crea **sin** BelongsToMany/HasMany hacia módulos aún no creados, para poder compilar y sincronizar la tabla.
+
+**Archivo:** `src/features/auth/users/infrastructure/persistence/models/user.model.ts`
+
+``` bash
+mkdir -p src/features/auth/users/infrastructure/persistence/models
+
+cat > src/features/auth/users/infrastructure/persistence/models/user.model.ts <<'EOF'
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  CreatedAt,
+  UpdatedAt,
+} from 'sequelize-typescript';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+
+@Table({ tableName: 'users' })
+export class UserModel extends Model {
+  @Column({
+    type: DataType.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  declare id: number;
+
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: false,
+    unique: true,
+  })
+  declare username: string;
+
+  @Column({
+    type: DataType.STRING(150),
+    allowNull: false,
+    unique: true,
+  })
+  declare email: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
+  declare password: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(Status)),
+    allowNull: false,
+    defaultValue: Status.ACTIVE,
+  })
+  declare isActive: Status;
+
+  @Column({
+    type: DataType.STRING(500),
+    allowNull: true,
+  })
+  declare avatar: string | null;
+
+  @CreatedAt
+  declare createdAt: Date;
+
+  @UpdatedAt
+  declare updatedAt: Date;
+}
+EOF
+```
+
+![](images/clipboard-655008096.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add sequelize model user.model.ts without cross associations"
+```
+
+![](images/clipboard-109764546.png)
+
+#### 15.7 — features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts
+
+Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
+
+**Archivo:** `src/features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts`
+
+``` bash
+mkdir -p src/features/auth/users/infrastructure/persistence/repositories
+
+cat > src/features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts <<'EOF'
+import { Injectable } from '@nestjs/common';
+import { User } from '../../../domain/entities/user.entity.js';
+import { USER_REPOSITORY } from '../../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../../domain/interfaces/user-repository.interface.js';
+import { UserModel } from '../models/user.model.js';
+import { UserMapper } from '../../../application/mappers/user.mapper.js';
+
+@Injectable()
+export class SequelizeUserRepository implements IUserRepository {
+  async create(user: User): Promise<User> {
+    const model = await UserModel.create(UserMapper.toPersistence(user));
+    return UserMapper.toDomain(model);
+  }
+
+  async findAll(): Promise<User[]> {
+    const models = await UserModel.findAll({
+      order: [['id', 'ASC']],
+    });
+
+    return models.map(UserMapper.toDomain);
+  }
+
+  async findById(id: number): Promise<User | null> {
+    const model = await UserModel.findByPk(id);
+
+    return model ? UserMapper.toDomain(model) : null;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const model = await UserModel.findOne({
+      where: { email },
+    });
+
+    return model ? UserMapper.toDomain(model) : null;
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    const model = await UserModel.findOne({
+      where: { username },
+    });
+
+    return model ? UserMapper.toDomain(model) : null;
+  }
+
+  async update(id: number, data: Partial<User>): Promise<User> {
+    const model = await UserModel.findByPk(id);
+
+    if (!model) {
+      throw new Error(`User ${id} not found`);
+    }
+
+    const currentUser = UserMapper.toDomain(model);
+
+    await model.update(
+      UserMapper.toPersistence({
+        ...currentUser,
+        ...data,
+      }),
+    );
+
+    return UserMapper.toDomain(model);
+  }
+
+  async delete(id: number): Promise<void> {
+    await UserModel.destroy({
+      where: { id },
+    });
+  }
+}
+
+export const userRepositoryProvider = {
+  provide: USER_REPOSITORY,
+  useClass: SequelizeUserRepository,
+};
+EOF
+```
+
+![](images/clipboard-2407852682.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add sequelize repository sequelize-user.repository.ts"
+```
+
+![](images/clipboard-3847202956.png)
+
+#### 15.8 — features/auth/users/infrastructure/persistence/seeders/users.seeder.ts
+
+Seeder de datos iniciales para desarrollo y verificación física en BD.
+
+**Archivo:** `src/features/auth/users/infrastructure/persistence/seeders/users.seeder.ts`
+
+``` bash
+mkdir -p src/features/auth/users/infrastructure/persistence/seeders
+
+cat > src/features/auth/users/infrastructure/persistence/seeders/users.seeder.ts <<'EOF'
+/**
+ * Seeder de feature deshabilitado.
+ * El bootstrap central vive en:
+ * src/infrastructure/database/seeders/auth-bootstrap.seeder.ts
+ * para respetar el orden de dependencias Business → Auth.
+ */
+export class FeatureSeederDisabled {}
+EOF
+```
+
+![](images/clipboard-1310175663.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "chore: add seeder users.seeder.ts"
+```
+
+![](images/clipboard-697089478.png)
+
+#### 15.9 — features/auth/users/application/dto/create-user.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/auth/users/application/dto/create-user.dto.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/dto
+
+cat > src/features/auth/users/application/dto/create-user.dto.ts <<'EOF'
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @IsOptional()
+  @IsEnum(Status)
+  isActive?: Status;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+}
+
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  username?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
+
+  @IsOptional()
+  @IsEnum(Status)
+  isActive?: Status;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+}
+EOF
+```
+
+![](images/clipboard-952265090.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add dto create-user.dto.ts"
+```
+
+![](images/clipboard-3184156911.png)
+
+#### 15.10 — features/auth/users/application/dto/update-user.dto.ts
+
+DTO de entrada/salida HTTP con `class-validator` / Swagger.
+
+**Archivo:** `src/features/auth/users/application/dto/update-user.dto.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/dto
+
+cat > src/features/auth/users/application/dto/update-user.dto.ts <<'EOF'
+export { UpdateUserDto } from './create-user.dto.js';
+EOF
+```
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add dto update-user.dto.ts"
+```
+
+![](images/clipboard-3683190829.png)
+
+#### 15.11 — features/auth/users/application/mappers/user.mapper.ts
+
+Mapper entre entidad de dominio y DTO de respuesta.
+
+**Archivo:** `src/features/auth/users/application/mappers/user.mapper.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/mappers
+
+cat > src/features/auth/users/application/mappers/user.mapper.ts <<'EOF'
+import { User } from '../../domain/entities/user.entity.js';
+import { UserModel } from '../../infrastructure/persistence/models/user.model.js';
+
+export class UserMapper {
+  static toDomain(model: UserModel): User {
+    return new User({
+      id: model.id,
+      username: model.username,
+      email: model.email,
+      password: model.password,
+      isActive: model.isActive,
+      avatar: model.avatar ?? undefined,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
+    });
+  }
+
+  static toPersistence(entity: User): Partial<UserModel> {
+    return {
+      id: entity.id,
+      username: entity.username,
+      email: entity.email,
+      password: entity.password,
+      isActive: entity.isActive,
+      avatar: entity.avatar ?? null,
+    };
+  }
+
+  static toResponse(entity: User) {
+    return {
+      id: entity.id,
+      username: entity.username,
+      email: entity.email,
+      isActive: entity.isActive,
+      avatar: entity.avatar,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+}
+EOF
+```
+
+![](images/clipboard-1237251476.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add mapper user.mapper.ts"
+```
+
+![](images/clipboard-621599998.png)
+
+#### 15.12 — features/auth/users/application/use-cases/create-user.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/auth/users/application/use-cases/create-user.use-case.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/use-cases
+
+cat > src/features/auth/users/application/use-cases/create-user.use-case.ts <<'EOF'
+import { Inject, Injectable } from '@nestjs/common';
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
+import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
+import { User } from '../../domain/entities/user.entity.js';
+import { UserEmailExistsException } from '../../domain/exceptions/user-email-exists.exception.js';
+import { UserUsernameExistsException } from '../../domain/exceptions/user-username-exists.exception.js';
+import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../domain/interfaces/user-repository.interface.js';
+import { CreateUserDto } from '../dto/create-user.dto.js';
+import { UserMapper } from '../mappers/user.mapper.js';
+
+@Injectable()
+export class CreateUserUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+    @Inject(PASSWORD_HASHER)
+    private readonly passwordHasher: IPasswordHasher,
+  ) {}
+
+  async execute(dto: CreateUserDto) {
+    const existingEmail = await this.userRepository.findByEmail(dto.email);
+
+    if (existingEmail) {
+      throw new UserEmailExistsException(dto.email);
+    }
+
+    const existingUsername = await this.userRepository.findByUsername(
+      dto.username,
+    );
+
+    if (existingUsername) {
+      throw new UserUsernameExistsException(dto.username);
+    }
+
+    const hashedPassword = await this.passwordHasher.hash(dto.password);
+
+    const user = new User({
+      username: dto.username,
+      email: dto.email,
+      password: hashedPassword,
+      isActive: dto.isActive ?? Status.ACTIVE,
+      avatar: dto.avatar,
+    });
+
+    const created = await this.userRepository.create(user);
+
+    return UserMapper.toResponse(created);
+  }
+}
+EOF
+```
+
+![](images/clipboard-731225696.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add use case create-user.use-case.ts"
+```
+
+![](images/clipboard-1385359375.png)
+
+#### 15.13 — features/auth/users/application/use-cases/delete-user.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/auth/users/application/use-cases/delete-user.use-case.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/use-cases
+
+cat > src/features/auth/users/application/use-cases/delete-user.use-case.ts <<'EOF'
+import { Inject, Injectable } from '@nestjs/common';
+import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../domain/interfaces/user-repository.interface.js';
+import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception.js';
+
+@Injectable()
+export class DeleteUserUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+  ) {}
+
+  async execute(id: number): Promise<void> {
+    const existing = await this.userRepository.findById(id);
+
+    if (!existing) {
+      throw new UserNotFoundException(id);
+    }
+
+    await this.userRepository.delete(id);
+  }
+}
+EOF
+```
+
+![](images/clipboard-1097583529.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add use case delete-user.use-case.ts"
+```
+
+![](images/clipboard-165902546.png)
+
+#### 15.14 — features/auth/users/application/use-cases/get-user.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/auth/users/application/use-cases/get-user.use-case.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/use-cases
+
+cat > src/features/auth/users/application/use-cases/get-user.use-case.ts <<'EOF'
+import { Inject, Injectable } from '@nestjs/common';
+import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../domain/interfaces/user-repository.interface.js';
+import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception.js';
+import { UserMapper } from '../mappers/user.mapper.js';
+
+@Injectable()
+export class GetUserUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+  ) {}
+
+  async execute(id: number) {
+    const user = await this.userRepository.findById(id);
+
+    if (!user) {
+      throw new UserNotFoundException(id);
+    }
+
+    return UserMapper.toResponse(user);
+  }
+}
+EOF
+```
+
+![](images/clipboard-3619080219.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: add use case get-user.use-case.ts"
+```
+
+![](images/clipboard-871194160.png)
+
+#### 15.15 — features/auth/users/application/use-cases/list-users.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/auth/users/application/use-cases/list-users.use-case.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/use-cases
+
+cat > src/features/auth/users/application/use-cases/list-users.use-case.ts <<'EOF'
+import { Inject, Injectable } from '@nestjs/common';
+import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../domain/interfaces/user-repository.interface.js';
+import { UserMapper } from '../mappers/user.mapper.js';
+
+@Injectable()
+export class ListUsersUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+  ) {}
+
+  async execute() {
+    const users = await this.userRepository.findAll();
+
+    return users.map(UserMapper.toResponse);
+  }
+}
+EOF
+```
+
+![](images/clipboard-59898939.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add use case list-users.use-case.ts"
+```
+
+![](images/clipboard-2179653580.png)
+
+#### 15.16 — features/auth/users/application/use-cases/update-user.use-case.ts
+
+Caso de uso (aplicación).
+Orquesta dominio + repositorio.
+El controller solo lo invoca.
+
+**Archivo:** `src/features/auth/users/application/use-cases/update-user.use-case.ts`
+
+``` bash
+mkdir -p src/features/auth/users/application/use-cases
+
+cat > src/features/auth/users/application/use-cases/update-user.use-case.ts <<'EOF'
+import { Inject, Injectable } from '@nestjs/common';
+import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
+import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
+import { UserEmailExistsException } from '../../domain/exceptions/user-email-exists.exception.js';
+import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception.js';
+import { UserUsernameExistsException } from '../../domain/exceptions/user-username-exists.exception.js';
+import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../domain/interfaces/user-repository.interface.js';
+import { UpdateUserDto } from '../dto/update-user.dto.js';
+import { UserMapper } from '../mappers/user.mapper.js';
+
+@Injectable()
+export class UpdateUserUseCase {
+  constructor(
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
+    @Inject(PASSWORD_HASHER)
+    private readonly passwordHasher: IPasswordHasher,
+  ) {}
+
+  async execute(id: number, dto: UpdateUserDto) {
+    const existing = await this.userRepository.findById(id);
+
+    if (!existing) {
+      throw new UserNotFoundException(id);
+    }
+
+    if (dto.email && dto.email !== existing.email) {
+      const emailTaken = await this.userRepository.findByEmail(dto.email);
+
+      if (emailTaken) {
+        throw new UserEmailExistsException(dto.email);
+      }
+    }
+
+    if (dto.username && dto.username !== existing.username) {
+      const usernameTaken =
+        await this.userRepository.findByUsername(dto.username);
+
+      if (usernameTaken) {
+        throw new UserUsernameExistsException(dto.username);
+      }
+    }
+
+    const updateData: Partial<typeof existing> = {
+      ...dto,
+    };
+
+    if (dto.password) {
+      updateData.password = await this.passwordHasher.hash(dto.password);
+    }
+
+    const updated = await this.userRepository.update(id, updateData);
+
+    return UserMapper.toResponse(updated);
+  }
+}
+EOF
+```
+
+![](images/clipboard-1943746027.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add use case update-user.use-case.ts"
+```
+
+![](images/clipboard-3192871733.png)
+
+#### 15.17 — features/auth/users/presentation/http/controllers/users.controller.ts
+
+Controller delgado: valida DTO, llama use-case, devuelve respuesta.
+
+**Archivo:** `src/features/auth/users/presentation/http/controllers/users.controller.ts`
+
+``` bash
+mkdir -p src/features/auth/users/presentation/http/controllers
+
+cat > src/features/auth/users/presentation/http/controllers/users.controller.ts <<'EOF'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { CreateUserDto } from '../../../application/dto/create-user.dto.js';
+import { UpdateUserDto } from '../../../application/dto/update-user.dto.js';
+import { CreateUserUseCase } from '../../../application/use-cases/create-user.use-case.js';
+import { DeleteUserUseCase } from '../../../application/use-cases/delete-user.use-case.js';
+import { GetUserUseCase } from '../../../application/use-cases/get-user.use-case.js';
+import { ListUsersUseCase } from '../../../application/use-cases/list-users.use-case.js';
+import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case.js';
+
+@Controller('users')
+export class UsersController {
+  constructor(
+    private readonly createUserUseCase: CreateUserUseCase,
+    private readonly listUsersUseCase: ListUsersUseCase,
+    private readonly getUserUseCase: GetUserUseCase,
+    private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
+  ) {}
+
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    return this.createUserUseCase.execute(dto);
+  }
+
+  @Get()
+  findAll() {
+    return this.listUsersUseCase.execute();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.getUserUseCase.execute(id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.updateUserUseCase.execute(id, dto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.deleteUserUseCase.execute(id);
+
+    return {
+      message: 'Usuario eliminado',
+    };
+  }
+}
+EOF
+```
+
+![](images/clipboard-620116140.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add controller users.controller.ts"
+```
+
+![](images/clipboard-373153206.png)
+
+#### 15.18 — features/auth/users/users.module.ts
+
+Módulo Nest del feature: cablea providers, tokens DI y controller.
+
+**Archivo:** `src/features/auth/users/users.module.ts`
+
+``` bash
+mkdir -p src/features/auth/users
+
+cat > src/features/auth/users/users.module.ts <<'EOF'
+import { Module } from '@nestjs/common';
+import { CreateUserUseCase } from './application/use-cases/create-user.use-case.js';
+import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case.js';
+import { GetUserUseCase } from './application/use-cases/get-user.use-case.js';
+import { ListUsersUseCase } from './application/use-cases/list-users.use-case.js';
+import { UpdateUserUseCase } from './application/use-cases/update-user.use-case.js';
+import { userRepositoryProvider } from './infrastructure/persistence/repositories/sequelize-user.repository.js';
+import { UsersController } from './presentation/http/controllers/users.controller.js';
+
+@Module({
+  controllers: [UsersController],
+  providers: [
+    userRepositoryProvider,
+    CreateUserUseCase,
+    GetUserUseCase,
+    ListUsersUseCase,
+    UpdateUserUseCase,
+    DeleteUserUseCase,
+  ],
+  exports: [userRepositoryProvider],
+})
+export class UsersModule {}
+EOF
+```
+
+![](images/clipboard-1206185437.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: wire nest module users.module.ts"
+```
+
+![](images/clipboard-2431047156.png)
+
+#### 15.19 — Actualizar sequelize.factory.ts (registrar modelos)
+
+Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
+
+**Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/sequelize
+
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA'
+import { Sequelize } from 'sequelize-typescript';
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
+
+import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model.js';
+import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model.js';
+import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model.js';
+import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model.js';
+import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model.js';
+import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
+
+export const ALL_MODELS = [
+  ClientModel,
+  ProductTypeModel,
+  ProductModel,
+  SaleModel,
+  ProductSaleModel,
+  UserModel,
+];
+
+export async function createSequelizeInstance(
+  dialect: DatabaseDialect,
+): Promise<Sequelize> {
+  const options = getSequelizeOptions(dialect);
+
+  let dialectModule: any;
+
+  switch (dialect) {
+    case DatabaseDialect.MySQL:
+      dialectModule = require('mysql2');
+      break;
+
+    case DatabaseDialect.Postgres:
+      dialectModule = require('pg');
+      break;
+
+    case DatabaseDialect.MSSQL:
+      dialectModule = require('tedious');
+      break;
+
+    case DatabaseDialect.Oracle:
+      dialectModule = require('oracledb');
+      break;
+
+    default:
+      throw new Error(`Dialecto no soportado: ${dialect}`);
+  }
+
+  const sequelize = new Sequelize({
+    ...options,
+    dialectModule,
+    models: ALL_MODELS,
+  } as any);
+
+  try {
+    await sequelize.authenticate();
+    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
+  } catch (error: any) {
+    console.error(
+      `❌ Error conectando a ${dialect.toUpperCase()}:`,
+      error.message,
+    );
+    throw error;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    await sequelize.sync({ alter: false });
+    console.log('✅ Tablas sincronizadas');
+  }
+
+  return sequelize;
+}
+EOF_BACKEND_IA
+```
+
+![](images/clipboard-2342918362.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: register auth models up to user"
+```
+
+![](images/clipboard-816747871.png)
+
+#### 15.20 — Actualizar auth.module.ts
+
+Agrega el feature module de auth recién terminado.
+
+**Archivo:** `src/features/auth/auth.module.ts`
+
+``` bash
+mkdir -p src/features/auth
+
+cat > src/features/auth/auth.module.ts <<'EOF_BACKEND_IA'
+import { Module } from '@nestjs/common';
+import { UsersModule } from './users/users.module.js';
+
+@Module({
+  imports: [UsersModule],
+  exports: [UsersModule],
+})
+export class AuthModule {}
+EOF_BACKEND_IA
+```
+
+![](images/clipboard-1488433663.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "feat: add users to AuthModule"
+```
+
+![](images/clipboard-768798133.png)
+
+#### 15.21 — Actualizar database-seeder.service.ts
+
+Ejecuta seeders en orden de dependencias al arrancar (dev).
+
+**Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts`
+
+``` bash
+mkdir -p src/infrastructure/database/seeders
+
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+
+import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder.js';
+import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.js';
+import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder.js';
+import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder.js';
+
+/**
+ * Ejecuta seeders en orden de dependencias.
+ * Solo en entornos no productivos.
+ */
+@Injectable()
+export class DatabaseSeederService implements OnModuleInit {
+  private readonly logger = new Logger(DatabaseSeederService.name);
+
+  async onModuleInit(): Promise<void> {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+
+    try {
+      await seedClients();
+      await seedProductTypes();
+      await seedProducts();
+      await seedSales();
+
+      this.logger.log('✅ Seeders ejecutados');
+    } catch (error: any) {
+      this.logger.error(
+        `❌ Error en seeders: ${error.message}`,
+        error.stack,
+      );
+
+      throw error;
+    }
+  }
+}
+EOF_BACKEND_IA
+```
+
+![](images/clipboard-2355140332.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add .
+git commit -m "chore: update auth/business seeders bootstrap order"
+```
+
+![](images/clipboard-1838425806.png)
+
+#### 15.22 — Actualizar app.module.ts
+
+Importa BusinessModule y/o AuthModule según el avance.
+Los guards globales llegan en la fase RBAC.
+
+**Archivo:** `src/app.module.ts`
+
+``` bash
+
+mkdir -p src
+
+cat > src/app.module.ts <<'EOF_BACKEND_IA'
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+import { envConfig } from './config/environment/env.config.js';
+import { appConfig } from './config/app/app.config.js';
+import { jwtConfig } from './config/jwt/jwt.config.js';
+
+import { LoggerModule } from './config/logger/logger.module.js';
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
+import { SecurityModule } from './infrastructure/security/security.module.js';
+
+import { BusinessModule } from './features/business/business.module.js';
+import { AuthModule } from './features/auth/auth.module.js';
+
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [envConfig, appConfig, jwtConfig],
+      envFilePath: '.env',
+    }),
+    SequelizeDatabaseModule,
+    SecurityModule,
+    LoggerModule,
+    BusinessModule,
+    AuthModule,
+  ],
+  controllers: [AppController],
+  providers: [
+    AppService,
+  ],
+})
+export class AppModule {}
+EOF_BACKEND_IA
+```
+
+![](images/clipboard-3436831083.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "feat: import AuthModule into AppModule"
+```
+
+![](images/clipboard-1497558622.png)
+
+#### 15.23 — Verificar feature auth (Auth — Users)
+
+Arranca y confirma tablas/endpoints del feature.
+Si hay asociaciones pendientes, el sync de columnas principales ya debe existir.
+
+``` bash
+npm run start:dev
+```
+
+![](images/clipboard-3825563834.png)
+
+![](images/clipboard-3632445719.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add . 
+git commit -m "test: verify 10_auth_users auth feature"
+```
+
+![](images/clipboard-2520197828.png)
 
 ------------------------------------------------------------------------
 
 ## 
 
-| \## `10_BUSINESS_credits` \|
-| 
-| 
-| 
-| 
-| \## FASE 11 — `10_AUTH_USERS` \|
-| 
-| 
-| 
-| 
-| \### Auth — Users \|
-| 
-| 
-| 
-| 
-| \> **Objetivo de la fase:** Usuarios del sistema (credenciales). 
-  \> Modelo sin asociaciones a Roles/RefreshTokens todavía. 
-  \|
-| 
-| 
-| 
-| 
-| \#### 11.1 — features/auth/users/domain/entities/user.entity.ts \|
-| 
-| 
-| 
-| 
-| Entidad de dominio (TypeScript puro). 
-  No extiende Sequelize `Model`. 
-  Aquí viven las reglas del negocio. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/domain/entities/user.entity.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/domain/entities cat \> src/features/auth/users/domain/entities/user.entity.ts \<\<'EOF_BACKEND_IA' import { Status } from '../../../../../common/enums/status.enum'; \|
-| 
-| 
-| 
-| 
-| export class User { id?:
-   number; username: string; email: string; password: string; isActive: Status; avatar?:
-   string; createdAt?:
-   Date; updatedAt?:
-   Date; \|
-| 
-| 
-| 
-| 
-| constructor(partial: Partial<User>) { Object.assign(this, partial); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add domain entity user.entity.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.2 — features/auth/users/domain/exceptions/user-email-exists.exception.ts \|
-| 
-| 
-| 
-| 
-| Excepción de dominio. 
-  El caso de uso la lanza; el filter HTTP la traduce a status code. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/domain/exceptions/user-email-exists.exception.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/domain/exceptions cat \> src/features/auth/users/domain/exceptions/user-email-exists.exception.ts \<\<'EOF_BACKEND_IA' import { DomainException } from '../../../../../common/exceptions/domain.exception'; \|
-| 
-| 
-| 
-| 
-| export class UserEmailExistsException extends DomainException { constructor(email: string) { super(`El email ${email} ya está registrado`); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add domain exception user-email-exists.exception.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.3 — features/auth/users/domain/exceptions/user-not-found.exception.ts \|
-| 
-| 
-| 
-| 
-| Excepción de dominio. 
-  El caso de uso la lanza; el filter HTTP la traduce a status code. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/domain/exceptions/user-not-found.exception.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/domain/exceptions cat \> src/features/auth/users/domain/exceptions/user-not-found.exception.ts \<\<'EOF_BACKEND_IA' import { EntityNotFoundException } from '../../../../../common/exceptions/entity-not-found.exception'; \|
-| 
-| 
-| 
-| 
-| export class UserNotFoundException extends EntityNotFoundException { constructor(identifier: string \| number) { super('Usuario', identifier); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add domain exception user-not-found.exception.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.4 — features/auth/users/domain/exceptions/user-username-exists.exception.ts \|
-| 
-| 
-| 
-| 
-| Excepción de dominio. 
-  El caso de uso la lanza; el filter HTTP la traduce a status code. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/domain/exceptions/user-username-exists.exception.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/domain/exceptions cat \> src/features/auth/users/domain/exceptions/user-username-exists.exception.ts \<\<'EOF_BACKEND_IA' import { DomainException } from '../../../../../common/exceptions/domain.exception'; \|
-| 
-| 
-| 
-| 
-| export class UserUsernameExistsException extends DomainException { constructor(username: string) { super(`El username ${username} ya está registrado`); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add domain exception user-username-exists.exception.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.5 — features/auth/users/domain/interfaces/user-repository.interface.ts \|
-| 
-| 
-| 
-| 
-| Puerto (contrato) del repositorio. 
-  La aplicación depende de esta interface, no de Sequelize. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/domain/interfaces/user-repository.interface.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/domain/interfaces cat \> src/features/auth/users/domain/interfaces/user-repository.interface.ts \<\<'EOF_BACKEND_IA' import { User } from '../entities/user.entity'; \|
-| 
-| 
-| 
-| 
-| export const USER_REPOSITORY = 'USER_REPOSITORY'; \|
-| 
-| 
-| 
-| 
-| export interface IUserRepository { create(user: User): Promise<User>; findAll(): Promise\<User[]\>; findById(id: number): Promise\<User \| null\>; findByEmail(email: string): Promise\<User \| null\>; findByUsername(username: string): Promise\<User \| null\>; update(id: number, data: Partial<User>): Promise<User>; delete(id: number): Promise<void>; } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add repository port user-repository.interface.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.6 — features/auth/users/infrastructure/persistence/models/user.model.ts (sin asociaciones cruzadas aún) \|
-| 
-| 
-| 
-| 
-| Modelo Sequelize (`@Table`). 
-  Solo infraestructura: mapeo a tabla física. 
-  En esta fase se crea **sin** BelongsToMany/HasMany hacia módulos aún no creados, para poder compilar y sincronizar la tabla. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/infrastructure/persistence/models/user.model.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/infrastructure/persistence/models cat \> src/features/auth/users/infrastructure/persistence/models/user.model.ts \<\<'EOF_BACKEND_IA' import { Table, Column, Model, DataType, CreatedAt, UpdatedAt, } from 'sequelize-typescript'; import { Status } from '../../../../../../common/enums/status.enum'; \|
-| 
-| 
-| 
-| 
-| @Table({ tableName: 'users' }) export class UserModel extends Model { @Column({ type: DataType.INTEGER, primaryKey: true, autoIncrement: true, }) declare id: number; \|
-| 
-| 
-| 
-| 
-| @Column({ type: DataType.STRING(100), allowNull: false, unique: true }) declare username: string; \|
-| 
-| 
-| 
-| 
-| @Column({ type: DataType.STRING(150), allowNull: false, unique: true }) declare email: string; \|
-| 
-| 
-| 
-| 
-| @Column({ type: DataType.STRING(255), allowNull: false }) declare password: string; \|
-| 
-| 
-| 
-| 
-| @Column({ type: DataType.ENUM(...Object.values(Status)), allowNull: false, defaultValue: Status.ACTIVE, }) declare isActive: Status; \|
-| 
-| 
-| 
-| 
-| @Column({ type: DataType.STRING(500), allowNull: true }) declare avatar: string \| null; \|
-| 
-| 
-| 
-| 
-| @CreatedAt declare createdAt: Date; \|
-| 
-| 
-| 
-| 
-| @UpdatedAt declare updatedAt: Date; } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add sequelize model user.model.ts without cross associations"` \|
-| 
-| 
-| 
-| 
-| \#### 11.7 — features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts \|
-| 
-| 
-| 
-| 
-| Adaptador del repositorio: implementa el puerto de dominio con Sequelize. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/infrastructure/persistence/repositories cat \> src/features/auth/users/infrastructure/persistence/repositories/sequelize-user.repository.ts \<\<'EOF_BACKEND_IA' import { Injectable } from '@nestjs/common'; import { User } from '../../../domain/entities/user.entity'; import { USER_REPOSITORY } from '../../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../../domain/interfaces/user-repository.interface'; import { UserModel } from '../models/user.model'; import { UserMapper } from '../../../application/mappers/user.mapper'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class SequelizeUserRepository implements IUserRepository { async create(user: User): Promise<User> { const model = await UserModel.create(UserMapper.toPersistence(user)); return UserMapper.toDomain(model); } \|
-| 
-| 
-| 
-| 
-| async findAll(): Promise\<User[]\> { const models = await UserModel.findAll({ order: [['id', 'ASC']] }); return models.map(UserMapper.toDomain); } \|
-| 
-| 
-| 
-| 
-| async findById(id: number): Promise\<User \| null\> { const model = await UserModel.findByPk(id); return model ? 
-  UserMapper.toDomain(model) : null; } \|
-| 
-| 
-| 
-| 
-| async findByEmail(email: string): Promise\<User \| null\> { const model = await UserModel.findOne({ where: { email } }); return model ? 
-  UserMapper.toDomain(model) : null; } \|
-| 
-| 
-| 
-| 
-| async findByUsername(username: string): Promise\<User \| null\> { const model = await UserModel.findOne({ where: { username } }); return model ? 
-  UserMapper.toDomain(model) : null; } \|
-| 
-| 
-| 
-| 
-| async update(id: number, data: Partial<User>): Promise<User> { const model = await UserModel.findByPk(id); if (!model) { throw new Error(`User ${id} not found`); } await model.update(UserMapper.toPersistence({ ...UserMapper.toDomain(model), ...data })); return UserMapper.toDomain(model); } \|
-| 
-| 
-| 
-| 
-| async delete(id: number): Promise<void> { await UserModel.destroy({ where: { id } }); } } \|
-| 
-| 
-| 
-| 
-| export const userRepositoryProvider = { provide: USER_REPOSITORY, useClass: SequelizeUserRepository, }; EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add sequelize repository sequelize-user.repository.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.8 — features/auth/users/infrastructure/persistence/seeders/users.seeder.ts \|
-| 
-| 
-| 
-| 
-| Seeder de datos iniciales para desarrollo y verificación física en BD. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/infrastructure/persistence/seeders/users.seeder.ts` \|
-| 
-| 
-| 
-| 
-| `bash mkdir -p src/features/auth/users/infrastructure/persistence/seeders cat > src/features/auth/users/infrastructure/persistence/seeders/users.seeder.ts <<'EOF_BACKEND_IA' /** * Seeder de feature deshabilitado. * El bootstrap central vive en: * src/infrastructure/database/seeders/auth-bootstrap.seeder.ts * para respetar el orden de dependencias Business → Auth. */ export class FeatureSeederDisabled {} EOF_BACKEND_IA` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "chore: add seeder users.seeder.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.9 — features/auth/users/application/dto/create-user.dto.ts \|
-| 
-| 
-| 
-| 
-| DTO de entrada/salida HTTP con `class-validator` / Swagger. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/dto/create-user.dto.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/dto cat \> src/features/auth/users/application/dto/create-user.dto.ts \<\<'EOF_BACKEND_IA' import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, } from 'class-validator'; import { Status } from '../../../../../common/enums/status.enum'; \|
-| 
-| 
-| 
-| 
-| export class CreateUserDto { @IsString() @IsNotEmpty() username: string; \|
-| 
-| 
-| 
-| 
-| @IsEmail() email: string; \|
-| 
-| 
-| 
-| 
-| @IsString() @MinLength(6) password: string; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsEnum(Status) isActive?:
-   Status; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsString() avatar?:
-   string; } \|
-| 
-| 
-| 
-| 
-| export class UpdateUserDto { @IsOptional() @IsString() @IsNotEmpty() username?:
-   string; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsEmail() email?:
-   string; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsString() @MinLength(6) password?:
-   string; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsEnum(Status) isActive?:
-   Status; \|
-| 
-| 
-| 
-| 
-| @IsOptional() @IsString() avatar?:
-   string; } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add dto create-user.dto.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.10 — features/auth/users/application/dto/update-user.dto.ts \|
-| 
-| 
-| 
-| 
-| DTO de entrada/salida HTTP con `class-validator` / Swagger. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/dto/update-user.dto.ts` \|
-| 
-| 
-| 
-| 
-| `bash mkdir -p src/features/auth/users/application/dto cat > src/features/auth/users/application/dto/update-user.dto.ts <<'EOF_BACKEND_IA' export { UpdateUserDto } from './create-user.dto'; EOF_BACKEND_IA` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add dto update-user.dto.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.11 — features/auth/users/application/mappers/user.mapper.ts \|
-| 
-| 
-| 
-| 
-| Mapper entre entidad de dominio y DTO de respuesta. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/mappers/user.mapper.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/mappers cat \> src/features/auth/users/application/mappers/user.mapper.ts \<\<'EOF_BACKEND_IA' import { User } from '../../domain/entities/user.entity'; import { UserModel } from '../../infrastructure/persistence/models/user.model'; \|
-| 
-| 
-| 
-| 
-| export class UserMapper { static toDomain(model: UserModel): User { return new User({ id: model.id, username: model.username, email: model.email, password: model.password, isActive: model.isActive, avatar: model.avatar ?? undefined, createdAt: model.createdAt, updatedAt: model.updatedAt, }); } \|
-| 
-| 
-| 
-| 
-| static toPersistence(entity: User): Partial<UserModel> { return { id: entity.id, username: entity.username, email: entity.email, password: entity.password, isActive: entity.isActive, avatar: entity.avatar ?? 
-  null, }; } \|
-| 
-| 
-| 
-| 
-| static toResponse(entity: User) { return { id: entity.id, username: entity.username, email: entity.email, isActive: entity.isActive, avatar: entity.avatar, createdAt: entity.createdAt, updatedAt: entity.updatedAt, }; } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add mapper user.mapper.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.12 — features/auth/users/application/use-cases/create-user.use-case.ts \|
-| 
-| 
-| 
-| 
-| Caso de uso (aplicación). 
-  Orquesta dominio + repositorio. 
-  El controller solo lo invoca. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/use-cases/create-user.use-case.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/create-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { Status } from '../../../../../common/enums/status.enum'; import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import { User } from '../../domain/entities/user.entity'; import { UserEmailExistsException } from '../../domain/exceptions/user-email-exists.exception'; import { UserUsernameExistsException } from '../../domain/exceptions/user-username-exists.exception'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { CreateUserDto } from '../dto/create-user.dto'; import { UserMapper } from '../mappers/user.mapper'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class CreateUserUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, @Inject(PASSWORD_HASHER) private readonly passwordHasher: IPasswordHasher, ) {} \|
-| 
-| 
-| 
-| 
-| async execute(dto: CreateUserDto) { const existingEmail = await this.userRepository.findByEmail(dto.email); if (existingEmail) { throw new UserEmailExistsException(dto.email); } \|
-| 
-| 
-| 
-| 
-| const existingUsername = await this.userRepository.findByUsername(dto.username); if (existingUsername) { throw new UserUsernameExistsException(dto.username); } \|
-| 
-| 
-| 
-| 
-| const hashedPassword = await this.passwordHasher.hash(dto.password); \|
-| 
-| 
-| 
-| 
-| const user = new User({ username: dto.username, email: dto.email, password: hashedPassword, isActive: dto.isActive ?? Status.ACTIVE, avatar: dto.avatar, }); \|
-| 
-| 
-| 
-| 
-| const created = await this.userRepository.create(user); return UserMapper.toResponse(created); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add use case create-user.use-case.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.13 — features/auth/users/application/use-cases/delete-user.use-case.ts \|
-| 
-| 
-| 
-| 
-| Caso de uso (aplicación). 
-  Orquesta dominio + repositorio. 
-  El controller solo lo invoca. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/use-cases/delete-user.use-case.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/delete-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class DeleteUserUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, ) {} \|
-| 
-| 
-| 
-| 
-| async execute(id: number): Promise<void> { const existing = await this.userRepository.findById(id); if (!existing) { throw new UserNotFoundException(id); } await this.userRepository.delete(id); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add use case delete-user.use-case.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.14 — features/auth/users/application/use-cases/get-user.use-case.ts \|
-| 
-| 
-| 
-| 
-| Caso de uso (aplicación). 
-  Orquesta dominio + repositorio. 
-  El controller solo lo invoca. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/use-cases/get-user.use-case.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/get-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception'; import { UserMapper } from '../mappers/user.mapper'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class GetUserUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, ) {} \|
-| 
-| 
-| 
-| 
-| async execute(id: number) { const user = await this.userRepository.findById(id); if (!user) { throw new UserNotFoundException(id); } return UserMapper.toResponse(user); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add use case get-user.use-case.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.15 — features/auth/users/application/use-cases/list-users.use-case.ts \|
-| 
-| 
-| 
-| 
-| Caso de uso (aplicación). 
-  Orquesta dominio + repositorio. 
-  El controller solo lo invoca. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/use-cases/list-users.use-case.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/list-users.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UserMapper } from '../mappers/user.mapper'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class ListUsersUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, ) {} \|
-| 
-| 
-| 
-| 
-| async execute() { const users = await this.userRepository.findAll(); return users.map(UserMapper.toResponse); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add use case list-users.use-case.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.16 — features/auth/users/application/use-cases/update-user.use-case.ts \|
-| 
-| 
-| 
-| 
-| Caso de uso (aplicación). 
-  Orquesta dominio + repositorio. 
-  El controller solo lo invoca. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/application/use-cases/update-user.use-case.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/application/use-cases cat \> src/features/auth/users/application/use-cases/update-user.use-case.ts \<\<'EOF_BACKEND_IA' import { Inject, Injectable } from '@nestjs/common'; import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface'; import { UserEmailExistsException } from '../../domain/exceptions/user-email-exists.exception'; import { UserNotFoundException } from '../../domain/exceptions/user-not-found.exception'; import { UserUsernameExistsException } from '../../domain/exceptions/user-username-exists.exception'; import { USER_REPOSITORY } from '../../domain/interfaces/user-repository.interface'; import type { IUserRepository } from '../../domain/interfaces/user-repository.interface'; import { UpdateUserDto } from '../dto/update-user.dto'; import { UserMapper } from '../mappers/user.mapper'; \|
-| 
-| 
-| 
-| 
-| @Injectable() export class UpdateUserUseCase { constructor( @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository, @Inject(PASSWORD_HASHER) private readonly passwordHasher: IPasswordHasher, ) {} \|
-| 
-| 
-| 
-| 
-| async execute(id: number, dto: UpdateUserDto) { const existing = await this.userRepository.findById(id); if (!existing) { throw new UserNotFoundException(id); } \|
-| 
-| 
-| 
-| 
-| if (dto.email && dto.email !== existing.email) { const emailTaken = await this.userRepository.findByEmail(dto.email); if (emailTaken) { throw new UserEmailExistsException(dto.email); } } \|
-| 
-| 
-| 
-| 
-| if (dto.username && dto.username !== existing.username) { const usernameTaken = await this.userRepository.findByUsername(dto.username); if (usernameTaken) { throw new UserUsernameExistsException(dto.username); } } \|
-| 
-| 
-| 
-| 
-| const updateData: Partial<typeof existing> = { ...dto }; if (dto.password) { updateData.password = await this.passwordHasher.hash(dto.password); } \|
-| 
-| 
-| 
-| 
-| const updated = await this.userRepository.update(id, updateData); return UserMapper.toResponse(updated); } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add use case update-user.use-case.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.17 — features/auth/users/presentation/http/controllers/users.controller.ts \|
-| 
-| 
-| 
-| 
-| Controller delgado: valida DTO, llama use-case, devuelve respuesta. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/presentation/http/controllers/users.controller.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users/presentation/http/controllers cat \> src/features/auth/users/presentation/http/controllers/users.controller.ts \<\<'EOF_BACKEND_IA' import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, } from '@nestjs/common'; import { CreateUserDto } from '../../../application/dto/create-user.dto'; import { UpdateUserDto } from '../../../application/dto/update-user.dto'; import { CreateUserUseCase } from '../../../application/use-cases/create-user.use-case'; import { DeleteUserUseCase } from '../../../application/use-cases/delete-user.use-case'; import { GetUserUseCase } from '../../../application/use-cases/get-user.use-case'; import { ListUsersUseCase } from '../../../application/use-cases/list-users.use-case'; import { UpdateUserUseCase } from '../../../application/use-cases/update-user.use-case'; \|
-| 
-| 
-| 
-| 
-| @Controller('users') export class UsersController { constructor( private readonly createUserUseCase: CreateUserUseCase, private readonly listUsersUseCase: ListUsersUseCase, private readonly getUserUseCase: GetUserUseCase, private readonly updateUserUseCase: UpdateUserUseCase, private readonly deleteUserUseCase: DeleteUserUseCase, ) {} \|
-| 
-| 
-| 
-| 
-| @Post() create(@Body() dto: CreateUserDto) { return this.createUserUseCase.execute(dto); } \|
-| 
-| 
-| 
-| 
-| @Get() findAll() { return this.listUsersUseCase.execute(); } \|
-| 
-| 
-| 
-| 
-| @Get(':id') findOne(@Param('id', ParseIntPipe) id: number) { return this.getUserUseCase.execute(id); } \|
-| 
-| 
-| 
-| 
-| @Put(':id') update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) { return this.updateUserUseCase.execute(id, dto); } \|
-| 
-| 
-| 
-| 
-| @Delete(':id') async remove(@Param('id', ParseIntPipe) id: number) { await this.deleteUserUseCase.execute(id); return { message: 'Usuario eliminado' }; } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add controller users.controller.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.18 — features/auth/users/users.module.ts \|
-| 
-| 
-| 
-| 
-| Módulo Nest del feature: cablea providers, tokens DI y controller. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/users/users.module.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth/users cat \> src/features/auth/users/users.module.ts \<\<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { CreateUserUseCase } from './application/use-cases/create-user.use-case'; import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'; import { GetUserUseCase } from './application/use-cases/get-user.use-case'; import { ListUsersUseCase } from './application/use-cases/list-users.use-case'; import { UpdateUserUseCase } from './application/use-cases/update-user.use-case'; import { userRepositoryProvider } from './infrastructure/persistence/repositories/sequelize-user.repository'; import { UsersController } from './presentation/http/controllers/users.controller'; \|
-| 
-| 
-| 
-| 
-| @Module({ controllers: [UsersController], providers: [ userRepositoryProvider, CreateUserUseCase, GetUserUseCase, ListUsersUseCase, UpdateUserUseCase, DeleteUserUseCase,], exports: [userRepositoryProvider], }) export class UsersModule {} EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: wire nest module users.module.ts"` \|
-| 
-| 
-| 
-| 
-| \#### 11.19 — Actualizar sequelize.factory.ts (registrar modelos) \|
-| 
-| 
-| 
-| 
-| Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias). 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/infrastructure/database/sequelize/sequelize.factory.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/infrastructure/database/sequelize cat \> src/infrastructure/database/sequelize/sequelize.factory.ts \<\<'EOF_BACKEND_IA' import { Sequelize } from 'sequelize-typescript'; import { DatabaseDialect } from '../../../config/environment/env.interface'; import { getSequelizeOptions } from './sequelize.options'; \|
-| 
-| 
-| 
-| 
-| import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model'; import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model'; import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model'; import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model'; import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model'; import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model'; \|
-| 
-| 
-| 
-| 
-| export const ALL_MODELS = [ ClientModel, ProductTypeModel, ProductModel, SaleModel, ProductSaleModel, UserModel,]; \|
-| 
-| 
-| 
-| 
-| export async function createSequelizeInstance( dialect: DatabaseDialect, ): Promise<Sequelize> { const options = getSequelizeOptions(dialect); \|
-| 
-| 
-| 
-| 
-| let dialectModule: any; \|
-| 
-| 
-| 
-| 
-| switch (dialect) { case DatabaseDialect.MySQL: dialectModule = require('mysql2'); break; case DatabaseDialect.Postgres: dialectModule = require('pg'); break; case DatabaseDialect.MSSQL: dialectModule = require('tedious'); break; case DatabaseDialect.Oracle: dialectModule = require('oracledb'); break; default: throw new Error(`Dialecto no soportado: ${dialect}`); } \|
-| 
-| 
-| 
-| 
-| const sequelize = new Sequelize({ ...options, dialectModule, models: ALL_MODELS, } as any); \|
-| 
-| 
-| 
-| 
-| try { await sequelize.authenticate(); console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`); } catch (error: any) { console.error( `❌ Error conectando a ${dialect.toUpperCase()}:`, error.message, ); throw error; } \|
-| 
-| 
-| 
-| 
-| if (process.env.NODE_ENV !== 'production') { await sequelize.sync({ alter: false }); console.log('✅ Tablas sincronizadas'); } \|
-| 
-| 
-| 
-| 
-| return sequelize; } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: register auth models up to user"` \|
-| 
-| 
-| 
-| 
-| \#### 11.20 — Actualizar auth.module.ts \|
-| 
-| 
-| 
-| 
-| Agrega el feature module de auth recién terminado. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/features/auth/auth.module.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/features/auth cat \> src/features/auth/auth.module.ts \<\<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { UsersModule } from './users/users.module'; \|
-| 
-| 
-| 
-| 
-| @Module({ imports: [UsersModule], exports: [UsersModule], }) export class AuthModule {} EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: add users to AuthModule"` \|
-| 
-| 
-| 
-| 
-| \#### 11.21 — Actualizar database-seeder.service.ts \|
-| 
-| 
-| 
-| 
-| Ejecuta seeders en orden de dependencias al arrancar (dev). 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/infrastructure/database/seeders/database-seeder.service.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src/infrastructure/database/seeders cat \> src/infrastructure/database/seeders/database-seeder.service.ts \<\<'EOF_BACKEND_IA' import { Injectable, Logger, OnModuleInit } from '@nestjs/common'; import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder'; import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder'; import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder'; import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder'; \|
-| 
-| 
-| 
-| 
-| /\*\* \* Ejecuta seeders en orden de dependencias. 
-  \* Solo en entornos no productivos. 
-  \*/ @Injectable() export class DatabaseSeederService implements OnModuleInit { private readonly logger = new Logger(DatabaseSeederService.name); \|
-| 
-| 
-| 
-| 
-| async onModuleInit(): Promise<void> { if (process.env.NODE_ENV === 'production') { return; } \|
-| 
-| 
-| 
-| 
-| try { await seedClients(); await seedProductTypes(); await seedProducts(); await seedSales(); this.logger.log('✅ Seeders ejecutados'); } catch (error: any) { this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack); throw error; } } } EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "chore: update auth/business seeders bootstrap order"` \|
-| 
-| 
-| 
-| 
-| \#### 11.22 — Actualizar app.module.ts \|
-| 
-| 
-| 
-| 
-| Importa BusinessModule y/o AuthModule según el avance. 
-  Los guards globales llegan en la fase RBAC. 
-  \|
-| 
-| 
-| 
-| 
-| **Archivo:** `src/app.module.ts` \|
-| 
-| 
-| 
-| 
-| \`\`\` bash mkdir -p src cat \> src/app.module.ts \<\<'EOF_BACKEND_IA' import { Module } from '@nestjs/common'; import { ConfigModule } from '@nestjs/config'; import { envConfig } from './config/environment/env.config'; import { appConfig } from './config/app/app.config'; import { jwtConfig } from './config/jwt/jwt.config'; import { LoggerModule } from './config/logger/logger.module'; import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module'; import { SecurityModule } from './infrastructure/security/security.module'; import { BusinessModule } from './features/business/business.module'; import { AuthModule } from './features/auth/auth.module'; import { AppController } from './app.controller'; import { AppService } from './app.service'; \|
-| 
-| 
-| 
-| 
-| @Module({ imports: [ ConfigModule.forRoot({ isGlobal: true, load: [envConfig, appConfig, jwtConfig], envFilePath: '.env', }), SequelizeDatabaseModule, SecurityModule, LoggerModule, BusinessModule, AuthModule,], controllers: [AppController], providers: [ AppService,], }) export class AppModule {} EOF_BACKEND_IA \`\`\` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "feat: import AuthModule into AppModule"` \|
-| 
-| 
-| 
-| 
-| \#### 11.23 — Verificar feature auth (Auth — Users) \|
-| 
-| 
-| 
-| 
-| Arranca y confirma tablas/endpoints del feature. 
-  Si hay asociaciones pendientes, el sync de columnas principales ya debe existir. 
-  \|
-| 
-| 
-| 
-| 
-| `bash npm run start:dev` \|
-| 
-| 
-| 
-| 
-| **Sugerencia de commit (issue):** \|
-| 
-| 
-| 
-| 
-| `bash git add . git commit -m "test: verify 10_auth_users auth feature"` \|
-| 
-| 
-| 
-| 
-
-## FASE 12 — `11_AUTH_ROLES`
+## FASE 16 — `15_AUTH_ROLES`
 
 ### Auth — Roles
 
