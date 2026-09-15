@@ -21,8 +21,10 @@ import { AuditModel } from '../../../features/business/audits/infrastructure/per
 
 import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
 import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
+import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model.js';
 
 export const ALL_MODELS = [
+  // Business
   MemberModel,
   AccountModel,
   MovementModel,
@@ -33,8 +35,11 @@ export const ALL_MODELS = [
   RateModel,
   DecisionCommitteeModel,
   AuditModel,
+
+  // Auth
   UserModel,
   RoleModel,
+  ResourceModel,
 ];
 
 export async function createSequelizeInstance(
