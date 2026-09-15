@@ -16444,7 +16444,7 @@ git commit -m "test: verify 10_auth_users auth feature"
 > **Objetivo de la fase:** Roles del sistema.
 > Modelo sin asociaciones a Users/Resources todavía.
 
-#### 12.1 — features/auth/roles/domain/entities/role.entity.ts
+#### 16.1 — features/auth/roles/domain/entities/role.entity.ts
 
 Entidad de dominio (TypeScript puro).
 No extiende Sequelize `Model`.
@@ -16471,14 +16471,16 @@ export class Role {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-1775174171.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add domain entity role.entity.ts"
 ```
 
-#### 12.2 — features/auth/roles/domain/exceptions/role-name-exists.exception.ts
+#### ![](images/clipboard-627048204.png)
+
+#### 16.2 — features/auth/roles/domain/exceptions/role-name-exists.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
@@ -16498,14 +16500,14 @@ export class RoleNameExistsException extends DomainException {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-2054324842.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add domain exception role-name-exists.exception.ts"
 ```
 
-#### 12.3 — features/auth/roles/domain/exceptions/role-not-found.exception.ts
+#### ![](images/clipboard-3860701950.png)16.3 — features/auth/roles/domain/exceptions/role-not-found.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
@@ -16525,14 +16527,14 @@ export class RoleNotFoundException extends EntityNotFoundException {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-2904537170.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add domain exception role-not-found.exception.ts"
 ```
 
-#### 12.4 — features/auth/roles/domain/interfaces/role-repository.interface.ts
+#### ![](images/clipboard-3888418589.png)16.4 — features/auth/roles/domain/interfaces/role-repository.interface.ts
 
 Puerto (contrato) del repositorio.
 La aplicación depende de esta interface, no de Sequelize.
@@ -16558,14 +16560,14 @@ export interface IRoleRepository {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3330662605.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add repository port role-repository.interface.ts"
 ```
 
-#### 12.5 — features/auth/roles/infrastructure/persistence/models/role.model.ts (sin asociaciones cruzadas aún)
+#### ![](images/clipboard-3332668687.png)16.5 — features/auth/roles/infrastructure/persistence/models/role.model.ts (sin asociaciones cruzadas aún)
 
 Modelo Sequelize (`@Table`).
 Solo infraestructura: mapeo a tabla física.
@@ -16614,14 +16616,14 @@ export class RoleModel extends Model {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3321426904.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add sequelize model role.model.ts without cross associations"
 ```
 
-#### 12.6 — features/auth/roles/infrastructure/persistence/repositories/sequelize-role.repository.ts
+#### ![](images/clipboard-3576491943.png)16.6 — features/auth/roles/infrastructure/persistence/repositories/sequelize-role.repository.ts
 
 Adaptador del repositorio: implementa el puerto de dominio con Sequelize.
 
@@ -16687,14 +16689,14 @@ export const roleRepositoryProvider = {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3237796483.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add sequelize repository sequelize-role.repository.ts"
 ```
 
-#### 12.7 — features/auth/roles/infrastructure/persistence/seeders/roles.seeder.ts
+#### ![](images/clipboard-1397767856.png)16.7 — features/auth/roles/infrastructure/persistence/seeders/roles.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
@@ -16713,14 +16715,14 @@ export class FeatureSeederDisabled {}
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3259583024.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "chore: add seeder roles.seeder.ts"
 ```
 
-#### 12.8 — features/auth/roles/application/dto/create-role.dto.ts
+#### ![](images/clipboard-76135044.png)16.8 — features/auth/roles/application/dto/create-role.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -16755,14 +16757,14 @@ export class UpdateRoleDto {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-766398379.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add dto create-role.dto.ts"
 ```
 
-#### 12.9 — features/auth/roles/application/dto/update-role.dto.ts
+#### ![](images/clipboard-347994823.png)16.9 — features/auth/roles/application/dto/update-role.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -16775,14 +16777,16 @@ export { UpdateRoleDto } from './create-role.dto';
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3585069982.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add dto update-role.dto.ts"
 ```
 
-#### 12.10 — features/auth/roles/application/mappers/role.mapper.ts
+#### ![](images/clipboard-3362847889.png)
+
+#### 16.10 — features/auth/roles/application/mappers/role.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
@@ -16826,14 +16830,14 @@ export class RoleMapper {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-170991689.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add mapper role.mapper.ts"
 ```
 
-#### 12.11 — features/auth/roles/application/use-cases/create-role.use-case.ts
+#### ![](images/clipboard-653127615.png)16.11 — features/auth/roles/application/use-cases/create-role.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -16885,7 +16889,7 @@ git add .
 git commit -m "feat: add use case create-role.use-case.ts"
 ```
 
-#### 12.12 — features/auth/roles/application/use-cases/delete-role.use-case.ts
+#### 16.12 — features/auth/roles/application/use-cases/delete-role.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -16919,14 +16923,14 @@ export class DeleteRoleUseCase {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3462212447.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add use case delete-role.use-case.ts"
 ```
 
-#### 12.13 — features/auth/roles/application/use-cases/get-role.use-case.ts
+#### ![](images/clipboard-645269416.png)16.13 — features/auth/roles/application/use-cases/get-role.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -16961,14 +16965,14 @@ export class GetRoleUseCase {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-2235179710.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add use case get-role.use-case.ts"
 ```
 
-#### 12.14 — features/auth/roles/application/use-cases/list-roles.use-case.ts
+#### ![](images/clipboard-1936155976.png)16.14 — features/auth/roles/application/use-cases/list-roles.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -16999,14 +17003,14 @@ export class ListRolesUseCase {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-3794119964.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add use case list-roles.use-case.ts"
 ```
 
-#### 12.15 — features/auth/roles/application/use-cases/update-role.use-case.ts
+#### ![](images/clipboard-678583070.png)16.15 — features/auth/roles/application/use-cases/update-role.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -17052,14 +17056,14 @@ export class UpdateRoleUseCase {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-1410141278.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add use case update-role.use-case.ts"
 ```
 
-#### 12.16 — features/auth/roles/presentation/http/controllers/roles.controller.ts
+#### ![](images/clipboard-518101095.png)16.16 — features/auth/roles/presentation/http/controllers/roles.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
@@ -17125,14 +17129,14 @@ export class RolesController {
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-1147646867.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add controller roles.controller.ts"
 ```
 
-#### 12.17 — features/auth/roles/roles.module.ts
+#### ![](images/clipboard-715402960.png)16.17 — features/auth/roles/roles.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
@@ -17166,6 +17170,8 @@ export class RolesModule {}
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-2480673410.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -17173,7 +17179,9 @@ git add .
 git commit -m "feat: wire nest module roles.module.ts"
 ```
 
-#### 12.18 — Actualizar sequelize.factory.ts (registrar modelos)
+#### ![](images/clipboard-1002764149.png)
+
+#### 16.18 — Actualizar sequelize.factory.ts (registrar modelos)
 
 Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
@@ -17255,14 +17263,14 @@ export async function createSequelizeInstance(
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-2547136463.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: register auth models up to role"
 ```
 
-#### 12.19 — Actualizar auth.module.ts
+#### ![](images/clipboard-2068963839.png)16.19 — Actualizar auth.module.ts
 
 Agrega el feature module de auth recién terminado.
 
@@ -17283,14 +17291,16 @@ export class AuthModule {}
 EOF_BACKEND_IA
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-1572923572.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "feat: add roles to AuthModule"
 ```
 
-#### 12.20 — Actualizar database-seeder.service.ts
+#### ![](images/clipboard-3316246338.png)
+
+#### 16.20 — Actualizar database-seeder.service.ts
 
 Ejecuta seeders en orden de dependencias al arrancar (dev).
 
@@ -17333,6 +17343,8 @@ export class DatabaseSeederService implements OnModuleInit {
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-2142112663.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -17340,7 +17352,9 @@ git add .
 git commit -m "chore: update auth/business seeders bootstrap order"
 ```
 
-#### 12.21 — Actualizar app.module.ts
+![](images/clipboard-3463687769.png)
+
+#### 16.21 — Actualizar app.module.ts
 
 Importa BusinessModule y/o AuthModule según el avance.
 Los guards globales llegan en la fase RBAC.
@@ -17385,6 +17399,8 @@ export class AppModule {}
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-2811341717.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -17392,7 +17408,9 @@ git add .
 git commit -m "feat: import AuthModule into AppModule"
 ```
 
-#### 12.22 — Verificar feature auth (Auth — Roles)
+![](images/clipboard-3263624466.png)
+
+#### 16.22 — Verificar feature auth (Auth — Roles)
 
 Arranca y confirma tablas/endpoints del feature.
 Si hay asociaciones pendientes, el sync de columnas principales ya debe existir.
@@ -17401,6 +17419,10 @@ Si hay asociaciones pendientes, el sync de columnas principales ya debe existir.
 npm run start:dev
 ```
 
+![](images/clipboard-1342026018.png)
+
+![](images/clipboard-866622327.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -17408,9 +17430,11 @@ git add .
 git commit -m "test: verify 11_auth_roles auth feature"
 ```
 
+![](images/clipboard-3177969179.png)
+
 ------------------------------------------------------------------------
 
-## FASE 13 — `12_AUTH_ROLE_USERS`
+## FASE 17 — `16_AUTH_ROLE_USERS`
 
 ### Auth — RoleUsers
 
