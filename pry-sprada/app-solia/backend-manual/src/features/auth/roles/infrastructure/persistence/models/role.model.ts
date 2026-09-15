@@ -7,9 +7,13 @@ import {
   UpdatedAt,
   PrimaryKey,
   AutoIncrement,
+  BelongsToMany,
 } from 'sequelize-typescript';
 
 import { Status } from '../../../../../../common/enums/status.enum.js';
+
+import { ResourceModel } from '../../../../resources/infrastructure/persistence/models/resource.model.js';
+import { ResourceRoleModel } from '../../../../resource-roles/infrastructure/persistence/models/resource-role.model.js';
 
 @Table({ tableName: 'roles' })
 export class RoleModel extends Model {
@@ -50,4 +54,10 @@ export class RoleModel extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
+
+  @BelongsToMany(
+    () => ResourceModel,
+    () => ResourceRoleModel,
+  )
+  declare resources: ResourceModel[];
 }
