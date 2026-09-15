@@ -46,6 +46,7 @@ export class DatabaseSeederService implements OnModuleInit {
         `❌ Error en seeders: ${error.message}`,
         error.stack,
       );
+
       throw error;
     }
   }
