@@ -1,25 +1,40 @@
 import { Sequelize } from 'sequelize-typescript';
-import { DatabaseDialect } from '../../../config/environment/env.interface';
-import { getSequelizeOptions } from './sequelize.options';
 
-import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model';
-import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';
-import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model';
-import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model';
-import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model';
-import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model';
-import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model';
-import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model';
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
+
+import mysql2 from 'mysql2';
+import pg from 'pg';
+import tedious from 'tedious';
+import oracledb from 'oracledb';
+
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
+import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
+import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
+import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
+import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
+import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
+import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
+import { DecisionCommitteeModel } from '../../../features/business/decision-committees/infrastructure/persistence/models/decision-committee.model.js';
+import { AuditModel } from '../../../features/business/audits/infrastructure/persistence/models/audit.model.js';
+
+import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
+import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
 
 export const ALL_MODELS = [
-  ClientModel,
-  ProductTypeModel,
-  ProductModel,
-  SaleModel,
-  ProductSaleModel,
+  MemberModel,
+  AccountModel,
+  MovementModel,
+  CreditApplicationModel,
+  CreditModel,
+  InstallmentModel,
+  InstallmentPaymentModel,
+  RateModel,
+  DecisionCommitteeModel,
+  AuditModel,
   UserModel,
   RoleModel,
-  RoleUserModel,
 ];
 
 export async function createSequelizeInstance(
@@ -31,17 +46,21 @@ export async function createSequelizeInstance(
 
   switch (dialect) {
     case DatabaseDialect.MySQL:
-      dialectModule = require('mysql2');
+      dialectModule = mysql2;
       break;
+
     case DatabaseDialect.Postgres:
-      dialectModule = require('pg');
+      dialectModule = pg;
       break;
+
     case DatabaseDialect.MSSQL:
-      dialectModule = require('tedious');
+      dialectModule = tedious;
       break;
+
     case DatabaseDialect.Oracle:
-      dialectModule = require('oracledb');
+      dialectModule = oracledb;
       break;
+
     default:
       throw new Error(`Dialecto no soportado: ${dialect}`);
   }
@@ -54,17 +73,22 @@ export async function createSequelizeInstance(
 
   try {
     await sequelize.authenticate();
-    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
+
+    console.log(
+      `✅ Conexión exitosa a ${dialect.toUpperCase()}`,
+    );
   } catch (error: any) {
     console.error(
       `❌ Error conectando a ${dialect.toUpperCase()}:`,
       error.message,
     );
+
     throw error;
   }
 
   if (process.env.NODE_ENV !== 'production') {
     await sequelize.sync({ alter: false });
+
     console.log('✅ Tablas sincronizadas');
   }
 

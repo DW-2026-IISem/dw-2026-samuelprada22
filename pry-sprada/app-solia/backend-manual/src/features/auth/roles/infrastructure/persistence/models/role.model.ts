@@ -5,37 +5,49 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
-  BelongsToMany,
+  PrimaryKey,
+  AutoIncrement,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
-import { UserModel } from '../../../../users/infrastructure/persistence/models/user.model';
-import { RoleUserModel } from '../../../../role-users/infrastructure/persistence/models/role-user.model';
+
+import { Status } from '../../../../../../common/enums/status.enum.js';
 
 @Table({ tableName: 'roles' })
 export class RoleModel extends Model {
-  @Column({
-    type: DataType.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  })
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
   declare id: number;
 
-  @Column({ type: DataType.STRING(100), allowNull: false, unique: true })
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: false,
+    unique: true,
+  })
   declare name: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare description: string | null;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare isActive: boolean;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
     allowNull: false,
     defaultValue: Status.ACTIVE,
   })
-  declare isActive: Status;
+  declare status: Status;
 
   @CreatedAt
   declare createdAt: Date;
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @BelongsToMany(() => UserModel, () => RoleUserModel)
-  declare users: UserModel[];
 }
