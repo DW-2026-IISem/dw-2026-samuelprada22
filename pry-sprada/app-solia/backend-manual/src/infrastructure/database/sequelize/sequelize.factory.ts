@@ -8,6 +8,7 @@ import pg from 'pg';
 import tedious from 'tedious';
 import oracledb from 'oracledb';
 
+// Business
 import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
 import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
 import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
@@ -19,9 +20,11 @@ import { RateModel } from '../../../features/business/rates/infrastructure/persi
 import { DecisionCommitteeModel } from '../../../features/business/decision-committees/infrastructure/persistence/models/decision-committee.model.js';
 import { AuditModel } from '../../../features/business/audits/infrastructure/persistence/models/audit.model.js';
 
+// Auth
 import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
 import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
 import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model.js';
+import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model.js';
 
 export const ALL_MODELS = [
   // Business
@@ -40,6 +43,7 @@ export const ALL_MODELS = [
   UserModel,
   RoleModel,
   ResourceModel,
+  ResourceRoleModel,
 ];
 
 export async function createSequelizeInstance(
