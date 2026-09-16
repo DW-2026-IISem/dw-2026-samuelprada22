@@ -1,20 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-
-import { envConfig } from './config/environment/env.config.js';
-import { appConfig } from './config/app/app.config.js';
-import { jwtConfig } from './config/jwt/jwt.config.js';
-
-import { LoggerModule } from './config/logger/logger.module.js';
-
-import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module.js';
-import { SecurityModule } from './infrastructure/security/security.module.js';
-
-import { BusinessModule } from './features/business/business.module.js';
-import { AuthModule } from './features/auth/auth.module.js';
-
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
+import { APP_GUARD } from '@nestjs/core';
+import { envConfig } from './config/environment/env.config';
+import { appConfig } from './config/app/app.config';
+import { jwtConfig } from './config/jwt/jwt.config';
+import { LoggerModule } from './config/logger/logger.module';
+import { SequelizeDatabaseModule } from './infrastructure/database/sequelize/sequelize.module';
+import { SecurityModule } from './infrastructure/security/security.module';
+import { BusinessModule } from './features/business/business.module';
+import { AuthModule } from './features/auth/auth.module';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -23,15 +21,23 @@ import { AppService } from './app.service.js';
       load: [envConfig, appConfig, jwtConfig],
       envFilePath: '.env',
     }),
-
     SequelizeDatabaseModule,
     SecurityModule,
     LoggerModule,
-
     BusinessModule,
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
