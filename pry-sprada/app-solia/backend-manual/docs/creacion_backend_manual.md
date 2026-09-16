@@ -10,51 +10,81 @@ editor_options:
 > Basado en: `docs/guia_del_backend.md`\
 > Destino: construir el mismo backend **desde cero**, fase por fase.
 
-## Cómo usar este manual
-
-1.  Cada **FASE** es un epígrafo grande (épica).
-2.  Cada **subítem** (ej. `1.3`, `7.4`) es un **issue** que termina en un **commit**.
-3.  Copia y pega los bloques `bash` en la terminal: crean carpetas/archivos con `mkdir`/`cat`, no edites a mano.
-4.  Sigue el orden: **no te adelantes**. El cableado (`app.module`, factory Sequelize, seeders) evoluciona por fase.
-5.  Después de cada verificación (`npm run start:dev`) confirma logs y, si aplica, la tabla en BD.
-
-### Reglas de arquitectura (no negociables)
-
-1.  Entidad de dominio = TypeScript puro (NO `extends Model`).
-2.  Modelo Sequelize solo en `infrastructure/persistence/models`.
-3.  Casos de uso en `application/use-cases`; controllers delgados.
-4.  Contrato de repositorio en `domain/interfaces`; implementación en infrastructure.
-5.  **Business primero**, Auth después.
-6.  Una entidad ≈ una fase (después de la base).
-7.  Cada entidad: seeder + verificación física en BD cuando ya esté cableada.
-8.  **Multi-base:** `DB_DIALECT` elige el motor (`mysql` \| `postgres` \| `mssql` \| `oracle`). Cada motor tiene su bloque (`DB_MYSQL_*`, `DB_POSTGRES_*`, `DB_MSSQL_*`, `DB_ORACLE_*`). No uses un `DB_HOST` genérico.
-
-### Roadmap
-
-| Fase | Código | Contenido |
-|------------------------|------------------------|------------------------|
-| 1 | `00_BASE_INIT_NESTJS` | Crear proyecto NestJS |
-| 2 | `01_BASE_DEPS_Y_PUERTO` | Dependencias + free-port |
-| 3 | `02_BASE_ESTRUCTURA_CA` | Árbol Clean Architecture |
-| 4 | `03_BASE_ENTORNO_ENV` | `.env` tipado: `DB_DIALECT` + un bloque por motor |
-| 5 | `04_BASE_DATABASE_SEQUELIZE` | Multi-dialecto Sequelize (usa el bloque activo) |
-| 6 | `05_BASE_APP_COMMON_SECURITY` | App/Logger/Common/Security + bootstrap |
-| 7 | `06_BUSINESS_CLIENTS` | Clients (patrón completo) |
-| 8 | `07_BUSINESS_PRODUCT_TYPES` | ProductTypes |
-| 9 | `08_BUSINESS_PRODUCTS` | Products |
-| 10 | `09_BUSINESS_SALES` | Sales + ProductSale |
-| 11 | `10_BUSINESS_CREDITS` | U |
-| 12 | `11_AUTH_ROLES` | Roles |
-| 13 | `12_AUTH_ROLE_USERS` | RoleUsers |
-| 14 | `13_AUTH_RESOURCES` | Resources |
-| 15 | `14_AUTH_RESOURCE_ROLES` | ResourceRoles |
-| 16 | `15_AUTH_REFRESH_TOKENS` | RefreshTokens |
-| 17 | `16_AUTH_JWT_LOGIN` | Login / refresh / logout |
-| 18 | `17_AUTH_RBAC_GUARDS` | Guards RBAC globales |
-| 19 | `18_SWAGGER_BEARER` | Swagger Bearer (ajuste final) |
-| 20 | `19_INTEGRACION_FINAL` | Checklist e integración |
-
 ------------------------------------------------------------------------
+
+# 29. FondoSolidario - Cooperativa de ahorro y crédito
+
+*Socios / cuentas / créditos / movimientos*
+
+**NARRATIVA DEL PROYECTO**
+
+FondoSolidario administra aportes, cuentas de ahorro y créditos de asociados.
+El sistema debe registrar movimientos con partida y referencia, calcular intereses y cuotas bajo la tasa aprobada, aplicar pagos y mantener saldos reproducibles.
+Las decisiones de crédito, reversos y ajustes requieren autorización segregada y auditoría.
+
+| **Entidad de dominio** | **Atributos / claves sugeridos** |
+|------------------------|----------------------------------|
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Socio** | `id`, `documento`, `nombre`, `apellido`, `email`, `telefono`, `direccion`, `estado`, `created_at`, `updated_at` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Cuenta** | `id`, `socio_id (FK)`, `numero_cuenta`, `tipo`, `saldo`, `estado`, `created_at`, `updated_at` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Movimiento** | `id`, `cuenta_id (FK)`, `tipo`, `valor`, `fecha`, `saldo_resultante`, `descripcion`, `estado` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **SolicitudCredito** | `id`, `socio_id (FK)`, `tasa_id (FK)`, `monto_solicitado`, `plazo`, `fecha_solicitud`, `estado`, `observaciones` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Credito** | `id`, `solicitud_credito_id (FK)`, `tasa_id (FK)`, `monto_aprobado`, `saldo_pendiente`, `fecha_desembolso`, `fecha_vencimiento`, `estado` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Cuota** | `id`, `credito_id (FK)`, `numero_cuota`, `fecha_vencimiento`, `capital`, `interes`, `valor_total`, `saldo_pendiente`, `estado` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **PagoCuota** | `id`, `cuota_id (FK)`, `fecha_pago`, `valor_pagado`, `metodo_pago`, `referencia`, `estado` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Tasa** | `id`, `nombre`, `tipo`, `valor`, `periodicidad`, `fecha_inicio`, `fecha_fin`, `estado` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **ComiteDecision** | `id`, `solicitud_credito_id (FK)`, `usuario_id (FK)`, `decision`, `observaciones`, `fecha_decision` |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Auditoria** | `id`, `actor_user_id (FK)`, `accion`, `entidad`, `entidad_id`, `datos`, `created_at` |
+
+**RELACIONES DE NEGOCIO**
+
+·    Socio 1:N Cuenta; Cuenta 1:N Movimiento
+
+·    Socio 1:N SolicitudCredito
+
+·    SolicitudCredito 0..1:1 Credito
+
+·    Tasa 1:N Credito; Credito 1:N Cuota
+
+·    Cuota 1:N PagoCuota
+
+·    SolicitudCredito 1:N ComiteDecision
+
+·    Las operaciones sensibles generan registros de Auditoria
+
+|     \|
+| 
+
+| 
 
 ## FASE 1 — `00_BASE_INIT_NESTJS`
 
@@ -19327,8 +19357,6 @@ git commit -m "feat(auth): add update resource use case"
 
 ![](images/clipboard-4168701017.png)
 
-#### 18
-
 #### 18.14 — features/auth/resources/presentation/http/controllers/resources.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
@@ -22110,39 +22138,12 @@ git commit -m "test: verify 20_auth_refresh_tokens auth feature"
 
 > **Objetivo de la fase:** Casos de uso de autenticación, strategy Passport JWT y endpoints públicos de auth.
 
-#### 17.1 — features/auth/authentication/domain/exceptions/inactive-user.exception.ts
+#### 21.1 — features/auth/authentication/domain/exceptions/inactive-user.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
 
 **Archivo:** `src/features/auth/authentication/domain/exceptions/inactive-user.exception.ts`
-
-``` bash
-mkdir -p src/features/auth/authentication/domain/exceptions
-cat > src/features/auth/authentication/domain/exceptions/inactive-user.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
-
-export class InactiveUserException extends DomainException {
-  constructor() {
-    super('Usuario inactivo');
-  }
-}
-EOF_BACKEND_IA
-```
-
-**Sugerencia de commit (issue):**
-
-``` bash
-git add .
-git commit -m "feat: add domain exception inactive-user.exception.ts"
-```
-
-#### 17.2 — features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts
-
-Excepción de dominio.
-El caso de uso la lanza; el filter HTTP la traduce a status code.
-
-**Archivo:** `src/features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts`
 
 ``` bash
 mkdir -p src/features/auth/authentication/domain/exceptions
@@ -22158,7 +22159,7 @@ export class InactiveUserException extends DomainException {
 EOF_BACKEND_MANUAL
 ```
 
-![](images/clipboard-2544913352.png)
+![](images/clipboard-2751157545.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22167,7 +22168,42 @@ git add src/features/auth/authentication/domain/exceptions/inactive-user.excepti
 git commit -m "feat: add domain exception inactive-user.exception.ts"
 ```
 
-#### 17.3 — features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts
+![](images/clipboard-349521112.png)
+
+#### 21.2 — features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts
+
+Excepción de dominio.
+El caso de uso la lanza; el filter HTTP la traduce a status code.
+
+**Archivo:** `src/features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts`
+
+``` bash
+mkdir -p src/features/auth/authentication/domain/exceptions
+
+cat > src/features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts <<'EOF_BACKEND_MANUAL'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
+
+export class InvalidCredentialsException extends DomainException {
+  constructor() {
+    super('Credenciales inválidas');
+  }
+}
+EOF_BACKEND_MANUAL
+```
+
+![](images/clipboard-1520117328.png)
+
+**Sugerencia de commit (issue):**
+
+``` bash
+git add src/features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts
+
+git commit -m "feat: add domain exception invalid-credentials.exception.ts"
+```
+
+![](images/clipboard-626893734.png)
+
+#### 21.3 — features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts
 
 Excepción de dominio.
 El caso de uso la lanza; el filter HTTP la traduce a status code.
@@ -22176,25 +22212,31 @@ El caso de uso la lanza; el filter HTTP la traduce a status code.
 
 ``` bash
 mkdir -p src/features/auth/authentication/domain/exceptions
-cat > src/features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
+
+cat > src/features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts <<'EOF_BACKEND_MANUAL'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
 
 export class InvalidRefreshTokenException extends DomainException {
   constructor() {
     super('Refresh token inválido o expirado');
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-4103534125.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add .
+git add src/features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts
+
 git commit -m "feat: add domain exception invalid-refresh-token.exception.ts"
 ```
 
-#### 17.4 — features/auth/authentication/infrastructure/jwt/jwt-token.service.ts
+![](images/clipboard-2510541028.png)
+
+#### 21.4 — features/auth/authentication/infrastructure/jwt/jwt-token.service.ts
 
 Infraestructura JWT (strategy/payload/token service).
 
@@ -22202,14 +22244,16 @@ Infraestructura JWT (strategy/payload/token service).
 
 ``` bash
 mkdir -p src/features/auth/authentication/infrastructure/jwt
-cat > src/features/auth/authentication/infrastructure/jwt/jwt-token.service.ts <<'EOF_BACKEND_IA'
-import { Injectable, Inject } from '@nestjs/common';
-import { TOKEN_SERVICE } from '../../../../../infrastructure/security/tokens/token.interface';
+
+cat > src/features/auth/authentication/infrastructure/jwt/jwt-token.service.ts <<'EOF_BACKEND_MANUAL'
+import { Inject, Injectable } from '@nestjs/common';
+
+import { TOKEN_SERVICE } from '../../../../../infrastructure/security/tokens/token.interface.js';
 import type {
   ITokenService,
   IssuedTokens,
   TokenPayload,
-} from '../../../../../infrastructure/security/tokens/token.interface';
+} from '../../../../../infrastructure/security/tokens/token.interface.js';
 
 @Injectable()
 export class JwtTokenService {
@@ -22230,17 +22274,22 @@ export class JwtTokenService {
     return this.tokenService.verifyRefreshToken(token);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1078467338.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add .
-git commit -m "feat: add jwt-token.service.ts"
+git add src/features/auth/authentication/infrastructure/jwt/jwt-token.service.ts
+
+git commit -m "feat: add jwt token service"
 ```
 
-#### 17.5 — features/auth/authentication/infrastructure/jwt/jwt.payload.ts
+![](images/clipboard-805907698.png)
+
+#### 21.5 — features/auth/authentication/infrastructure/jwt/jwt.payload.ts
 
 Infraestructura JWT (strategy/payload/token service).
 
@@ -22248,24 +22297,30 @@ Infraestructura JWT (strategy/payload/token service).
 
 ``` bash
 mkdir -p src/features/auth/authentication/infrastructure/jwt
-cat > src/features/auth/authentication/infrastructure/jwt/jwt.payload.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/infrastructure/jwt/jwt.payload.ts <<'EOF_BACKEND_MANUAL'
 export interface JwtPayload {
   sub: number;
   email: string;
   username: string;
   roles: string[];
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-2337131497.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add .
+git add src/features/auth/authentication/infrastructure/jwt/jwt.payload.ts
+
 git commit -m "feat: add jwt.payload.ts"
 ```
 
-#### 17.6 — features/auth/authentication/infrastructure/jwt/jwt.strategy.ts
+![](images/clipboard-2607581480.png)
+
+#### 21.6 — features/auth/authentication/infrastructure/jwt/jwt.strategy.ts
 
 Infraestructura JWT (strategy/payload/token service).
 
@@ -22273,13 +22328,15 @@ Infraestructura JWT (strategy/payload/token service).
 
 ``` bash
 mkdir -p src/features/auth/authentication/infrastructure/jwt
-cat > src/features/auth/authentication/infrastructure/jwt/jwt.strategy.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/infrastructure/jwt/jwt.strategy.ts <<'EOF_BACKEND_MANUAL'
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AuthenticatedUser } from '../../../../../common/interfaces/authenticated-user.interface';
-import { JwtPayload } from './jwt.payload';
+
+import type { AuthenticatedUser } from '../../../../../common/interfaces/authenticated-user.interface.js';
+import type { JwtPayload } from './jwt.payload.js';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22287,7 +22344,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('environment.jwt.secret') ?? '',
+      secretOrKey:
+        configService.get<string>('environment.jwt.secret') ?? '',
     });
   }
 
@@ -22304,17 +22362,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-112063706.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add .
+git add src/features/auth/authentication/infrastructure/jwt/jwt.strategy.ts
+
 git commit -m "feat: add jwt.strategy.ts"
 ```
 
-#### 17.7 — features/auth/authentication/infrastructure/password/bcrypt-auth-password.service.ts
+![](images/clipboard-3902367262.png)
+
+#### 21.7 — features/auth/authentication/infrastructure/password/bcrypt-auth-password.service.ts
 
 Hash de passwords específico de autenticación.
 
@@ -22322,11 +22385,12 @@ Hash de passwords específico de autenticación.
 
 ``` bash
 mkdir -p src/features/auth/authentication/infrastructure/password
-cat > src/features/auth/authentication/infrastructure/password/bcrypt-auth-password.service.ts <<'EOF_BACKEND_IA'
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface';
-import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface';
+
+cat > src/features/auth/authentication/infrastructure/password/bcrypt-auth-password.service.ts <<'EOF_BACKEND_MANUAL'
+import { Injectable, Inject } from '@nestjs/common';
+
+import { PASSWORD_HASHER } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
+import type { IPasswordHasher } from '../../../../../infrastructure/security/hashing/password-hasher.interface.js';
 
 @Injectable()
 export class BcryptAuthPasswordService {
@@ -22343,8 +22407,10 @@ export class BcryptAuthPasswordService {
     return this.passwordHasher.compare(plain, hashed);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3730611902.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22353,7 +22419,7 @@ git add .
 git commit -m "feat: add bcrypt-auth-password.service.ts"
 ```
 
-#### 17.8 — features/auth/authentication/application/dto/authentication-response.dto.ts
+#### ![](images/clipboard-2870588787.png)21.8 — features/auth/authentication/application/dto/authentication-response.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -22361,7 +22427,8 @@ DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/dto
-cat > src/features/auth/authentication/application/dto/authentication-response.dto.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/application/dto/authentication-response.dto.ts <<'EOF_BACKEND_MANUAL'
 export class AuthenticationResponseDto {
   accessToken: string;
   refreshToken: string;
@@ -22373,8 +22440,10 @@ export class AuthenticationResponseDto {
     roles: string[];
   };
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3821120334.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22383,7 +22452,9 @@ git add .
 git commit -m "feat: add dto authentication-response.dto.ts"
 ```
 
-#### 17.9 — features/auth/authentication/application/dto/login.dto.ts
+![](images/clipboard-2290559558.png)
+
+#### 21.9 — features/auth/authentication/application/dto/login.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -22391,7 +22462,8 @@ DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/dto
-cat > src/features/auth/authentication/application/dto/login.dto.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/application/dto/login.dto.ts <<'EOF_BACKEND_MANUAL'
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
@@ -22399,11 +22471,14 @@ export class LoginDto {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   @MinLength(6)
   password: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-717007609.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22412,7 +22487,9 @@ git add .
 git commit -m "feat: add dto login.dto.ts"
 ```
 
-#### 17.10 — features/auth/authentication/application/dto/logout.dto.ts
+![](images/clipboard-538073900.png)
+
+#### 21.10 — features/auth/authentication/application/dto/logout.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -22420,10 +22497,13 @@ DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/dto
-cat > src/features/auth/authentication/application/dto/logout.dto.ts <<'EOF_BACKEND_IA'
-export { RefreshTokenDto as LogoutDto } from './refresh-token.dto';
-EOF_BACKEND_IA
+
+cat > src/features/auth/authentication/application/dto/logout.dto.ts <<'EOF_BACKEND_MANUAL'
+export { RefreshTokenDto as LogoutDto } from './refresh-token.dto.js';
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1158671.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22432,7 +22512,9 @@ git add .
 git commit -m "feat: add dto logout.dto.ts"
 ```
 
-#### 17.11 — features/auth/authentication/application/dto/refresh-token.dto.ts
+![](images/clipboard-3650332989.png)
+
+#### 21.11 — features/auth/authentication/application/dto/refresh-token.dto.ts
 
 DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
@@ -22440,7 +22522,8 @@ DTO de entrada/salida HTTP con `class-validator` / Swagger.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/dto
-cat > src/features/auth/authentication/application/dto/refresh-token.dto.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/application/dto/refresh-token.dto.ts <<'EOF_BACKEND_MANUAL'
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class RefreshTokenDto {
@@ -22448,8 +22531,10 @@ export class RefreshTokenDto {
   @IsNotEmpty()
   refreshToken: string;
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1936103586.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22458,7 +22543,9 @@ git add .
 git commit -m "feat: add dto refresh-token.dto.ts"
 ```
 
-#### 17.12 — features/auth/authentication/application/use-cases/login.use-case.ts
+![](images/clipboard-3209887460.png)
+
+#### 21.12 — features/auth/authentication/application/use-cases/login.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -22468,40 +22555,54 @@ El controller solo lo invoca.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/use-cases
-cat > src/features/auth/authentication/application/use-cases/login.use-case.ts <<'EOF_BACKEND_IA'
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { Status } from '../../../../../common/enums/status.enum';
-import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface';
-import { ROLE_USER_REPOSITORY } from '../../../role-users/domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../../role-users/domain/interfaces/role-user-repository.interface';
-import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface';
-import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface';
-import { CreateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/create-refresh-token.use-case';
-import { AuthenticationResponseDto } from '../dto/authentication-response.dto';
-import { LoginDto } from '../dto/login.dto';
-import { InactiveUserException } from '../../domain/exceptions/inactive-user.exception';
-import { InvalidCredentialsException } from '../../domain/exceptions/invalid-credentials.exception';
-import { BcryptAuthPasswordService } from '../../infrastructure/password/bcrypt-auth-password.service';
-import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service';
+
+cat > src/features/auth/authentication/application/use-cases/login.use-case.ts <<'EOF_BACKEND_MANUAL'
+import { Injectable, Inject } from '@nestjs/common';
+
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface.js';
+
+import { ROLE_USER_REPOSITORY } from '../../../role-users/domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../../role-users/domain/interfaces/role-user-repository.interface.js';
+
+import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface.js';
+
+import { CreateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/create-refresh-token.use-case.js';
+
+import { AuthenticationResponseDto } from '../dto/authentication-response.dto.js';
+import { LoginDto } from '../dto/login.dto.js';
+
+import { InactiveUserException } from '../../domain/exceptions/inactive-user.exception.js';
+import { InvalidCredentialsException } from '../../domain/exceptions/invalid-credentials.exception.js';
+
+import { BcryptAuthPasswordService } from '../../infrastructure/password/bcrypt-auth-password.service.js';
+import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service.js';
 
 @Injectable()
 export class LoginUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+
     @Inject(ROLE_USER_REPOSITORY)
     private readonly roleUserRepository: IRoleUserRepository,
+
     @Inject(ROLE_REPOSITORY)
     private readonly roleRepository: IRoleRepository,
+
     private readonly authPasswordService: BcryptAuthPasswordService,
+
     private readonly jwtTokenService: JwtTokenService,
+
     private readonly createRefreshTokenUseCase: CreateRefreshTokenUseCase,
   ) {}
 
   async execute(dto: LoginDto): Promise<AuthenticationResponseDto> {
     const user = await this.userRepository.findByEmail(dto.email);
+
     if (!user) {
       throw new InvalidCredentialsException();
     }
@@ -22514,14 +22615,20 @@ export class LoginUseCase {
       dto.password,
       user.password,
     );
+
     if (!passwordValid) {
       throw new InvalidCredentialsException();
     }
 
-    const roleUsers = await this.roleUserRepository.findActiveByUserId(user.id!);
+    const roleUsers = await this.roleUserRepository.findActiveByUserId(
+      user.id!,
+    );
+
     const roleIds = roleUsers.map((ru) => ru.roleId);
+
     const roles = await this.roleRepository.findByIds(roleIds);
-    const roleNames = roles.map((r) => r.name);
+
+    const roleNames = roles.map((role) => role.name);
 
     const tokens = await this.jwtTokenService.issueTokens({
       sub: user.id!,
@@ -22548,8 +22655,10 @@ export class LoginUseCase {
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3260632921.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22558,7 +22667,9 @@ git add .
 git commit -m "feat: add use case login.use-case.ts"
 ```
 
-#### 17.13 — features/auth/authentication/application/use-cases/logout.use-case.ts
+![](images/clipboard-2921561867.png)
+
+#### 21.13 — features/auth/authentication/application/use-cases/logout.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -22568,19 +22679,26 @@ El controller solo lo invoca.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/use-cases
-cat > src/features/auth/authentication/application/use-cases/logout.use-case.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/application/use-cases/logout.use-case.ts <<'EOF_BACKEND_MANUAL'
 import { Injectable } from '@nestjs/common';
-import { ValidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/validate-refresh-token.use-case';
-import { InvalidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/invalidate-refresh-token.use-case';
-import { LogoutDto } from '../dto/logout.dto';
-import { InvalidRefreshTokenException } from '../../domain/exceptions/invalid-refresh-token.exception';
-import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service';
+
+import { ValidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/validate-refresh-token.use-case.js';
+import { InvalidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/invalidate-refresh-token.use-case.js';
+
+import { LogoutDto } from '../dto/logout.dto.js';
+
+import { InvalidRefreshTokenException } from '../../domain/exceptions/invalid-refresh-token.exception.js';
+
+import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service.js';
 
 @Injectable()
 export class LogoutUseCase {
   constructor(
     private readonly jwtTokenService: JwtTokenService,
+
     private readonly validateRefreshTokenUseCase: ValidateRefreshTokenUseCase,
+
     private readonly invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase,
   ) {}
 
@@ -22591,7 +22709,10 @@ export class LogoutUseCase {
       throw new InvalidRefreshTokenException();
     }
 
-    const stored = await this.validateRefreshTokenUseCase.execute(dto.refreshToken);
+    const stored = await this.validateRefreshTokenUseCase.execute(
+      dto.refreshToken,
+    );
+
     if (!stored) {
       throw new InvalidRefreshTokenException();
     }
@@ -22599,8 +22720,10 @@ export class LogoutUseCase {
     await this.invalidateRefreshTokenUseCase.execute(stored.id!);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3214353757.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22609,7 +22732,9 @@ git add .
 git commit -m "feat: add use case logout.use-case.ts"
 ```
 
-#### 17.14 — features/auth/authentication/application/use-cases/refresh-token.use-case.ts
+![](images/clipboard-2155757248.png)
+
+#### 21.14 — features/auth/authentication/application/use-cases/refresh-token.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -22619,62 +22744,87 @@ El controller solo lo invoca.
 
 ``` bash
 mkdir -p src/features/auth/authentication/application/use-cases
-cat > src/features/auth/authentication/application/use-cases/refresh-token.use-case.ts <<'EOF_BACKEND_IA'
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { Status } from '../../../../../common/enums/status.enum';
-import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface';
-import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface';
-import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface';
-import { ROLE_USER_REPOSITORY } from '../../../role-users/domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../../role-users/domain/interfaces/role-user-repository.interface';
-import { CreateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/create-refresh-token.use-case';
-import { InvalidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/invalidate-refresh-token.use-case';
-import { ValidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/validate-refresh-token.use-case';
-import { AuthenticationResponseDto } from '../dto/authentication-response.dto';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { InactiveUserException } from '../../domain/exceptions/inactive-user.exception';
-import { InvalidRefreshTokenException } from '../../domain/exceptions/invalid-refresh-token.exception';
-import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service';
+
+cat > src/features/auth/authentication/application/use-cases/refresh-token.use-case.ts <<'EOF_BACKEND_MANUAL'
+import { Injectable, Inject } from '@nestjs/common';
+
+import { Status } from '../../../../../common/enums/status.enum.js';
+
+import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface.js';
+
+import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface.js';
+
+import { ROLE_USER_REPOSITORY } from '../../../role-users/domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../../role-users/domain/interfaces/role-user-repository.interface.js';
+
+import { CreateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/create-refresh-token.use-case.js';
+import { InvalidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/invalidate-refresh-token.use-case.js';
+import { ValidateRefreshTokenUseCase } from '../../../refresh-tokens/application/use-cases/validate-refresh-token.use-case.js';
+
+import { AuthenticationResponseDto } from '../dto/authentication-response.dto.js';
+import { RefreshTokenDto } from '../dto/refresh-token.dto.js';
+
+import { InvalidRefreshTokenException } from '../../domain/exceptions/invalid-refresh-token.exception.js';
+
+import { JwtTokenService } from '../../infrastructure/jwt/jwt-token.service.js';
 
 @Injectable()
 export class RefreshTokenUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+
     @Inject(ROLE_USER_REPOSITORY)
     private readonly roleUserRepository: IRoleUserRepository,
+
     @Inject(ROLE_REPOSITORY)
     private readonly roleRepository: IRoleRepository,
+
     private readonly jwtTokenService: JwtTokenService,
+
     private readonly validateRefreshTokenUseCase: ValidateRefreshTokenUseCase,
+
     private readonly invalidateRefreshTokenUseCase: InvalidateRefreshTokenUseCase,
+
     private readonly createRefreshTokenUseCase: CreateRefreshTokenUseCase,
   ) {}
 
   async execute(dto: RefreshTokenDto): Promise<AuthenticationResponseDto> {
     let payload;
+
     try {
-      payload = await this.jwtTokenService.verifyRefreshToken(dto.refreshToken);
+      payload = await this.jwtTokenService.verifyRefreshToken(
+        dto.refreshToken,
+      );
     } catch {
       throw new InvalidRefreshTokenException();
     }
 
-    const stored = await this.validateRefreshTokenUseCase.execute(dto.refreshToken);
+    const stored = await this.validateRefreshTokenUseCase.execute(
+      dto.refreshToken,
+    );
+
     if (!stored) {
       throw new InvalidRefreshTokenException();
     }
 
     const user = await this.userRepository.findById(payload.sub);
+
     if (!user || user.isActive !== Status.ACTIVE) {
       throw new InvalidRefreshTokenException();
     }
 
-    const roleUsers = await this.roleUserRepository.findActiveByUserId(user.id!);
+    const roleUsers = await this.roleUserRepository.findActiveByUserId(
+      user.id!,
+    );
+
     const roleIds = roleUsers.map((ru) => ru.roleId);
+
     const roles = await this.roleRepository.findByIds(roleIds);
-    const roleNames = roles.map((r) => r.name);
+
+    const roleNames = roles.map((role) => role.name);
 
     const tokens = await this.jwtTokenService.issueTokens({
       sub: user.id!,
@@ -22684,6 +22834,7 @@ export class RefreshTokenUseCase {
     });
 
     await this.invalidateRefreshTokenUseCase.execute(stored.id!);
+
     await this.createRefreshTokenUseCase.execute({
       userId: user.id!,
       token: tokens.refreshToken,
@@ -22702,8 +22853,10 @@ export class RefreshTokenUseCase {
     };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-353487630.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22712,7 +22865,9 @@ git add .
 git commit -m "feat: add use case refresh-token.use-case.ts"
 ```
 
-#### 17.15 — features/auth/authentication/presentation/http/controllers/authentication.controller.ts
+![](images/clipboard-1549420467.png)
+
+#### 21.15 — features/auth/authentication/presentation/http/controllers/authentication.controller.ts
 
 Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
@@ -22720,15 +22875,19 @@ Controller delgado: valida DTO, llama use-case, devuelve respuesta.
 
 ``` bash
 mkdir -p src/features/auth/authentication/presentation/http/controllers
-cat > src/features/auth/authentication/presentation/http/controllers/authentication.controller.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/presentation/http/controllers/authentication.controller.ts <<'EOF_BACKEND_MANUAL'
 import { Body, Controller, Post } from '@nestjs/common';
-import { Public } from '../../../../../../common/decorators/public.decorator';
-import { LoginDto } from '../../../application/dto/login.dto';
-import { LogoutDto } from '../../../application/dto/logout.dto';
-import { RefreshTokenDto } from '../../../application/dto/refresh-token.dto';
-import { LoginUseCase } from '../../../application/use-cases/login.use-case';
-import { LogoutUseCase } from '../../../application/use-cases/logout.use-case';
-import { RefreshTokenUseCase } from '../../../application/use-cases/refresh-token.use-case';
+
+import { Public } from '../../../../../../common/decorators/public.decorator.js';
+
+import { LoginDto } from '../../../application/dto/login.dto.js';
+import { LogoutDto } from '../../../application/dto/logout.dto.js';
+import { RefreshTokenDto } from '../../../application/dto/refresh-token.dto.js';
+
+import { LoginUseCase } from '../../../application/use-cases/login.use-case.js';
+import { LogoutUseCase } from '../../../application/use-cases/logout.use-case.js';
+import { RefreshTokenUseCase } from '../../../application/use-cases/refresh-token.use-case.js';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -22753,11 +22912,16 @@ export class AuthenticationController {
   @Post('logout')
   async logout(@Body() dto: LogoutDto) {
     await this.logoutUseCase.execute(dto);
-    return { message: 'Sesión cerrada' };
+
+    return {
+      message: 'Sesión cerrada',
+    };
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3552784071.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22766,7 +22930,9 @@ git add .
 git commit -m "feat: add controller authentication.controller.ts"
 ```
 
-#### 17.16 — features/auth/authentication/authentication.module.ts
+![](images/clipboard-788871366.png)
+
+#### 21.16 — features/auth/authentication/authentication.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
@@ -22774,23 +22940,36 @@ Módulo Nest del feature: cablea providers, tokens DI y controller.
 
 ``` bash
 mkdir -p src/features/auth/authentication
-cat > src/features/auth/authentication/authentication.module.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/authentication/authentication.module.ts <<'EOF_BACKEND_MANUAL'
 import { Module } from '@nestjs/common';
-import { RefreshTokensModule } from '../refresh-tokens/refresh-tokens.module';
-import { RoleUsersModule } from '../role-users/role-users.module';
-import { RolesModule } from '../roles/roles.module';
-import { UsersModule } from '../users/users.module';
-import { LoginUseCase } from './application/use-cases/login.use-case';
-import { LogoutUseCase } from './application/use-cases/logout.use-case';
-import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
-import { JwtStrategy } from './infrastructure/jwt/jwt.strategy';
-import { JwtTokenService } from './infrastructure/jwt/jwt-token.service';
-import { BcryptAuthPasswordService } from './infrastructure/password/bcrypt-auth-password.service';
-import { AuthenticationController } from './presentation/http/controllers/authentication.controller';
+
+import { RefreshTokensModule } from '../refresh-tokens/refresh-tokens.module.js';
+import { RoleUsersModule } from '../role-users/role-users.module.js';
+import { RolesModule } from '../roles/roles.module.js';
+import { UsersModule } from '../users/users.module.js';
+
+import { LoginUseCase } from './application/use-cases/login.use-case.js';
+import { LogoutUseCase } from './application/use-cases/logout.use-case.js';
+import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case.js';
+
+import { JwtStrategy } from './infrastructure/jwt/jwt.strategy.js';
+import { JwtTokenService } from './infrastructure/jwt/jwt-token.service.js';
+
+import { BcryptAuthPasswordService } from './infrastructure/password/bcrypt-auth-password.service.js';
+
+import { AuthenticationController } from './presentation/http/controllers/authentication.controller.js';
 
 @Module({
-  imports: [UsersModule, RolesModule, RoleUsersModule, RefreshTokensModule],
+  imports: [
+    UsersModule,
+    RolesModule,
+    RoleUsersModule,
+    RefreshTokensModule,
+  ],
+
   controllers: [AuthenticationController],
+
   providers: [
     LoginUseCase,
     LogoutUseCase,
@@ -22799,11 +22978,17 @@ import { AuthenticationController } from './presentation/http/controllers/authen
     JwtTokenService,
     BcryptAuthPasswordService,
   ],
-  exports: [JwtStrategy, JwtTokenService],
+
+  exports: [
+    JwtStrategy,
+    JwtTokenService,
+  ],
 })
 export class AuthenticationModule {}
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3734441315.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22812,7 +22997,9 @@ git add .
 git commit -m "feat: wire nest module authentication.module.ts"
 ```
 
-#### 17.17 — features/auth/infrastructure/database/sequelize.provider.ts
+![](images/clipboard-4186143791.png)
+
+#### 21.17 — features/auth/infrastructure/database/sequelize.provider.ts
 
 Archivo del feature en Clean Architecture.
 
@@ -22820,17 +23007,20 @@ Archivo del feature en Clean Architecture.
 
 ``` bash
 mkdir -p src/features/auth/infrastructure/database
-cat > src/features/auth/infrastructure/database/sequelize.provider.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/infrastructure/database/sequelize.provider.ts <<'EOF_BACKEND_MANUAL'
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Sequelize } from 'sequelize-typescript';
-import { SEQUELIZE_TOKEN } from '../../../../common/constants/database.constants';
-import { RefreshTokenModel } from '../../refresh-tokens/infrastructure/persistence/models/refresh-token.model';
-import { ResourceRoleModel } from '../../resource-roles/infrastructure/persistence/models/resource-role.model';
-import { ResourceModel } from '../../resources/infrastructure/persistence/models/resource.model';
-import { RoleUserModel } from '../../role-users/infrastructure/persistence/models/role-user.model';
-import { RoleModel } from '../../roles/infrastructure/persistence/models/role.model';
-import { UserModel } from '../../users/infrastructure/persistence/models/user.model';
+
+import { SEQUELIZE_TOKEN } from '../../../../common/constants/database.constants.js';
+
+import { RefreshTokenModel } from '../../refresh-tokens/infrastructure/persistence/models/refresh-token.model.js';
+import { ResourceRoleModel } from '../../resource-roles/infrastructure/persistence/models/resource-role.model.js';
+import { ResourceModel } from '../../resources/infrastructure/persistence/models/resource.model.js';
+import { RoleUserModel } from '../../role-users/infrastructure/persistence/models/role-user.model.js';
+import { RoleModel } from '../../roles/infrastructure/persistence/models/role.model.js';
+import { UserModel } from '../../users/infrastructure/persistence/models/user.model.js';
 
 export const AUTH_MODELS = [
   UserModel,
@@ -22843,6 +23033,7 @@ export const AUTH_MODELS = [
 
 export const sequelizeProvider: Provider = {
   provide: SEQUELIZE_TOKEN,
+
   useFactory: async (configService: ConfigService) => {
     const dbConfig = configService.get('environment.database');
 
@@ -22853,7 +23044,10 @@ export const sequelizeProvider: Provider = {
       username: dbConfig.username,
       password: dbConfig.password,
       database: dbConfig.database,
-      logging: configService.get('environment.app.nodeEnv') === 'development',
+
+      logging:
+        configService.get('environment.app.nodeEnv') === 'development',
+
       define: {
         underscored: false,
         freezeTableName: true,
@@ -22861,15 +23055,20 @@ export const sequelizeProvider: Provider = {
     });
 
     sequelize.addModels(AUTH_MODELS);
+
     await sequelize.authenticate();
+
     await sequelize.sync();
 
     return sequelize;
   },
+
   inject: [ConfigService],
 };
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-988824251.png)
 
 **Sugerencia de commit (issue):**
 
@@ -22878,7 +23077,9 @@ git add .
 git commit -m "feat: add sequelize.provider.ts"
 ```
 
-#### 17.18 — features/auth/index.ts
+![](images/clipboard-502388250.png)
+
+#### 21.18 — features/auth/index.ts
 
 Barrel export del feature para imports limpios.
 
@@ -22886,26 +23087,27 @@ Barrel export del feature para imports limpios.
 
 ``` bash
 mkdir -p src/features/auth
-cat > src/features/auth/index.ts <<'EOF_BACKEND_IA'
-export { AuthModule } from './auth.module';
-export { UsersModule } from './users/users.module';
-export { RolesModule } from './roles/roles.module';
-export { RoleUsersModule } from './role-users/role-users.module';
-export { ResourcesModule } from './resources/resources.module';
-export { ResourceRolesModule } from './resource-roles/resource-roles.module';
-export { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module';
-export { AuthenticationModule } from './authentication/authentication.module';
-EOF_BACKEND_IA
+
+cat > src/features/auth/index.ts <<'EOF_BACKEND_MANUAL'
+export { AuthModule } from './auth.module.js';
+export { UsersModule } from './users/users.module.js';
+export { RolesModule } from './roles/roles.module.js';
+export { RoleUsersModule } from './role-users/role-users.module.js';
+export { ResourcesModule } from './resources/resources.module.js';
+export { ResourceRolesModule } from './resource-roles/resource-roles.module.js';
+export { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module.js';
+export { AuthenticationModule } from './authentication/authentication.module.js';
+EOF_BACKEND_MANUAL
 ```
 
-**Sugerencia de commit (issue):**
+![](images/clipboard-2133780055.png)**Sugerencia de commit (issue):**
 
 ``` bash
 git add .
 git commit -m "chore: add barrel export auth"
 ```
 
-#### 17.19 — Crear auth-bootstrap.seeder.ts
+#### 21.19 — Crear auth-bootstrap.seeder.ts
 
 Siembra roles, users, pivotes y resources iniciales (admin/vendedor).
 
@@ -22913,23 +23115,38 @@ Siembra roles, users, pivotes y resources iniciales (admin/vendedor).
 
 ``` bash
 mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/auth-bootstrap.seeder.ts <<'EOF_BACKEND_IA'
+
+cat > src/infrastructure/database/seeders/auth-bootstrap.seeder.ts <<'EOF_BACKEND_MANUAL'
 import * as bcrypt from 'bcrypt';
-import { Status } from '../../../common/enums/status.enum';
-import { HttpMethod } from '../../../common/enums/http-method.enum';
-import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model';
-import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model';
-import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model';
-import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model';
-import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model';
+
+import { Status } from '../../../common/enums/status.enum.js';
+import { HttpMethod } from '../../../common/enums/http-method.enum.js';
+
+import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
+import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
+import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model.js';
+import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model.js';
+import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model.js';
 
 export async function seedAuthBootstrap(): Promise<void> {
   // Roles
   if ((await RoleModel.count()) === 0) {
     await RoleModel.bulkCreate([
-      { name: 'ADMIN', isActive: Status.ACTIVE },
-      { name: 'MANAGER', isActive: Status.ACTIVE },
-      { name: 'VENDEDOR', isActive: Status.ACTIVE },
+      {
+        name: 'ADMIN',
+        isActive: true,
+        status: Status.ACTIVE,
+      },
+      {
+        name: 'MANAGER',
+        isActive: true,
+        status: Status.ACTIVE,
+      },
+      {
+        name: 'VENDEDOR',
+        isActive: true,
+        status: Status.ACTIVE,
+      },
     ]);
   }
 
@@ -22956,25 +23173,37 @@ export async function seedAuthBootstrap(): Promise<void> {
 
   // Role-Users
   if ((await RoleUserModel.count()) === 0) {
-    const admin = await UserModel.findOne({ where: { email: 'admin@tecnogua.com' } });
+    const admin = await UserModel.findOne({
+      where: { email: 'admin@tecnogua.com' },
+    });
+
     const vendor = await UserModel.findOne({
       where: { email: 'vendedor@tecnogua.com' },
     });
-    const adminRole = await RoleModel.findOne({ where: { name: 'ADMIN' } });
-    const vendorRole = await RoleModel.findOne({ where: { name: 'VENDEDOR' } });
+
+    const adminRole = await RoleModel.findOne({
+      where: { name: 'ADMIN' },
+    });
+
+    const vendorRole = await RoleModel.findOne({
+      where: { name: 'VENDEDOR' },
+    });
 
     if (admin && adminRole) {
       await RoleUserModel.create({
         userId: admin.id,
         roleId: adminRole.id,
-        isActive: Status.ACTIVE,
+        isActive: true,
+        status: Status.ACTIVE,
       });
     }
+
     if (vendor && vendorRole) {
       await RoleUserModel.create({
         userId: vendor.id,
         roleId: vendorRole.id,
-        isActive: Status.ACTIVE,
+        isActive: true,
+        status: Status.ACTIVE,
       });
     }
   }
@@ -22999,14 +23228,24 @@ export async function seedAuthBootstrap(): Promise<void> {
     ];
 
     await ResourceModel.bulkCreate(
-      resources.map((r) => ({ ...r, isActive: Status.ACTIVE })),
+      resources.map((resource) => ({
+        ...resource,
+        isActive: true,
+        status: Status.ACTIVE,
+      })),
     );
   }
 
   // Resource-Roles
   if ((await ResourceRoleModel.count()) === 0) {
-    const adminRole = await RoleModel.findOne({ where: { name: 'ADMIN' } });
-    const vendorRole = await RoleModel.findOne({ where: { name: 'VENDEDOR' } });
+    const adminRole = await RoleModel.findOne({
+      where: { name: 'ADMIN' },
+    });
+
+    const vendorRole = await RoleModel.findOne({
+      where: { name: 'VENDEDOR' },
+    });
+
     const allResources = await ResourceModel.findAll();
 
     if (adminRole) {
@@ -23014,31 +23253,41 @@ export async function seedAuthBootstrap(): Promise<void> {
         allResources.map((resource) => ({
           resourceId: resource.id,
           roleId: adminRole.id,
-          isActive: Status.ACTIVE,
+          isActive: true,
+          status: Status.ACTIVE,
         })),
       );
     }
 
     if (vendorRole) {
-      const vendorPaths = ['/api/clients', '/api/products', '/api/sales'];
+      const vendorPaths = [
+        '/api/clients',
+        '/api/products',
+        '/api/sales',
+      ];
+
       const vendorResources = allResources.filter(
-        (r) =>
-          vendorPaths.includes(r.path) &&
-          (r.method === HttpMethod.GET || r.method === HttpMethod.POST),
+        (resource) =>
+          vendorPaths.includes(resource.path) &&
+          (resource.method === HttpMethod.GET ||
+            resource.method === HttpMethod.POST),
       );
 
       await ResourceRoleModel.bulkCreate(
         vendorResources.map((resource) => ({
           resourceId: resource.id,
           roleId: vendorRole.id,
-          isActive: Status.ACTIVE,
+          isActive: true,
+          status: Status.ACTIVE,
         })),
       );
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-4096353422.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23046,6 +23295,8 @@ EOF_BACKEND_IA
 git add .
 git commit -m "feat: add auth-bootstrap.seeder for initial rbac data"
 ```
+
+![](images/clipboard-1156360692.png)
 
 #### 17.20 — Actualizar auth.module.ts (con Passport + AuthenticationModule)
 
@@ -23055,20 +23306,23 @@ Estado final del AuthModule con PassportModule y AuthenticationModule.
 
 ``` bash
 mkdir -p src/features/auth
-cat > src/features/auth/auth.module.ts <<'EOF_BACKEND_IA'
+
+cat > src/features/auth/auth.module.ts <<'EOF_BACKEND_MANUAL'
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { AuthenticationModule } from './authentication/authentication.module';
-import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module';
-import { ResourceRolesModule } from './resource-roles/resource-roles.module';
-import { ResourcesModule } from './resources/resources.module';
-import { RoleUsersModule } from './role-users/role-users.module';
-import { RolesModule } from './roles/roles.module';
-import { UsersModule } from './users/users.module';
+
+import { AuthenticationModule } from './authentication/authentication.module.js';
+import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module.js';
+import { ResourceRolesModule } from './resource-roles/resource-roles.module.js';
+import { ResourcesModule } from './resources/resources.module.js';
+import { RoleUsersModule } from './role-users/role-users.module.js';
+import { RolesModule } from './roles/roles.module.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
+
     UsersModule,
     RolesModule,
     RoleUsersModule,
@@ -23077,6 +23331,7 @@ import { UsersModule } from './users/users.module';
     RefreshTokensModule,
     AuthenticationModule,
   ],
+
   exports: [
     PassportModule,
     UsersModule,
@@ -23089,8 +23344,10 @@ import { UsersModule } from './users/users.module';
   ],
 })
 export class AuthModule {}
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-2312108342.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23099,7 +23356,9 @@ git add .
 git commit -m "feat: wire AuthenticationModule and PassportModule"
 ```
 
-#### 17.21 — Actualizar database-seeder.service.ts (incluye auth bootstrap)
+![](images/clipboard-3500195549.png)
+
+#### 21.21 — Actualizar database-seeder.service.ts (incluye auth bootstrap)
 
 Business seeders + seedAuthBootstrap en orden.
 
@@ -23107,13 +23366,16 @@ Business seeders + seedAuthBootstrap en orden.
 
 ``` bash
 mkdir -p src/infrastructure/database/seeders
-cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_IA'
+
+cat > src/infrastructure/database/seeders/database-seeder.service.ts <<'EOF_BACKEND_MANUAL'
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder';
-import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder';
-import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder';
-import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder';
-import { seedAuthBootstrap } from './auth-bootstrap.seeder';
+
+import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder.js';
+import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.js';
+import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder.js';
+import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder.js';
+
+import { seedAuthBootstrap } from './auth-bootstrap.seeder.js';
 
 /**
  * Ejecuta seeders en orden de dependencias:
@@ -23133,16 +23395,20 @@ export class DatabaseSeederService implements OnModuleInit {
       await seedProductTypes();
       await seedProducts();
       await seedSales();
+
       await seedAuthBootstrap();
-      this.logger.log('✅ Seeders ejecutados');
-    } catch (error: any) {
-      this.logger.error(`❌ Error en seeders: ${error.message}`, error.stack);
+
+      this.logger.log('✅ Seeders ejecutados correctamente');
+    } catch (error) {
+      this.logger.error('❌ Error ejecutando seeders', error);
       throw error;
     }
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL     
 ```
+
+![](images/clipboard-4163644509.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23151,7 +23417,7 @@ git add .
 git commit -m "chore: run seedAuthBootstrap after business seeders"
 ```
 
-#### 17.22 — Actualizar sequelize.factory.ts (estado final de modelos)
+#### 21.22 — Actualizar sequelize.factory.ts (estado final de modelos)
 
 Asegura ALL_MODELS completo idéntico al proyecto de referencia.
 
@@ -23159,25 +23425,32 @@ Asegura ALL_MODELS completo idéntico al proyecto de referencia.
 
 ``` bash
 mkdir -p src/infrastructure/database/sequelize
-cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_IA'
+
+cat > src/infrastructure/database/sequelize/sequelize.factory.ts <<'EOF_BACKEND_MANUAL'
 import { Sequelize } from 'sequelize-typescript';
-import { DatabaseDialect } from '../../../config/environment/env.interface';
-import { getSequelizeOptions } from './sequelize.options';
+
+import mysql2 from 'mysql2';
+import pg from 'pg';
+import tedious from 'tedious';
+import oracledb from 'oracledb';
+
+import { DatabaseDialect } from '../../../config/environment/env.interface.js';
+import { getSequelizeOptions } from './sequelize.options.js';
 
 // Business models
-import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model';
-import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model';
-import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model';
-import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model';
-import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model';
+import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model.js';
+import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model.js';
+import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model.js';
+import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model.js';
+import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model.js';
 
 // Auth models
-import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model';
-import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model';
-import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model';
-import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model';
-import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model';
-import { RefreshTokenModel } from '../../../features/auth/refresh-tokens/infrastructure/persistence/models/refresh-token.model';
+import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
+import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
+import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model.js';
+import { ResourceModel } from '../../../features/auth/resources/infrastructure/persistence/models/resource.model.js';
+import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model.js';
+import { RefreshTokenModel } from '../../../features/auth/refresh-tokens/infrastructure/persistence/models/refresh-token.model.js';
 
 export const ALL_MODELS = [
   // Business first
@@ -23186,6 +23459,7 @@ export const ALL_MODELS = [
   ProductModel,
   SaleModel,
   ProductSaleModel,
+
   // Auth
   UserModel,
   RoleModel,
@@ -23204,17 +23478,21 @@ export async function createSequelizeInstance(
 
   switch (dialect) {
     case DatabaseDialect.MySQL:
-      dialectModule = require('mysql2');
+      dialectModule = mysql2;
       break;
+
     case DatabaseDialect.Postgres:
-      dialectModule = require('pg');
+      dialectModule = pg;
       break;
+
     case DatabaseDialect.MSSQL:
-      dialectModule = require('tedious');
+      dialectModule = tedious;
       break;
+
     case DatabaseDialect.Oracle:
-      dialectModule = require('oracledb');
+      dialectModule = oracledb;
       break;
+
     default:
       throw new Error(`Dialecto no soportado: ${dialect}`);
   }
@@ -23227,24 +23505,29 @@ export async function createSequelizeInstance(
 
   try {
     await sequelize.authenticate();
+
     console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
   } catch (error: any) {
     console.error(
       `❌ Error conectando a ${dialect.toUpperCase()}:`,
       error.message,
     );
+
     throw error;
   }
 
   if (process.env.NODE_ENV !== 'production') {
     await sequelize.sync({ alter: false });
+
     console.log('✅ Tablas sincronizadas');
   }
 
   return sequelize;
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-2795983828.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23253,7 +23536,9 @@ git add .
 git commit -m "chore: finalize ALL_MODELS registration"
 ```
 
-#### 17.23 — Probar login / refresh / logout
+![](images/clipboard-2011082799.png)
+
+#### 21.23 — Probar login / refresh / logout
 
 Usa Swagger o curl:
 
@@ -23263,11 +23548,15 @@ curl -s -X POST http://localhost:3002/api/auth/login \
   -d '{"email":"admin@tecnogua.com","password":"Admin123*"}'
 ```
 
+![](images/clipboard-1425177458.png)
+
 Guarda accessToken/refreshToken y prueba refresh + logout.
 
 ``` bash
 npm run start:dev
 ```
+
+![](images/clipboard-3080216562.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23276,15 +23565,17 @@ git add .
 git commit -m "test: verify jwt login refresh logout flow"
 ```
 
+![](images/clipboard-954529147.png)
+
 ------------------------------------------------------------------------
 
-## FASE 18 — `17_AUTH_RBAC_GUARDS`
+## FASE 22 — `21_AUTH_RBAC_GUARDS`
 
 ### RBAC — guards globales
 
 > **Objetivo de la fase:** Activar JwtAuthGuard + RolesGuard (y ResourceAccessGuard disponible) a nivel aplicación.
 
-#### 18.1 — common/guards/jwt-auth.guard.ts
+#### 22.1 — common/guards/jwt-auth.guard.ts
 
 Guard JWT global-ready.
 Respeta `@Public()`.
@@ -23293,10 +23584,10 @@ Respeta `@Public()`.
 
 ``` bash
 mkdir -p src/common/guards
-cat > src/common/guards/jwt-auth.guard.ts <<'EOF_BACKEND_IA'
+
+cat > src/common/guards/jwt-auth.guard.ts <<'EOF_BACKEND_MANUAL'
 import {
   ExecutionContext,
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23327,11 +23618,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new UnauthorizedException('No autorizado');
     }
+
     return user;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1791269577.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23340,7 +23634,9 @@ git add .
 git commit -m "feat: add JwtAuthGuard"
 ```
 
-#### 18.2 — common/guards/roles.guard.ts
+![](images/clipboard-3294327389.png)
+
+#### 22.2 — common/guards/roles.guard.ts
 
 Valida roles del usuario autenticado contra `@Roles()`.
 
@@ -23348,7 +23644,8 @@ Valida roles del usuario autenticado contra `@Roles()`.
 
 ``` bash
 mkdir -p src/common/guards
-cat > src/common/guards/roles.guard.ts <<'EOF_BACKEND_IA'
+
+cat > src/common/guards/roles.guard.ts <<'EOF_BACKEND_MANUAL'
 import {
   CanActivate,
   ExecutionContext,
@@ -23381,6 +23678,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
+
     if (!hasRole) {
       throw new ForbiddenException('No tiene permisos suficientes');
     }
@@ -23388,8 +23686,10 @@ export class RolesGuard implements CanActivate {
     return true;
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-3418051322.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23398,7 +23698,9 @@ git add .
 git commit -m "feat: add RolesGuard"
 ```
 
-#### 18.3 — common/guards/resource-access.guard.ts
+![](images/clipboard-2553928374.png)
+
+#### 22.3 — common/guards/resource-access.guard.ts
 
 Guard opcional por recurso HTTP (`@Resource()`).
 
@@ -23406,7 +23708,8 @@ Guard opcional por recurso HTTP (`@Resource()`).
 
 ``` bash
 mkdir -p src/common/guards
-cat > src/common/guards/resource-access.guard.ts <<'EOF_BACKEND_IA'
+
+cat > src/common/guards/resource-access.guard.ts <<'EOF_BACKEND_MANUAL'
 import {
   CanActivate,
   ExecutionContext,
@@ -23452,16 +23755,22 @@ export class ResourceAccessGuard implements CanActivate {
 
     if (requiredRoles?.length) {
       const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
+
       if (!hasRole) {
         throw new ForbiddenException('No tiene permisos suficientes');
       }
+
       return true;
     }
 
     const method = request.method.toUpperCase();
     const path = this.normalizePath(request.route?.path ?? request.path);
 
-    const resource = await this.resourceRepository.findByPathAndMethod(path, method);
+    const resource = await this.resourceRepository.findByPathAndMethod(
+      path,
+      method,
+    );
+
     if (!resource || resource.isActive !== Status.ACTIVE) {
       return true;
     }
@@ -23469,13 +23778,16 @@ export class ResourceAccessGuard implements CanActivate {
     const userRoles = await this.roleRepository.findByIds(
       await this.getRoleIdsByNames(user.roles),
     );
+
     const roleIds = userRoles.map((r) => r.id!);
 
     if (roleIds.length === 0) {
       throw new ForbiddenException('Acceso denegado al recurso');
     }
 
-    const permissions = await this.resourceRoleRepository.findByRoleIds(roleIds);
+    const permissions =
+      await this.resourceRoleRepository.findByRoleIds(roleIds);
+
     const allowed = permissions.some(
       (p) => p.resourceId === resource.id && p.isActive === Status.ACTIVE,
     );
@@ -23489,6 +23801,7 @@ export class ResourceAccessGuard implements CanActivate {
 
   private normalizePath(path: string): string {
     const apiPath = path.startsWith('/api') ? path : `/api${path}`;
+
     return apiPath.replace(/\/:\w+/g, '');
   }
 
@@ -23496,11 +23809,14 @@ export class ResourceAccessGuard implements CanActivate {
     const roles = await Promise.all(
       roleNames.map((name) => this.roleRepository.findByName(name)),
     );
+
     return roles.filter(Boolean).map((r) => r!.id!);
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1483003154.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23509,7 +23825,9 @@ git add .
 git commit -m "feat: add ResourceAccessGuard"
 ```
 
-#### 18.4 — Activar guards globales en app.module.ts
+![](images/clipboard-2217985136.png)
+
+#### 22.4 — Activar guards globales en app.module.ts
 
 APP_GUARD JwtAuthGuard + RolesGuard.
 Desde aquí los endpoints requieren token salvo `@Public()`.
@@ -23517,8 +23835,7 @@ Desde aquí los endpoints requieren token salvo `@Public()`.
 **Archivo:** `src/app.module.ts`
 
 ``` bash
-mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+cat > src/app.module.ts <<'EOF_BACKEND_MANUAL'
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -23562,8 +23879,10 @@ import { AppService } from './app.service';
   ],
 })
 export class AppModule {}
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-1581485024.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23572,15 +23891,21 @@ git add .
 git commit -m "feat: register global JwtAuthGuard and RolesGuard"
 ```
 
-#### 18.5 — Verificar que endpoints protegidos exigen Bearer
+![](images/clipboard-178062899.png)
 
-Sin token, `/api/clients` debe responder 401.
+#### 22.5 — Verificar que endpoints protegidos exigen Bearer
+
+Sin token, `/api/members` debe responder 401.
 Con token admin, 200.
 Login sigue público.
 
 ``` bash
 npm run start:dev
 ```
+
+![](images/clipboard-1273140863.png)
+
+![](images/clipboard-1311250247.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23589,15 +23914,17 @@ git add .
 git commit -m "test: verify rbac guards enforce bearer auth"
 ```
 
+![](images/clipboard-729219954.png)
+
 ------------------------------------------------------------------------
 
-## FASE 19 — `18_SWAGGER_BEARER`
+## FASE 23 — `22_SWAGGER_BEARER`
 
 ### Swagger Bearer
 
 > **Objetivo de la fase:** Confirmar documentación Bearer JWT en Swagger (ya configurada en swagger.config; se reafirma el estado final).
 
-#### 19.1 — Reafirmar swagger.config.ts (Bearer)
+#### 23.1 — Reafirmar swagger.config.ts (Bearer)
 
 Documenta el esquema Bearer para Authorize en `/api/docs`.
 
@@ -23638,6 +23965,8 @@ export function setupSwagger(app: INestApplication): void {
 EOF_BACKEND_IA
 ```
 
+![](images/clipboard-1377470094.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -23645,7 +23974,9 @@ git add .
 git commit -m "docs: ensure swagger bearer auth scheme"
 ```
 
-#### 19.2 — Reafirmar swagger.constants.ts
+![](images/clipboard-1980516556.png)
+
+#### 23.2 — Reafirmar swagger.constants.ts
 
 Constantes de título/path de Swagger.
 
@@ -23653,14 +23984,15 @@ Constantes de título/path de Swagger.
 
 ``` bash
 mkdir -p src/config/swagger
-cat > src/config/swagger/swagger.constants.ts <<'EOF_BACKEND_IA'
+cat > src/config/swagger/swagger.constants.ts 
 export const SWAGGER_TITLE = 'Backend NestJS + Sequelize API';
 export const SWAGGER_DESCRIPTION =
   'API profesional con Clean Architecture / DDD, JWT y RBAC';
 export const SWAGGER_VERSION = '1.0';
 export const SWAGGER_PATH = 'api/docs';
-EOF_BACKEND_IA
 ```
+
+![](images/clipboard-3512620819.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23669,7 +24001,9 @@ git add .
 git commit -m "chore: sync swagger constants"
 ```
 
-#### 19.3 — Probar Authorize en Swagger UI
+![](images/clipboard-1784746652.png)
+
+#### 23.3 — Probar Authorize en Swagger UI
 
 Abre `/api/docs` → Authorize → pega el accessToken del login → ejecuta un endpoint protegido.
 
@@ -23678,6 +24012,14 @@ npm run start:dev
 # http://localhost:3002/api/docs
 ```
 
+![](images/clipboard-682760587.png)
+
+![](images/clipboard-1362663740.png)
+
+![](images/clipboard-2038449761.png)
+
+![](images/clipboard-2422689239.png)
+
 **Sugerencia de commit (issue):**
 
 ``` bash
@@ -23685,9 +24027,11 @@ git add .
 git commit -m "test: verify swagger authorize with bearer token"
 ```
 
+![](images/clipboard-742304355.png)
+
 ------------------------------------------------------------------------
 
-## FASE 20 — `19_INTEGRACION_FINAL`
+## FASE 24 — `13_INTEGRACION_FINAL`
 
 ### Integración final + checklist
 
@@ -23700,21 +24044,49 @@ Estado final del agregador Business.
 **Archivo:** `src/features/business/business.module.ts`
 
 ``` bash
-mkdir -p src/features/business
-cat > src/features/business/business.module.ts <<'EOF_BACKEND_IA'
 import { Module } from '@nestjs/common';
-import { ClientsModule } from './clients/clients.module';
-import { ProductTypesModule } from './product-types/product-types.module';
-import { ProductsModule } from './products/products.module';
-import { SalesModule } from './sales/sales.module';
+
+import { MembersModule } from './members/members.module.js';
+import { AccountsModule } from './accounts/accounts.module.js';
+import { MovementsModule } from './movements/movements.module.js';
+import { CreditApplicationsModule } from './credit-applications/credit-applications.module.js';
+import { CreditsModule } from './credits/credits.module.js';
+import { InstallmentsModule } from './installments/installments.module.js';
+import { InstallmentPaymentsModule } from './installment-payments/installment-payments.module.js';
+import { RatesModule } from './rates/rates.module.js';
+import { DecisionCommitteesModule } from './decision-committees/decision-committees.module.js';
+import { AuditsModule } from './audits/audits.module.js';
 
 @Module({
-  imports: [ClientsModule, ProductTypesModule, ProductsModule, SalesModule],
-  exports: [ClientsModule, ProductTypesModule, ProductsModule, SalesModule],
+  imports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+    CreditsModule,
+    InstallmentsModule,
+    InstallmentPaymentsModule,
+    RatesModule,
+    DecisionCommitteesModule,
+    AuditsModule,
+  ],
+  exports: [
+    MembersModule,
+    AccountsModule,
+    MovementsModule,
+    CreditApplicationsModule,
+    CreditsModule,
+    InstallmentsModule,
+    InstallmentPaymentsModule,
+    RatesModule,
+    DecisionCommitteesModule,
+    AuditsModule,
+  ],
 })
 export class BusinessModule {}
-EOF_BACKEND_IA
 ```
+
+![](images/clipboard-552238029.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23723,6 +24095,8 @@ git add .
 git commit -m "chore: finalize BusinessModule exports"
 ```
 
+![](images/clipboard-1439269738.png)
+
 #### 20.2 — Alinear auth.module.ts final
 
 Estado final del agregador Auth.
@@ -23730,21 +24104,22 @@ Estado final del agregador Auth.
 **Archivo:** `src/features/auth/auth.module.ts`
 
 ``` bash
-mkdir -p src/features/auth
-cat > src/features/auth/auth.module.ts <<'EOF_BACKEND_IA'
+samuel@DESKTOP-2LO0ORG:~/ia-lab/projects/motores-bd/dw/pry-sprada/app-solia/backend-manual$ cat src/features/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { AuthenticationModule } from './authentication/authentication.module';
-import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module';
-import { ResourceRolesModule } from './resource-roles/resource-roles.module';
-import { ResourcesModule } from './resources/resources.module';
-import { RoleUsersModule } from './role-users/role-users.module';
-import { RolesModule } from './roles/roles.module';
-import { UsersModule } from './users/users.module';
+
+import { AuthenticationModule } from './authentication/authentication.module.js';
+import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module.js';
+import { ResourceRolesModule } from './resource-roles/resource-roles.module.js';
+import { ResourcesModule } from './resources/resources.module.js';
+import { RoleUsersModule } from './role-users/role-users.module.js';
+import { RolesModule } from './roles/roles.module.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
+
     UsersModule,
     RolesModule,
     RoleUsersModule,
@@ -23753,6 +24128,7 @@ import { UsersModule } from './users/users.module';
     RefreshTokensModule,
     AuthenticationModule,
   ],
+
   exports: [
     PassportModule,
     UsersModule,
@@ -23765,8 +24141,10 @@ import { UsersModule } from './users/users.module';
   ],
 })
 export class AuthModule {}
-EOF_BACKEND_IA
+samuel@DESKTOP-2LO0ORG:~/ia-lab/projects/motores-bd/dw/pry-sprada/app-solia/backend-manual$
 ```
+
+![](images/clipboard-1086468537.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23775,6 +24153,8 @@ git add .
 git commit -m "chore: finalize AuthModule exports"
 ```
 
+![](images/clipboard-3676523173.png)
+
 #### 20.3 — Alinear app.module.ts final
 
 Estado final de AppModule (features + guards).
@@ -23782,8 +24162,7 @@ Estado final de AppModule (features + guards).
 **Archivo:** `src/app.module.ts`
 
 ``` bash
-mkdir -p src
-cat > src/app.module.ts <<'EOF_BACKEND_IA'
+samuel@DESKTOP-2LO0ORG:~/ia-lab/projects/motores-bd/dw/pry-sprada/app-solia/backend-manual$ cat src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -23827,8 +24206,9 @@ import { AppService } from './app.service';
   ],
 })
 export class AppModule {}
-EOF_BACKEND_IA
 ```
+
+![](images/clipboard-2178858433.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23837,6 +24217,8 @@ git add .
 git commit -m "chore: finalize AppModule integration"
 ```
 
+![](images/clipboard-3300946390.png)
+
 #### 20.4 — Alinear main.ts final
 
 Bootstrap final idéntico al backend de referencia.
@@ -23844,19 +24226,18 @@ Bootstrap final idéntico al backend de referencia.
 **Archivo:** `src/main.ts`
 
 ``` bash
-mkdir -p src
-cat > src/main.ts <<'EOF_BACKEND_IA'
+samuel@DESKTOP-2LO0ORG:~/ia-lab/projects/motores-bd/dw/pry-sprada/app-solia/backend-manual$ cat src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app.module';
-import { getLoggerConfig } from './config/logger/logger.config';
-import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
-import { CustomValidationPipe } from './common/pipes/validation.pipe';
-import { setupSwagger } from './config/swagger/swagger.config';
-import { GLOBAL_PREFIX } from './common/constants/app.constants';
+import { AppModule } from './app.module.js';
+import { getLoggerConfig } from './config/logger/logger.config.js';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter.js';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor.js';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor.js';
+import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor.js';
+import { CustomValidationPipe } from './common/pipes/validation.pipe.js';
+import { setupSwagger } from './config/swagger/swagger.config.js';
+import { GLOBAL_PREFIX } from './common/constants/app.constants.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23900,8 +24281,9 @@ async function bootstrap() {
   }
 }
 bootstrap();
-EOF_BACKEND_IA
 ```
+
+![](images/clipboard-4106574996.png)
 
 **Sugerencia de commit (issue):**
 
@@ -23910,29 +24292,33 @@ git add .
 git commit -m "chore: finalize main.ts bootstrap"
 ```
 
+![](images/clipboard-2459193663.png)
+
 #### 20.5 — Checklist de aceptación
 
 Marca cada ítem:
 
--   [ ] `npm run start:dev` arranca sin errores
--   [ ] Swagger en `/api/docs`
--   [ ] Tablas business: clients, product_types, products, sales, product_sales
--   [ ] Tablas auth: users, roles, role_users, resources, resource_roles, refresh_tokens
--   [ ] Seeders cargan admin/vendedor y catálogo demo
--   [ ] Login → access + refresh
--   [ ] Endpoints business requieren Bearer (401 sin token)
--   [ ] Admin puede operar CRUD básico
--   [ ] Refresh y logout funcionan
--   [ ] `.env.example` documenta `DB_DIALECT` y los bloques `DB_MYSQL_*`, `DB_POSTGRES_*`, `DB_MSSQL_*`, `DB_ORACLE_*`
+-   [x] `npm run start:dev` arranca sin errores
+-   [x] Swagger en `/api/docs`
+-   [x] Tablas business: members accounts movements credit_applications credits installments installment_payments rates decision_committees audits
+-   [x] Tablas auth: users, roles, role_users, resources, resource_roles, refresh_tokens
+-   [x] Seeders cargan admin/vendedor y catálogo demo
+-   [x] Login → access + refresh
+-   [x] Endpoints business requieren Bearer (401 sin token)
+-   [x] Admin puede operar CRUD básico
+-   [x] Refresh y logout funcionan
+-   [x] `.env.example` documenta `DB_DIALECT` y los bloques `DB_MYSQL_*`, `DB_POSTGRES_*`, `DB_MSSQL_*`, `DB_ORACLE_*`
 
-Si todo pasa, el backend_ia quedó reconstruido manualmente de punta a punta.
+Si todo pasa, el backend_manual quedó reconstruido manualmente de punta a punta.
 
 **Sugerencia de commit (issue):**
 
 ``` bash
 git add .
-git commit -m "test: complete integration checklist for backend_ia"
+git commit -m "test: complete integration checklist for backend_manual"
 ```
+
+![](images/clipboard-3525350213.png)
 
 #### 20.6 — Commit de cierre
 
@@ -23940,16 +24326,9 @@ Cierra la épica de construcción manual.
 
 ``` bash
 git add .
-git commit -m "chore: complete backend_ia manual rebuild checklist"
+git commit -m "chore: complete backend_manual rebuild checklist"
 ```
 
+![](images/clipboard-1347153681.png)
+
 ------------------------------------------------------------------------
-
-## Notas finales para issues / commits
-
--   Un subítem = un issue = un commit (mensaje sugerido al final de cada subítem).
--   Si un subítem solo crea carpetas, el commit puede ser `chore:`.
--   Si agrega capacidad de negocio/auth, usa `feat:`.
--   Si solo verifica, usa `test:`.
--   No subas `.env` real; sí `.env.example` con `DB_DIALECT` y un bloque por motor.
--   Fuente de verdad del código: este repo (`backend_ia`). La guía larga `docs/guia_del_backend.md` explica el *porqué*; este manual prioriza el *cómo ejecutar*.
