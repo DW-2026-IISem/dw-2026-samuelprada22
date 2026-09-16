@@ -1,5 +1,5 @@
-import { RoleUser } from '../../domain/entities/role-user.entity';
-import { RoleUserModel } from '../../infrastructure/persistence/models/role-user.model';
+import { RoleUser } from '../../domain/entities/role-user.entity.js';
+import { RoleUserModel } from '../../infrastructure/persistence/models/role-user.model.js';
 
 export class RoleUserMapper {
   static toDomain(model: RoleUserModel): RoleUser {
@@ -13,23 +13,27 @@ export class RoleUserMapper {
     });
   }
 
-  static toPersistence(entity: RoleUser): Partial<RoleUserModel> {
+  static toPersistence(
+    roleUser: Partial<RoleUser>,
+  ): Partial<RoleUserModel> {
     return {
-      id: entity.id,
-      roleId: entity.roleId,
-      userId: entity.userId,
-      isActive: entity.isActive,
+      id: roleUser.id,
+      roleId: roleUser.roleId,
+      userId: roleUser.userId,
+      isActive: roleUser.isActive,
+      createdAt: roleUser.createdAt,
+      updatedAt: roleUser.updatedAt,
     };
   }
 
-  static toResponse(entity: RoleUser) {
+  static toResponse(roleUser: RoleUser) {
     return {
-      id: entity.id,
-      roleId: entity.roleId,
-      userId: entity.userId,
-      isActive: entity.isActive,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      id: roleUser.id,
+      roleId: roleUser.roleId,
+      userId: roleUser.userId,
+      isActive: roleUser.isActive,
+      createdAt: roleUser.createdAt,
+      updatedAt: roleUser.updatedAt,
     };
   }
 }

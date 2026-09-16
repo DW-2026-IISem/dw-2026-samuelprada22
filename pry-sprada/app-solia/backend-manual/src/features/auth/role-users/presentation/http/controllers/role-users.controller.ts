@@ -7,10 +7,10 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { AssignRoleUserDto } from '../../../application/dto/assign-role-user.dto';
-import { AssignRoleUserUseCase } from '../../../application/use-cases/assign-role-user.use-case';
-import { ListRoleUsersByUserUseCase } from '../../../application/use-cases/list-role-users-by-user.use-case';
-import { RevokeRoleUserUseCase } from '../../../application/use-cases/revoke-role-user.use-case';
+import { AssignRoleUserDto } from '../../../application/dto/assign-role-user.dto.js';
+import { AssignRoleUserUseCase } from '../../../application/use-cases/assign-role-user.use-case.js';
+import { ListRoleUsersByUserUseCase } from '../../../application/use-cases/list-role-users-by-user.use-case.js';
+import { RevokeRoleUserUseCase } from '../../../application/use-cases/revoke-role-user.use-case.js';
 
 @Controller('role-users')
 export class RoleUsersController {

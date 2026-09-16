@@ -15,7 +15,7 @@ export class ResourceRoleMapper {
   }
 
   static toPersistence(
-    entity: ResourceRole,
+    entity: Partial<ResourceRole>,
   ): Partial<ResourceRoleModel> {
     return {
       id: entity.id,
@@ -23,6 +23,8 @@ export class ResourceRoleMapper {
       roleId: entity.roleId,
       isActive: entity.isActive,
       status: entity.status,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 

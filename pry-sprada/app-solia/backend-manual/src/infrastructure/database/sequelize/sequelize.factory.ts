@@ -8,14 +8,25 @@ import oracledb from 'oracledb';
 import { DatabaseDialect } from '../../../config/environment/env.interface.js';
 import { getSequelizeOptions } from './sequelize.options.js';
 
-// Business models
-import { ClientModel } from '../../../features/business/clients/infrastructure/persistence/models/client.model.js';
-import { ProductTypeModel } from '../../../features/business/product-types/infrastructure/persistence/models/product-type.model.js';
-import { ProductModel } from '../../../features/business/products/infrastructure/persistence/models/product.model.js';
-import { SaleModel } from '../../../features/business/sales/infrastructure/persistence/models/sale.model.js';
-import { ProductSaleModel } from '../../../features/business/sales/infrastructure/persistence/models/product-sale.model.js';
+// ============================================================
+// BUSINESS
+// ============================================================
 
-// Auth models
+import { MemberModel } from '../../../features/business/members/infrastructure/persistence/models/member.model.js';
+import { AccountModel } from '../../../features/business/accounts/infrastructure/persistence/models/account.model.js';
+import { MovementModel } from '../../../features/business/movements/infrastructure/persistence/models/movement.model.js';
+import { RateModel } from '../../../features/business/rates/infrastructure/persistence/models/rate.model.js';
+import { CreditApplicationModel } from '../../../features/business/credit-applications/infrastructure/persistence/models/credit-application.model.js';
+import { CreditModel } from '../../../features/business/credits/infrastructure/persistence/models/credit.model.js';
+import { InstallmentModel } from '../../../features/business/installments/infrastructure/persistence/models/installment.model.js';
+import { InstallmentPaymentModel } from '../../../features/business/installment-payments/infrastructure/persistence/models/installment-payment.model.js';
+import { DecisionCommitteeModel } from '../../../features/business/decision-committees/infrastructure/persistence/models/decision-committee.model.js';
+import { AuditModel } from '../../../features/business/audits/infrastructure/persistence/models/audit.model.js';
+
+// ============================================================
+// AUTH
+// ============================================================
+
 import { UserModel } from '../../../features/auth/users/infrastructure/persistence/models/user.model.js';
 import { RoleModel } from '../../../features/auth/roles/infrastructure/persistence/models/role.model.js';
 import { RoleUserModel } from '../../../features/auth/role-users/infrastructure/persistence/models/role-user.model.js';
@@ -23,13 +34,22 @@ import { ResourceModel } from '../../../features/auth/resources/infrastructure/p
 import { ResourceRoleModel } from '../../../features/auth/resource-roles/infrastructure/persistence/models/resource-role.model.js';
 import { RefreshTokenModel } from '../../../features/auth/refresh-tokens/infrastructure/persistence/models/refresh-token.model.js';
 
+// ============================================================
+// TODOS LOS MODELOS
+// ============================================================
+
 export const ALL_MODELS = [
-  // Business first
-  ClientModel,
-  ProductTypeModel,
-  ProductModel,
-  SaleModel,
-  ProductSaleModel,
+  // Business
+  MemberModel,
+  AccountModel,
+  MovementModel,
+  RateModel,
+  CreditApplicationModel,
+  CreditModel,
+  InstallmentModel,
+  InstallmentPaymentModel,
+  DecisionCommitteeModel,
+  AuditModel,
 
   // Auth
   UserModel,
@@ -77,7 +97,9 @@ export async function createSequelizeInstance(
   try {
     await sequelize.authenticate();
 
-    console.log(`✅ Conexión exitosa a ${dialect.toUpperCase()}`);
+    console.log(
+      `✅ Conexión exitosa a ${dialect.toUpperCase()}`,
+    );
   } catch (error: any) {
     console.error(
       `❌ Error conectando a ${dialect.toUpperCase()}:`,

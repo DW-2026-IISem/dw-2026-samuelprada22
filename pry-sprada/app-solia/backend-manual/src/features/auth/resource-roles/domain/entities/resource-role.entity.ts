@@ -4,7 +4,7 @@ export interface ResourceRoleProps {
   id?: number;
   resourceId: number;
   roleId: number;
-  isActive?: boolean;
+  isActive?: string;
   status?: Status;
   createdAt?: Date;
   updatedAt?: Date;
@@ -14,18 +14,18 @@ export class ResourceRole {
   id?: number;
   resourceId: number;
   roleId: number;
-  isActive: boolean;
+  isActive: string;
   status: Status;
   createdAt?: Date;
   updatedAt?: Date;
 
-  constructor(partial: ResourceRoleProps) {
-    this.id = partial.id;
-    this.resourceId = partial.resourceId;
-    this.roleId = partial.roleId;
-    this.isActive = partial.isActive ?? true;
-    this.status = partial.status ?? Status.ACTIVE;
-    this.createdAt = partial.createdAt;
-    this.updatedAt = partial.updatedAt;
+  constructor(props: ResourceRoleProps) {
+    this.id = props.id;
+    this.resourceId = props.resourceId;
+    this.roleId = props.roleId;
+    this.isActive = props.isActive ?? '1';
+    this.status = props.status ?? Status.ACTIVE;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
   }
 }

@@ -8,9 +8,10 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { Status } from '../../../../../../common/enums/status.enum';
-import { UserModel } from '../../../../users/infrastructure/persistence/models/user.model';
-import { RoleModel } from '../../../../roles/infrastructure/persistence/models/role.model';
+
+import { Status } from '../../../../../../common/enums/status.enum.js';
+import { UserModel } from '../../../../users/infrastructure/persistence/models/user.model.js';
+import { RoleModel } from '../../../../roles/infrastructure/persistence/models/role.model.js';
 
 @Table({ tableName: 'role_users' })
 export class RoleUserModel extends Model {
@@ -22,11 +23,17 @@ export class RoleUserModel extends Model {
   declare id: number;
 
   @ForeignKey(() => RoleModel)
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
   declare roleId: number;
 
   @ForeignKey(() => UserModel)
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
   declare userId: number;
 
   @Column({

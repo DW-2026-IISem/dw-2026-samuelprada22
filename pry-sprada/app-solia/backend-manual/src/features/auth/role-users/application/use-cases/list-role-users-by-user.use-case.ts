@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface';
-import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface';
-import { RoleUserMapper } from '../mappers/role-user.mapper';
+import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface.js';
+import { RoleUserMapper } from '../mappers/role-user.mapper.js';
 
 @Injectable()
 export class ListRoleUsersByUserUseCase {

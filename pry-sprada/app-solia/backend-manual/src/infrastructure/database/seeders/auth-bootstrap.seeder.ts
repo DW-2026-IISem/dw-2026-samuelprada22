@@ -74,8 +74,7 @@ export async function seedAuthBootstrap(): Promise<void> {
       await RoleUserModel.create({
         userId: admin.id,
         roleId: adminRole.id,
-        isActive: true,
-        status: Status.ACTIVE,
+        isActive: Status.ACTIVE,
       });
     }
 
@@ -83,8 +82,7 @@ export async function seedAuthBootstrap(): Promise<void> {
       await RoleUserModel.create({
         userId: vendor.id,
         roleId: vendorRole.id,
-        isActive: true,
-        status: Status.ACTIVE,
+        isActive: Status.ACTIVE,
       });
     }
   }
@@ -134,7 +132,7 @@ export async function seedAuthBootstrap(): Promise<void> {
         allResources.map((resource) => ({
           resourceId: resource.id,
           roleId: adminRole.id,
-          isActive: true,
+          isActive: '1',
           status: Status.ACTIVE,
         })),
       );
@@ -158,7 +156,7 @@ export async function seedAuthBootstrap(): Promise<void> {
         vendorResources.map((resource) => ({
           resourceId: resource.id,
           roleId: vendorRole.id,
-          isActive: true,
+          isActive: '1',
           status: Status.ACTIVE,
         })),
       );

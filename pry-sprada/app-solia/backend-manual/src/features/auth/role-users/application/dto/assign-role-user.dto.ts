@@ -1,5 +1,5 @@
 import { IsEnum, IsInt, IsOptional } from 'class-validator';
-import { Status } from '../../../../../common/enums/status.enum';
+import { Status } from '../../../../../common/enums/status.enum.js';
 
 export class AssignRoleUserDto {
   @IsInt()
@@ -10,5 +10,5 @@ export class AssignRoleUserDto {
 
   @IsOptional()
   @IsEnum(Status)
-  isActive?: Status;
+isActive?: Status;
 }

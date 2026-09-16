@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Status } from '../../../../../../common/enums/status.enum';
-import { RoleUser } from '../../../domain/entities/role-user.entity';
-import { ROLE_USER_REPOSITORY } from '../../../domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../../domain/interfaces/role-user-repository.interface';
-import { RoleUserModel } from '../models/role-user.model';
-import { RoleUserMapper } from '../../../application/mappers/role-user.mapper';
+import { Status } from '../../../../../../common/enums/status.enum.js';
+import { RoleUser } from '../../../domain/entities/role-user.entity.js';
+import { ROLE_USER_REPOSITORY } from '../../../domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../../domain/interfaces/role-user-repository.interface.js';
+import { RoleUserModel } from '../models/role-user.model.js';
+import { RoleUserMapper } from '../../../application/mappers/role-user.mapper.js';
 
 @Injectable()
 export class SequelizeRoleUserRepository implements IRoleUserRepository {

@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Status } from '../../../../../common/enums/status.enum';
-import { RoleNotFoundException } from '../../../roles/domain/exceptions/role-not-found.exception';
-import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface';
-import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface';
-import { UserNotFoundException } from '../../../users/domain/exceptions/user-not-found.exception';
-import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface';
-import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface';
-import { RoleUser } from '../../domain/entities/role-user.entity';
-import { RoleUserAlreadyAssignedException } from '../../domain/exceptions/role-user-already-assigned.exception';
-import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface';
-import { AssignRoleUserDto } from '../dto/assign-role-user.dto';
-import { RoleUserMapper } from '../mappers/role-user.mapper';
+import { Status } from '../../../../../common/enums/status.enum.js';
+import { RoleNotFoundException } from '../../../roles/domain/exceptions/role-not-found.exception.js';
+import { ROLE_REPOSITORY } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import type { IRoleRepository } from '../../../roles/domain/interfaces/role-repository.interface.js';
+import { UserNotFoundException } from '../../../users/domain/exceptions/user-not-found.exception.js';
+import { USER_REPOSITORY } from '../../../users/domain/interfaces/user-repository.interface.js';
+import type { IUserRepository } from '../../../users/domain/interfaces/user-repository.interface.js';
+import { RoleUser } from '../../domain/entities/role-user.entity.js';
+import { RoleUserAlreadyAssignedException } from '../../domain/exceptions/role-user-already-assigned.exception.js';
+import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface.js';
+import { AssignRoleUserDto } from '../dto/assign-role-user.dto.js';
+import { RoleUserMapper } from '../mappers/role-user.mapper.js';
 
 @Injectable()
 export class AssignRoleUserUseCase {
@@ -39,14 +39,15 @@ export class AssignRoleUserUseCase {
       dto.userId,
       dto.roleId,
     );
-    if (existing && existing.isActive === Status.ACTIVE) {
+
+if (existing && existing.isActive === Status.ACTIVE) {
       throw new RoleUserAlreadyAssignedException(dto.userId, dto.roleId);
     }
 
     const roleUser = new RoleUser({
       roleId: dto.roleId,
       userId: dto.userId,
-      isActive: dto.isActive ?? Status.ACTIVE,
+isActive: dto.isActive ?? Status.ACTIVE,
     });
 
     const assigned = await this.roleUserRepository.assign(roleUser);

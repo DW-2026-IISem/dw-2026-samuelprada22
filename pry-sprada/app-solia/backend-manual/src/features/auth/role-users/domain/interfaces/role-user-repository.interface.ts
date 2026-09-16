@@ -1,4 +1,4 @@
-import { RoleUser } from '../entities/role-user.entity';
+import { RoleUser } from '../entities/role-user.entity.js';
 
 export const ROLE_USER_REPOSITORY = 'ROLE_USER_REPOSITORY';
 

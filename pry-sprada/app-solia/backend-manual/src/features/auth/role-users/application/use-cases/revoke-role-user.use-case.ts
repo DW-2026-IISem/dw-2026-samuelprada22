@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface';
-import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface';
-import { RoleUserNotFoundException } from '../../domain/exceptions/role-user-not-found.exception';
-import { RoleUserModel } from '../../infrastructure/persistence/models/role-user.model';
+import { ROLE_USER_REPOSITORY } from '../../domain/interfaces/role-user-repository.interface.js';
+import type { IRoleUserRepository } from '../../domain/interfaces/role-user-repository.interface.js';
+import { RoleUserNotFoundException } from '../../domain/exceptions/role-user-not-found.exception.js';
+import { RoleUserModel } from '../../infrastructure/persistence/models/role-user.model.js';
 
 @Injectable()
 export class RevokeRoleUserUseCase {

@@ -1,14 +1,14 @@
 import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  CreatedAt,
-  UpdatedAt,
-  PrimaryKey,
   AutoIncrement,
-  ForeignKey,
   BelongsTo,
+  Column,
+  CreatedAt,
+  DataType,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 
 import { Status } from '../../../../../../common/enums/status.enum.js';
@@ -16,12 +16,14 @@ import { Status } from '../../../../../../common/enums/status.enum.js';
 import { ResourceModel } from '../../../../resources/infrastructure/persistence/models/resource.model.js';
 import { RoleModel } from '../../../../roles/infrastructure/persistence/models/role.model.js';
 
-@Table({ tableName: 'resource_roles' })
+@Table({
+  tableName: 'resource_roles',
+})
 export class ResourceRoleModel extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  declare id: number;
+@PrimaryKey
+@AutoIncrement
+@Column(DataType.INTEGER)
+declare id: number;
 
   @ForeignKey(() => ResourceModel)
   @Column({
@@ -38,11 +40,11 @@ export class ResourceRoleModel extends Model {
   declare roleId: number;
 
   @Column({
-    type: DataType.BOOLEAN,
+    type: DataType.CHAR(1),
     allowNull: false,
-    defaultValue: true,
+    defaultValue: '1',
   })
-  declare isActive: boolean;
+  declare isActive: string;
 
   @Column({
     type: DataType.ENUM(...Object.values(Status)),

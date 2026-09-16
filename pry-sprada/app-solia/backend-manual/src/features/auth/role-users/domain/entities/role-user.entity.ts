@@ -1,4 +1,4 @@
-import { Status } from '../../../../../common/enums/status.enum';
+import { Status } from '../../../../../common/enums/status.enum.js';
 
 export class RoleUser {
   id?: number;
@@ -8,7 +8,19 @@ export class RoleUser {
   createdAt?: Date;
   updatedAt?: Date;
 
-  constructor(partial: Partial<RoleUser>) {
-    Object.assign(this, partial);
+  constructor(data: {
+    id?: number;
+    roleId: number;
+    userId: number;
+    isActive?: Status;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }) {
+    this.id = data.id;
+    this.roleId = data.roleId;
+    this.userId = data.userId;
+    this.isActive = data.isActive ?? Status.ACTIVE;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
   }
 }
