@@ -5,14 +5,11 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
-  BelongsToMany,
   HasMany,
 } from 'sequelize-typescript';
 
 import { Status } from '../../../../../../common/enums/status.enum.js';
 
-import { RoleModel } from '../../../../roles/infrastructure/persistence/models/role.model.js';
-import { RoleUserModel } from '../../../../role-users/infrastructure/persistence/models/role-user.model.js';
 import { RefreshTokenModel } from '../../../../refresh-tokens/infrastructure/persistence/models/refresh-token.model.js';
 
 @Table({ tableName: 'users' })
@@ -62,9 +59,6 @@ export class UserModel extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @BelongsToMany(() => RoleModel, () => RoleUserModel)
-  declare roles: RoleModel[];
 
   @HasMany(() => RefreshTokenModel)
   declare refreshTokens: RefreshTokenModel[];

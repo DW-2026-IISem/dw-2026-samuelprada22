@@ -6,7 +6,6 @@ import {
   CreatedAt,
   UpdatedAt,
   ForeignKey,
-  BelongsTo,
 } from 'sequelize-typescript';
 
 import { Status } from '../../../../../../common/enums/status.enum.js';
@@ -58,7 +57,4 @@ export class RefreshTokenModel extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
-
-  @BelongsTo(() => UserModel)
-  declare user: UserModel;
 }
