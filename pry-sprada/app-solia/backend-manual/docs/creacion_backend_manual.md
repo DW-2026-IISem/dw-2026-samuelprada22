@@ -21410,7 +21410,7 @@ git commit -m "feat: add sequelize repository sequelize-refresh-token.repository
 
 ![](images/clipboard-2783688509.png)
 
-#### 16.5 — features/auth/refresh-tokens/infrastructure/persistence/seeders/refresh-tokens.seeder.ts
+#### 20.5 — features/auth/refresh-tokens/infrastructure/persistence/seeders/refresh-tokens.seeder.ts
 
 Seeder de datos iniciales para desarrollo y verificación física en BD.
 
@@ -21442,7 +21442,7 @@ git commit -m "chore: add seeder refresh-tokens.seeder.ts"
 
 ![](images/clipboard-464213660.png)
 
-#### 16.6 — features/auth/refresh-tokens/application/mappers/refresh-token.mapper.ts
+#### 20.6 — features/auth/refresh-tokens/application/mappers/refresh-token.mapper.ts
 
 Mapper entre entidad de dominio y DTO de respuesta.
 
@@ -21495,7 +21495,7 @@ git commit -m "feat: add mapper refresh-token.mapper.ts"
 
 ![](images/clipboard-3925831528.png)
 
-#### 16.7 — features/auth/refresh-tokens/application/use-cases/create-refresh-token.use-case.ts
+#### 20.7 — features/auth/refresh-tokens/application/use-cases/create-refresh-token.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -21567,7 +21567,7 @@ git commit -m "feat: add use case create-refresh-token.use-case.ts"
 
 ![](images/clipboard-3434525714.png)
 
-#### 16.8 — features/auth/refresh-tokens/application/use-cases/invalidate-refresh-token.use-case.ts
+#### 20.8 — features/auth/refresh-tokens/application/use-cases/invalidate-refresh-token.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -21613,7 +21613,7 @@ git commit -m "feat: add use case invalidate-refresh-token.use-case.ts"
 
 ![](images/clipboard-2506208110.png)
 
-#### 16.9 — features/auth/refresh-tokens/application/use-cases/validate-refresh-token.use-case.ts
+#### 20.9 — features/auth/refresh-tokens/application/use-cases/validate-refresh-token.use-case.ts
 
 Caso de uso (aplicación).
 Orquesta dominio + repositorio.
@@ -21657,7 +21657,7 @@ git commit -m "feat: add use case validate-refresh-token.use-case.ts"
 
 ![](images/clipboard-4249678857.png)
 
-#### 16.10 — features/auth/refresh-tokens/refresh-tokens.module.ts
+#### 20.10 — features/auth/refresh-tokens/refresh-tokens.module.ts
 
 Módulo Nest del feature: cablea providers, tokens DI y controller.
 
@@ -21704,7 +21704,7 @@ git commit -m "feat: wire nest module refresh-tokens.module.ts"
 
 ![](images/clipboard-3692764049.png)
 
-#### 16.11 — Restaurar asociaciones finales en src/features/auth/users/infrastructure/persistence/models/user.model.ts
+#### 20.11 — Restaurar asociaciones finales en src/features/auth/users/infrastructure/persistence/models/user.model.ts
 
 Ya existen los modelos relacionados: se reintroducen las asociaciones Sequelize finales.
 
@@ -21799,7 +21799,7 @@ git commit -m "feat: restore sequelize associations in user.model.ts"
 
 ![](images/clipboard-516743148.png)
 
-#### 16.12 — Actualizar sequelize.factory.ts (registrar modelos)
+#### 20.12 — Actualizar sequelize.factory.ts (registrar modelos)
 
 Registra en ALL_MODELS solo los modelos ya creados (orden de dependencias).
 
@@ -21907,7 +21907,7 @@ git commit -m "feat: register auth models up to refreshToken"
 
 ![](images/clipboard-2786341287.png)
 
-#### 16.13 — Actualizar auth.module.ts
+#### 20.13 — Actualizar auth.module.ts
 
 Agrega el feature module de auth recién terminado.
 
@@ -21959,7 +21959,7 @@ git commit -m "feat: add refreshTokens to AuthModule"
 
 ![](images/clipboard-1589630457.png)
 
-#### 16.14 — Actualizar database-seeder.service.ts
+#### 20.14 — Actualizar database-seeder.service.ts
 
 Ejecuta seeders en orden de dependencias al arrancar (dev).
 
@@ -22020,7 +22020,7 @@ git commit -m "chore: update auth/business seeders bootstrap order"
 
 ![](images/clipboard-1783926458.png)
 
-#### 16.15 — Actualizar app.module.ts
+#### 20.15 — Actualizar app.module.ts
 
 Importa BusinessModule y/o AuthModule según el avance.
 Los guards globales llegan en la fase RBAC.
@@ -22082,7 +22082,7 @@ git commit -m "feat: import AuthModule into AppModule"
 
 ![](images/clipboard-3583815452.png)
 
-#### 16.16 — Verificar feature auth (Auth — RefreshTokens)
+#### 20.16 — Verificar feature auth (Auth — RefreshTokens)
 
 Arranca y confirma tablas/endpoints del feature.
 Si hay asociaciones pendientes, el sync de columnas principales ya debe existir.
@@ -22097,12 +22097,14 @@ npm run start:dev
 
 ``` bash
 git add .
-git commit -m "test: verify 15_auth_refresh_tokens auth feature"
+git commit -m "test: verify 20_auth_refresh_tokens auth feature"
 ```
+
+![](images/clipboard-587581360.png)
 
 ------------------------------------------------------------------------
 
-## FASE 17 — `16_AUTH_JWT_LOGIN`
+## FASE 21 — `20_AUTH_JWT_LOGIN`
 
 ### JWT — login / refresh / logout
 
@@ -22144,22 +22146,25 @@ El caso de uso la lanza; el filter HTTP la traduce a status code.
 
 ``` bash
 mkdir -p src/features/auth/authentication/domain/exceptions
-cat > src/features/auth/authentication/domain/exceptions/invalid-credentials.exception.ts <<'EOF_BACKEND_IA'
-import { DomainException } from '../../../../../common/exceptions/domain.exception';
 
-export class InvalidCredentialsException extends DomainException {
+cat > src/features/auth/authentication/domain/exceptions/inactive-user.exception.ts <<'EOF_BACKEND_MANUAL'
+import { DomainException } from '../../../../../common/exceptions/domain.exception.js';
+
+export class InactiveUserException extends DomainException {
   constructor() {
-    super('Credenciales inválidas');
+    super('Usuario inactivo');
   }
 }
-EOF_BACKEND_IA
+EOF_BACKEND_MANUAL
 ```
+
+![](images/clipboard-2544913352.png)
 
 **Sugerencia de commit (issue):**
 
 ``` bash
-git add .
-git commit -m "feat: add domain exception invalid-credentials.exception.ts"
+git add src/features/auth/authentication/domain/exceptions/inactive-user.exception.ts
+git commit -m "feat: add domain exception inactive-user.exception.ts"
 ```
 
 #### 17.3 — features/auth/authentication/domain/exceptions/invalid-refresh-token.exception.ts
