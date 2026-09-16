@@ -6,13 +6,15 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Status } from '../enums/status.enum';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+
 import { RESOURCE_REPOSITORY } from '../../features/auth/resources/domain/interfaces/resource-repository.interface';
 import type { IResourceRepository } from '../../features/auth/resources/domain/interfaces/resource-repository.interface';
+
 import { RESOURCE_ROLE_REPOSITORY } from '../../features/auth/resource-roles/domain/interfaces/resource-role-repository.interface';
 import type { IResourceRoleRepository } from '../../features/auth/resource-roles/domain/interfaces/resource-role-repository.interface';
+
 import { ROLE_REPOSITORY } from '../../features/auth/roles/domain/interfaces/role-repository.interface';
 import type { IRoleRepository } from '../../features/auth/roles/domain/interfaces/role-repository.interface';
 
@@ -20,19 +22,22 @@ import type { IRoleRepository } from '../../features/auth/roles/domain/interface
 export class ResourceAccessGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
+
     @Inject(RESOURCE_REPOSITORY)
     private readonly resourceRepository: IResourceRepository,
+
     @Inject(RESOURCE_ROLE_REPOSITORY)
     private readonly resourceRoleRepository: IResourceRoleRepository,
+
     @Inject(ROLE_REPOSITORY)
     private readonly roleRepository: IRoleRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     const request = context.switchToHttp().getRequest();
     const user = request.user as AuthenticatedUser | undefined;
@@ -41,8 +46,11 @@ export class ResourceAccessGuard implements CanActivate {
       throw new ForbiddenException('Acceso denegado');
     }
 
+    // Si el endpoint tiene @Roles(), se valida directamente el rol.
     if (requiredRoles?.length) {
-      const hasRole = requiredRoles.some((role) => user.roles?.includes(role));
+      const hasRole = requiredRoles.some((role) =>
+        user.roles?.includes(role),
+      );
 
       if (!hasRole) {
         throw new ForbiddenException('No tiene permisos suficientes');
@@ -51,23 +59,24 @@ export class ResourceAccessGuard implements CanActivate {
       return true;
     }
 
+    // Si no tiene @Roles(), se valida mediante Resource + Role.
     const method = request.method.toUpperCase();
-    const path = this.normalizePath(request.route?.path ?? request.path);
+    const path = this.normalizePath(
+      request.route?.path ?? request.path,
+    );
 
     const resource = await this.resourceRepository.findByPathAndMethod(
       path,
       method,
     );
 
-    if (!resource || resource.isActive !== Status.ACTIVE) {
+    // Si el recurso no está registrado o está inactivo,
+    // no se bloquea desde este guard.
+    if (!resource || !resource.isActive) {
       return true;
     }
 
-    const userRoles = await this.roleRepository.findByIds(
-      await this.getRoleIdsByNames(user.roles),
-    );
-
-    const roleIds = userRoles.map((r) => r.id!);
+    const roleIds = await this.getRoleIdsByNames(user.roles ?? []);
 
     if (roleIds.length === 0) {
       throw new ForbiddenException('Acceso denegado al recurso');
@@ -77,7 +86,9 @@ export class ResourceAccessGuard implements CanActivate {
       await this.resourceRoleRepository.findByRoleIds(roleIds);
 
     const allowed = permissions.some(
-      (p) => p.resourceId === resource.id && p.isActive === Status.ACTIVE,
+      (permission) =>
+        permission.resourceId === resource.id &&
+        permission.isActive === '1',
     );
 
     if (!allowed) {
@@ -93,11 +104,15 @@ export class ResourceAccessGuard implements CanActivate {
     return apiPath.replace(/\/:\w+/g, '');
   }
 
-  private async getRoleIdsByNames(roleNames: string[]): Promise<number[]> {
+  private async getRoleIdsByNames(
+    roleNames: string[],
+  ): Promise<number[]> {
     const roles = await Promise.all(
       roleNames.map((name) => this.roleRepository.findByName(name)),
     );
 
-    return roles.filter(Boolean).map((r) => r!.id!);
+    return roles
+      .filter((role) => role !== null && role !== undefined)
+      .map((role) => role!.id!);
   }
 }
