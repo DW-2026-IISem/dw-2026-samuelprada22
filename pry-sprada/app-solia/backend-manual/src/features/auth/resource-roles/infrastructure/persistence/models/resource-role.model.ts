@@ -58,8 +58,8 @@ export class ResourceRoleModel extends Model {
   declare updatedAt: Date;
 
   @BelongsTo(() => ResourceModel)
-  declare resource: ResourceModel;
+  declare resource: InstanceType<typeof ResourceModel>;
 
   @BelongsTo(() => RoleModel)
-  declare role: RoleModel;
+  declare role: InstanceType<typeof RoleModel>;
 }

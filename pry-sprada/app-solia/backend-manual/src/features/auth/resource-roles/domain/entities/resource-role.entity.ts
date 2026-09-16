@@ -19,7 +19,7 @@ export class ResourceRole {
   createdAt?: Date;
   updatedAt?: Date;
 
-  constructor(partial: Partial<ResourceRole>) {
+  constructor(partial: ResourceRoleProps) {
     this.id = partial.id;
     this.resourceId = partial.resourceId;
     this.roleId = partial.roleId;
