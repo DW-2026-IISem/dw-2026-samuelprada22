@@ -1,57 +1,36 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
-import { seedMembers } from '../../../features/business/members/infrastructure/persistence/seeders/members.seeder.js';
-import { seedAccounts } from '../../../features/business/accounts/infrastructure/persistence/seeders/accounts.seeder.js';
-import { seedMovements } from '../../../features/business/movements/infrastructure/persistence/seeders/movements.seeder.js';
-import { seedCreditApplications } from '../../../features/business/credit-applications/infrastructure/persistence/seeders/credit-applications.seeder.js';
-import { seedRates } from '../../../features/business/rates/infrastructure/persistence/seeders/rates.seeder.js';
-import { seedCredits } from '../../../features/business/credits/infrastructure/persistence/seeders/credits.seeder.js';
-import { seedInstallments } from '../../../features/business/installments/infrastructure/persistence/seeders/installments.seeder.js';
-import { seedInstallmentPayments } from '../../../features/business/installment-payments/infrastructure/persistence/seeders/installment-payments.seeder.js';
-import { seedAudits } from '../../../features/business/audits/infrastructure/persistence/seeders/audits.seeder.js';
+import { seedClients } from '../../../features/business/clients/infrastructure/persistence/seeders/clients.seeder.js';
+import { seedProductTypes } from '../../../features/business/product-types/infrastructure/persistence/seeders/product-types.seeder.js';
+import { seedProducts } from '../../../features/business/products/infrastructure/persistence/seeders/products.seeder.js';
+import { seedSales } from '../../../features/business/sales/infrastructure/persistence/seeders/sales.seeder.js';
 
+import { seedAuthBootstrap } from './auth-bootstrap.seeder.js';
+
+/**
+ * Ejecuta seeders en orden de dependencias:
+ * Business → Auth (users/roles/resources → pivotes)
+ */
 @Injectable()
 export class DatabaseSeederService implements OnModuleInit {
   private readonly logger = new Logger(DatabaseSeederService.name);
 
   async onModuleInit(): Promise<void> {
-    await this.seed();
-  }
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
 
-  private async seed(): Promise<void> {
     try {
-      this.logger.log('🌱 Iniciando seeders de Business...');
+      await seedClients();
+      await seedProductTypes();
+      await seedProducts();
+      await seedSales();
 
-      await seedMembers();
-      this.logger.log('✅ Members');
+      await seedAuthBootstrap();
 
-      await seedAccounts();
-      this.logger.log('✅ Accounts');
-
-      await seedMovements();
-      this.logger.log('✅ Movements');
-
-      await seedCreditApplications();
-      this.logger.log('✅ Credit Applications');
-
-      await seedRates();
-      this.logger.log('✅ Rates');
-
-      await seedCredits();
-      this.logger.log('✅ Credits');
-
-      await seedInstallments();
-      this.logger.log('✅ Installments');
-
-      await seedInstallmentPayments();
-      this.logger.log('✅ Installment Payments');
-
-      await seedAudits();
-      this.logger.log('✅ Audits');
-
-      this.logger.log('🌱 Seeders de Business completados.');
+      this.logger.log('✅ Seeders ejecutados correctamente');
     } catch (error) {
-      this.logger.error('❌ Error ejecutando los seeders de Business', error);
+      this.logger.error('❌ Error ejecutando seeders', error);
       throw error;
     }
   }
