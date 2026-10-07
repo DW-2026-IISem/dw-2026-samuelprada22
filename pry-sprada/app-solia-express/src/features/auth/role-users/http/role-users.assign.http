@@ -1,0 +1,69 @@
+### Feature RoleUsers — ASIGNAR ROL A USUARIO (modalidad JWT + RBAC)
+### Primer eslabón de la cadena: sin asignación activa NO hay permisos.
+@baseUrl = http://localhost:4000
+
+# @name loginAdmin
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "admin",
+  "password": "Admin123!"
+}
+
+@token = {{loginAdmin.response.body.$.access_token}}
+
+### getAll — asignaciones activas
+GET {{baseUrl}}/api/asignaciones-rol
+Authorization: Bearer {{token}}
+
+### getOne
+GET {{baseUrl}}/api/asignaciones-rol/1
+Authorization: Bearer {{token}}
+
+### ASIGNAR ROL A USUARIO
+# seller = user_id 2
+# ADMIN = role_id 1
+# @name assignCreate
+POST {{baseUrl}}/api/asignaciones-rol
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_id": 2,
+  "role_id": 1
+}
+
+@assignmentId = {{assignCreate.response.body.$.assignment.id}}
+
+### 409 — ese rol ya está asignado a ese usuario
+POST {{baseUrl}}/api/asignaciones-rol
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_id": 2,
+  "role_id": 1
+}
+
+### 404 — usuario o rol inexistente/inactivo
+POST {{baseUrl}}/api/asignaciones-rol
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "user_id": 9999,
+  "role_id": 2
+}
+
+### RETIRAR ROL
+PATCH {{baseUrl}}/api/asignaciones-rol/{{assignmentId}}/deactivate
+Authorization: Bearer {{token}}
+
+### Comprobar permisos efectivos
+GET {{baseUrl}}/api/usuarios/2/permisos
+Authorization: Bearer {{token}}
+
+### REACTIVAR ASIGNACIÓN
+PATCH {{baseUrl}}/api/asignaciones-rol/{{assignmentId}}/reactivate
+Authorization: Bearer {{token}}

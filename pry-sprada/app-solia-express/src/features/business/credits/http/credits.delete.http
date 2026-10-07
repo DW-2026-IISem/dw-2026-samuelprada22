@@ -1,0 +1,12 @@
+### Feature Credit — DELETE físico / DELETE lógico (status = cancelled)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name deleteCreditPhysical
+DELETE {{baseUrl}}/api/credits/{{id}}
+
+###
+
+# @name deleteCreditLogical
+PATCH {{baseUrl}}/api/credits/{{id}}/deactivate

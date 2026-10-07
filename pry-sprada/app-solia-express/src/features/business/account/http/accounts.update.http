@@ -1,0 +1,25 @@
+### Feature Account — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateAccountPut
+PUT {{baseUrl}}/api/accounts/{{id}}
+Content-Type: application/json
+
+{
+  "name": "Cuenta de Ahorros Actualizada",
+  "description": "Cuenta de ahorro actualizada",
+  "status": "active"
+}
+
+###
+
+# @name updateAccountPatch
+PATCH {{baseUrl}}/api/accounts/{{id}}
+Content-Type: application/json
+
+{
+  "description": "Descripción parcial actualizada"
+}

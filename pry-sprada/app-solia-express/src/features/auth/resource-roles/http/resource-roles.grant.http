@@ -1,0 +1,142 @@
+### Feature ResourceRoles — CONCEDER / RETIRAR PERMISOS
+### FondoSolidario — JWT + RBAC
+###
+### El permiso es la tupla (rol, recurso) materializada en resource_roles.
+###
+### IDs reales del catálogo:
+### role_id 1 = ADMIN
+### role_id 2 = SELLER
+### resource_id 3 = POST /api/members
+
+@baseUrl = http://localhost:4000
+
+# @name loginAdmin
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "admin",
+  "password": "Admin123!"
+}
+
+# @name loginSeller
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "seller",
+  "password": "Seller123!"
+}
+
+@token = {{loginAdmin.response.body.$.access_token}}
+@sellerToken = {{loginSeller.response.body.$.access_token}}
+@sellerRoleId = 2
+
+### =========================================================
+### 1. LISTAR CONCESIONES
+### =========================================================
+
+### ADMIN puede consultar la matriz
+GET {{baseUrl}}/api/concesiones-rol
+Authorization: Bearer {{token}}
+
+### Filtro: permisos del SELLER
+GET {{baseUrl}}/api/concesiones-rol?role_id={{sellerRoleId}}
+Authorization: Bearer {{token}}
+
+### Filtro inverso: roles que tienen resource_id 1
+GET {{baseUrl}}/api/concesiones-rol?resource_id=1
+Authorization: Bearer {{token}}
+
+### Obtener una concesión por ID
+GET {{baseUrl}}/api/concesiones-rol/1
+Authorization: Bearer {{token}}
+
+### =========================================================
+### 2. ESTADO INICIAL
+### =========================================================
+### SELLER NO tiene POST /api/members.
+### Debe responder 403.
+
+POST {{baseUrl}}/api/members
+Authorization: Bearer {{sellerToken}}
+Content-Type: application/json
+
+{
+  "name": "Prueba RBAC",
+  "description": "Prueba temporal de autorización",
+  "isActive": true
+}
+
+### =========================================================
+### 3. CONCEDER PERMISO
+### =========================================================
+### ADMIN concede:
+### SELLER (role_id 2)
+### +
+### POST /api/members (resource_id 3)
+
+# @name grantCreate
+POST {{baseUrl}}/api/concesiones-rol
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role_id": 2,
+  "resource_id": 3
+}
+
+@grantId = {{grantCreate.response.body.$.grant.id}}
+
+### =========================================================
+### 4. EFECTO INMEDIATO
+### =========================================================
+### El mismo SELLER ahora debe poder crear un member.
+
+POST {{baseUrl}}/api/members
+Authorization: Bearer {{sellerToken}}
+Content-Type: application/json
+
+{
+  "name": "Prueba RBAC 2",
+  "description": "Permiso concedido dinámicamente",
+  "isActive": true
+}
+
+### =========================================================
+### 5. RETIRAR PERMISO
+### =========================================================
+
+PATCH {{baseUrl}}/api/concesiones-rol/{{grantId}}/deactivate
+Authorization: Bearer {{token}}
+
+### =========================================================
+### 6. COMPROBAR REVOCACIÓN
+### =========================================================
+### SELLER debe volver a recibir 403.
+
+POST {{baseUrl}}/api/members
+Authorization: Bearer {{sellerToken}}
+Content-Type: application/json
+
+{
+  "name": "Prueba RBAC 3",
+  "description": "Debe ser rechazado por RBAC",
+  "isActive": true
+}
+
+### =========================================================
+### 7. REACTIVAR PERMISO
+### =========================================================
+
+PATCH {{baseUrl}}/api/concesiones-rol/{{grantId}}/reactivate
+Authorization: Bearer {{token}}
+
+### =========================================================
+### 8. SELLER NO PUEDE ADMINISTRAR LA MATRIZ
+### =========================================================
+### Aunque SELLER tenga permisos operativos,
+### no debe poder consultar la matriz de concesiones.
+
+GET {{baseUrl}}/api/concesiones-rol
+Authorization: Bearer {{sellerToken}}

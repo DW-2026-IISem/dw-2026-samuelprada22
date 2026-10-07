@@ -1,0 +1,14 @@
+### Feature Members — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+
+@baseUrl = http://localhost:4000
+
+# @name createMember
+POST {{baseUrl}}/api/members
+Content-Type: application/json
+
+{
+  "name": "Ana Pérez",
+  "description": "Miembro de prueba",
+  "isActive": true
+}

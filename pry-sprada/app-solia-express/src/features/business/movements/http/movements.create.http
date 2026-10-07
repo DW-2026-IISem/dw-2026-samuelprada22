@@ -1,0 +1,17 @@
+### Feature Movement — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+
+# @name createMovement
+POST {{baseUrl}}/api/movements
+Content-Type: application/json
+
+{
+  "account_id": 1,
+  "reference_id": null,
+  "type": "deposit",
+  "date": "2026-10-01",
+  "amount": 500000.00,
+  "observations": "Aporte inicial",
+  "status": "active"
+}

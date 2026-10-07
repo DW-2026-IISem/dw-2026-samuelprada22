@@ -1,0 +1,29 @@
+### Feature Movement — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateMovementPut
+PUT {{baseUrl}}/api/movements/{{id}}
+Content-Type: application/json
+
+{
+  "account_id": 1,
+  "reference_id": null,
+  "type": "deposit",
+  "date": "2026-10-01",
+  "amount": 750000.00,
+  "observations": "Aporte actualizado",
+  "status": "active"
+}
+
+###
+
+# @name updateMovementPatch
+PATCH {{baseUrl}}/api/movements/{{id}}
+Content-Type: application/json
+
+{
+  "amount": 800000.00,
+  "observations": "Monto actualizado"
+}

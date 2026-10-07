@@ -1,0 +1,15 @@
+### Feature Audit — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+
+# @name createAudit
+POST {{baseUrl}}/api/audits
+Content-Type: application/json
+
+{
+  "actor_user_id": 1,
+  "action": "CREATE",
+  "entity": "CreditApplication",
+  "entity_id": 1,
+  "data": "{\"message\":\"Credit application created\"}"
+}

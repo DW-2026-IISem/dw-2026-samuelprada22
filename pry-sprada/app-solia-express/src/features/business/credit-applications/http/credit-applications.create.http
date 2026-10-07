@@ -1,0 +1,16 @@
+### Feature CreditApplication — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+
+# @name createCreditApplication
+POST {{baseUrl}}/api/credit-applications
+Content-Type: application/json
+
+{
+  "member_id": 1,
+  "reference_id": 1001,
+  "date": "2026-10-01T10:30:00.000Z",
+  "amount": 5000000,
+  "status": "pending",
+  "observations": "Solicitud de crédito para libre inversión"
+}

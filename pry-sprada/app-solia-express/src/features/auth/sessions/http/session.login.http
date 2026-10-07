@@ -1,0 +1,34 @@
+### Feature Session — LOGIN (OPEN)
+@baseUrl = http://localhost:4000
+
+# @name loginAdmin
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "admin",
+  "password": "Admin123!"
+}
+
+### Login por correo
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "admin@storelab.local",
+  "password": "Admin123!"
+}
+
+### Credenciales inválidas -> 401
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "admin",
+  "password": "password-incorrecta"
+}
+
+### Tokens del login
+@adminAccessToken = {{loginAdmin.response.body.$.access_token}}
+@adminRefreshToken = {{loginAdmin.response.body.$.refresh_token}}
+@expiresIn = {{loginAdmin.response.body.$.expires_in}}

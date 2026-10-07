@@ -1,0 +1,12 @@
+### Feature CommitteeDecision — DELETE físico / DELETE lógico
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name deleteCommitteeDecisionPhysical
+DELETE {{baseUrl}}/api/committee-decisions/{{id}}
+
+###
+
+# @name deleteCommitteeDecisionLogical
+PATCH {{baseUrl}}/api/committee-decisions/{{id}}/deactivate

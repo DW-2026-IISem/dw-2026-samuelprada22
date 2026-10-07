@@ -1,0 +1,27 @@
+### Feature Rate — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateRatePut
+PUT {{baseUrl}}/api/rates/{{id}}
+Content-Type: application/json
+
+{
+  "name": "Tasa crédito ordinario actualizada",
+  "percentage": 1.75,
+  "type": "monthly",
+  "description": "Tasa mensual actualizada para créditos ordinarios",
+  "status": "active"
+}
+
+###
+
+# @name updateRatePatch
+PATCH {{baseUrl}}/api/rates/{{id}}
+Content-Type: application/json
+
+{
+  "percentage": 1.6,
+  "description": "Porcentaje actualizado"
+}

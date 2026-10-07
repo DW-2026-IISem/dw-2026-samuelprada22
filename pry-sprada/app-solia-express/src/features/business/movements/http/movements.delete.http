@@ -1,0 +1,12 @@
+### Feature Movement — DELETE físico / DELETE lógico (status = inactive)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name deleteMovementPhysical
+DELETE {{baseUrl}}/api/movements/{{id}}
+
+###
+
+# @name deleteMovementLogical
+PATCH {{baseUrl}}/api/movements/{{id}}/deactivate
