@@ -47,5 +47,43 @@ export class MembersRoutes {
           this.membersController
         )
       );
+    
+    // delete físico
+    app
+      .route("/api/members/:id")
+      .delete(
+        this.membersController.deletePhysical.bind(
+          this.membersController
+        )
+      );
+
+    // delete lógico
+    app
+      .route("/api/members/:id/deactivate")
+      .patch(
+        this.membersController.deleteLogical.bind(
+          this.membersController
+        )
+      );
+
+    
+    // delete físico
+    app
+      .route("/api/members/:id")
+      .delete(
+        this.membersController.deletePhysical.bind(
+          this.membersController
+        )
+      );
+
+    // delete lógico
+    app
+      .route("/api/members/:id/deactivate")
+      .patch(
+        this.membersController.deleteLogical.bind(
+          this.membersController
+        )
+      );
+
   }
 }

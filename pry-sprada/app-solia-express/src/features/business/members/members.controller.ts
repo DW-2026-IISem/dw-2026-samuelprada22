@@ -126,4 +126,63 @@ export class MembersController {
 
   // ================== DELETE ==================
   // (rellenar en ISS-03-E)
+
+  /** Eliminación física */
+  public async deletePhysical(req: Request, res: Response) {
+    try {
+      const id = paramId(req);
+
+      const member = await Member.findByPk(id);
+
+      if (!member) {
+        res.status(404).json({
+          error: "Member not found",
+        });
+        return;
+      }
+
+      await member.destroy();
+
+      res.status(200).json({
+        message: "Member permanently deleted",
+        id,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error deleting member",
+        detail: String(error),
+      });
+    }
+  }
+
+  /** Eliminación lógica → isActive = false */
+  public async deleteLogical(req: Request, res: Response) {
+    try {
+      const id = paramId(req);
+
+      const member = await Member.findByPk(id);
+
+      if (!member) {
+        res.status(404).json({
+          error: "Member not found",
+        });
+        return;
+      }
+
+      await member.update({
+        isActive: false,
+      });
+
+      res.status(200).json({
+        message: "Member deactivated (logical delete)",
+        member,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error deactivating member",
+        detail: String(error),
+      });
+    }
+  }
+
 }
