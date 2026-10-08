@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Member } from "./members.model";
+import { Member, MemberI } from "./members.model";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -48,7 +48,25 @@ export class MembersController {
   }
 
   // ================== CREATE ==================
-  // (rellenar en ISS-03-C)
+
+  public async create(req: Request, res: Response) {
+    try {
+      const body = req.body as MemberI;
+
+      const member = await Member.create({
+        name: body.name,
+        description: body.description,
+        isActive: body.isActive ?? true,
+      });
+
+      res.status(201).json({ member });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error creating member",
+        detail: String(error),
+      });
+    }
+  }
 
   // ================== UPDATE ==================
   // (rellenar en ISS-03-D)

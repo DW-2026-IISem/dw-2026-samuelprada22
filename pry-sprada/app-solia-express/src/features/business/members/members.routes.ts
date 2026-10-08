@@ -24,5 +24,14 @@ export class MembersRoutes {
           this.membersController
         )
       );
+
+    // create
+    app
+      .route("/api/members")
+      .post(
+        this.membersController.create.bind(
+          this.membersController
+        )
+      );
   }
 }
