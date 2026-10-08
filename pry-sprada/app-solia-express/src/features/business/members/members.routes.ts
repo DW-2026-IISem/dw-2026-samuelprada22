@@ -6,6 +6,23 @@ export class MembersRoutes {
 
   public routes(app: Application): void {
     // ================== ROUTES WITHOUT AUTHENTICATION / WITHOUT JWT MIDDLEWARE ==================
-    // (to be completed in ISS-03-B…E)
+
+    // getAll
+    app
+      .route("/api/members")
+      .get(
+        this.membersController.getAll.bind(
+          this.membersController
+        )
+      );
+
+    // getOne
+    app
+      .route("/api/members/:id")
+      .get(
+        this.membersController.getOne.bind(
+          this.membersController
+        )
+      );
   }
 }

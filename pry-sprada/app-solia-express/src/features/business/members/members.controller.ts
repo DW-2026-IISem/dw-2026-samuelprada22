@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Member, MemberI } from "./members.model";
+import { Member } from "./members.model";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -9,7 +9,43 @@ function paramId(req: Request): number {
 
 export class MembersController {
   // ================== READ ==================
-  // (rellenar en ISS-03-B) getAll, luego getOne
+
+  public async getAll(req: Request, res: Response) {
+    try {
+      const members = await Member.findAll({
+        where: { isActive: true },
+      });
+
+      res.status(200).json({ members });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error fetching members",
+        detail: String(error),
+      });
+    }
+  }
+
+  public async getOne(req: Request, res: Response) {
+    try {
+      const id = paramId(req);
+
+      const member = await Member.findByPk(id);
+
+      if (!member) {
+        res.status(404).json({
+          error: "Member not found",
+        });
+        return;
+      }
+
+      res.status(200).json({ member });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error fetching member",
+        detail: String(error),
+      });
+    }
+  }
 
   // ================== CREATE ==================
   // (rellenar en ISS-03-C)
