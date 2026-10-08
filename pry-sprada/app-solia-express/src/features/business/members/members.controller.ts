@@ -69,7 +69,60 @@ export class MembersController {
   }
 
   // ================== UPDATE ==================
-  // (rellenar en ISS-03-D)
+
+  public async updatePut(req: Request, res: Response) {
+    try {
+      const id = paramId(req);
+      const body = req.body as MemberI;
+
+      const member = await Member.findByPk(id);
+
+      if (!member) {
+        res.status(404).json({
+          error: "Member not found",
+        });
+        return;
+      }
+
+      await member.update({
+        name: body.name,
+        description: body.description,
+        isActive: body.isActive,
+      });
+
+      res.status(200).json({ member });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error updating member (PUT)",
+        detail: String(error),
+      });
+    }
+  }
+
+  public async updatePatch(req: Request, res: Response) {
+    try {
+      const id = paramId(req);
+      const body = req.body as Partial<MemberI>;
+
+      const member = await Member.findByPk(id);
+
+      if (!member) {
+        res.status(404).json({
+          error: "Member not found",
+        });
+        return;
+      }
+
+      await member.update(body);
+
+      res.status(200).json({ member });
+    } catch (error) {
+      res.status(500).json({
+        error: "Error updating member (PATCH)",
+        detail: String(error),
+      });
+    }
+  }
 
   // ================== DELETE ==================
   // (rellenar en ISS-03-E)

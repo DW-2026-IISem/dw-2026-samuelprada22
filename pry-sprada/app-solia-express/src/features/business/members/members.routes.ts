@@ -33,5 +33,19 @@ export class MembersRoutes {
           this.membersController
         )
       );
+
+    // update (PUT / PATCH)
+    app
+      .route("/api/members/:id")
+      .put(
+        this.membersController.updatePut.bind(
+          this.membersController
+        )
+      )
+      .patch(
+        this.membersController.updatePatch.bind(
+          this.membersController
+        )
+      );
   }
 }
