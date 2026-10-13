@@ -395,11 +395,6 @@ export const SELLER_RESOURCES: ResourceCatalogItem[] = [
   },
   {
     method: "GET",
-    path: "/api/accounts",
-    description: "Listar todas las cuentas",
-  },
-  {
-    method: "GET",
     path: "/api/movements",
     description: "Listar todos los movimientos",
   },

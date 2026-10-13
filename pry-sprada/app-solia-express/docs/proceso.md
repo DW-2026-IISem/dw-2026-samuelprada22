@@ -22656,3 +22656,399 @@ npm install -D typescript@~5.9.2 ts-node@^10.9.2 nodemon@^3.1.14 \
   @types/jsonwebtoken@^9.0.10 @types/swagger-ui-express@^4.1.8 \
   @faker-js/faker@^10.6.0
 ```
+
+------------------------------------------------------------------------
+
+# 28. Pruebas de acceso, autenticación JWT, Refresh Token y RBAC
+
+## 28.1. Objetivo
+
+Verificar el funcionamiento de las modalidades de acceso implementadas
+en la API Solia Express:
+
+-   **OPEN:** acceso sin autenticación.
+-   **JWT:** acceso mediante un token de acceso válido.
+-   **JWT + RBAC:** acceso mediante JWT y comprobación de los permisos
+    asignados al usuario y a su rol.
+
+También se comprueban el inicio de sesión, la renovación de tokens, el
+cierre de sesión y la consulta de permisos.
+
+## 28.2. Requisitos previos
+
+1.  Abrir una terminal de Ubuntu (WSL).
+2.  Ubicarse en el proyecto `app-solia-express`.
+3.  Tener disponibles los motores de base de datos y la base de datos
+    configurada para la aplicación.
+4.  Iniciar el servidor con `npm run dev`.
+5.  Disponer de un usuario activo con credenciales válidas.
+
+La API se consulta en `http://localhost:4000`.
+
+En una segunda terminal, ejecutar las pruebas de este capítulo. No se
+deben registrar como exitosas hasta comprobar las respuestas reales.
+
+## 28.3. Modalidades de acceso
+
+| Modalidad | Funcionamiento | Resultado esperado |
+|------------------------|------------------------|------------------------|
+| OPEN | No requiere token | La respuesta depende del controlador |
+| JWT | Requiere un access token válido | 200 si la operación es correcta |
+| JWT + RBAC | Requiere JWT y permiso vigente | 200 si está autorizado; 403 si no tiene permiso |
+| JWT sin token o con token inválido | No se acredita la identidad | 401 |
+
+## 28.4. Pruebas de rutas OPEN
+
+### P01. Consultar socios sin token
+
+``` bash
+curl -i http://localhost:4000/api/members
+```
+
+**Esperado:** `200 OK`, siempre que el servidor y la base de datos
+funcionen correctamente.
+
+![](images/clipboard-2674991979.png)
+
+Esta prueba verifica que la ruta de socios permite el acceso sin
+autenticación.
+
+### P02. Consultar socios con un token inválido
+
+``` bash
+curl -i http://localhost:4000/api/members \
+  -H "Authorization: Bearer token-invalido"
+```
+
+![](images/clipboard-2230001433.png)
+
+**Esperado:** la ruta continúa siendo pública y responde como una
+consulta normal, generalmente `200 OK`. El controlador puede devolver
+otro resultado si existe un error de aplicación o de base de datos.
+
+## 28.5. Pruebas de inicio de sesión
+
+### P03. Iniciar sesión con credenciales válidas
+
+``` bash
+curl -i -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"Admin123!"}'
+```
+
+![](images/clipboard-3319020369.png)
+
+**Esperado:** `200 OK` y una respuesta JSON que contenga `access_token`,
+`refresh_token`, `token_type` y los tiempos de expiración.
+
+### P04. Iniciar sesión con contraseña incorrecta
+
+``` bash
+curl -i -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"password-incorrecta"}'
+```
+
+![](images/clipboard-3989707505.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P05. Iniciar sesión sin los campos requeridos
+
+``` bash
+curl -i -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+![](images/clipboard-3428865490.png)
+
+**Esperado:** `400 Bad Request`.
+
+## 28.6. Pruebas de autenticación JWT
+
+Sustituye `PEGAR_ACCESS_TOKEN` por el `access_token` obtenido en el
+inicio de sesión.
+
+### P06. Consultar el perfil sin token
+
+``` bash
+curl -i http://localhost:4000/api/sesion/perfil
+```
+
+![](images/clipboard-2004537351.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P07. Consultar el perfil con un token inválido
+
+``` bash
+curl -i http://localhost:4000/api/sesion/perfil \
+  -H "Authorization: Bearer token-invalido"
+```
+
+![](images/clipboard-488371451.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P08. Consultar el perfil con un token válido
+
+``` bash
+curl -i http://localhost:4000/api/sesion/perfil \
+  -H "Authorization: Bearer PEGAR_ACCESS_TOKEN"
+```
+
+![](images/clipboard-3127036682.png)
+
+**Esperado:** `200 OK` si el token es válido y el usuario continúa
+activo.
+
+## 28.7. Pruebas de renovación del Refresh Token
+
+### P09. Renovar la sesión con un Refresh Token válido
+
+Sustituye `PEGAR_REFRESH_TOKEN` por el `refresh_token` obtenido en el
+login.
+
+``` bash
+cd ~/ia-lab/projects/motores-bd/dw/pry-sprada/app-solia-express || exit 1
+
+LOGIN_JSON=$(curl -sS -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"Admin123!"}')
+
+REFRESH_TOKEN=$(printf '%s' "$LOGIN_JSON" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).refresh_token')
+
+if [ -z "$REFRESH_TOKEN" ] || [ "$REFRESH_TOKEN" = "undefined" ]; then
+  echo "ERROR: no se pudo obtener el refresh token."
+  exit 1
+fi
+
+echo "===== P09: REFRESH VALIDO ====="
+
+curl -sS -w '\nHTTP_STATUS:%{http_code}\n' \
+  -X POST http://localhost:4000/api/sesion/refresh \
+  -H "Content-Type: application/json" \
+  -d "{\"refresh_token\":\"$REFRESH_TOKEN\"}" \
+  -o /tmp/solia_p09_response.json
+
+node -e '
+const fs = require("fs");
+const r = JSON.parse(fs.readFileSync("/tmp/solia_p09_response.json", "utf8"));
+if (r.access_token && r.refresh_token) {
+  fs.writeFileSync("/tmp/solia_access_token.txt", r.access_token);
+  fs.writeFileSync("/tmp/solia_refresh_token.txt", r.refresh_token);
+  console.log("P09 CORRECTA: tokens renovados.");
+} else {
+  console.log("Respuesta:", JSON.stringify(r));
+}
+'
+```
+
+![](images/clipboard-2772485199.png)
+
+**Esperado:** `200 OK`, con un nuevo `access_token` y un nuevo
+`refresh_token`.
+
+La implementación rota el Refresh Token. Guarda el nuevo token devuelto
+y utilízalo en las operaciones siguientes.
+
+### P10. Renovar sin enviar el Refresh Token
+
+``` bash
+curl -i -X POST http://localhost:4000/api/sesion/refresh \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+![](images/clipboard-154965315.png)**Esperado:** `400 Bad Request`.
+
+### P11. Renovar con un Refresh Token inexistente
+
+``` bash
+curl -i -X POST http://localhost:4000/api/sesion/refresh \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token":"refresh-token-inexistente"}'
+```
+
+![](images/clipboard-2403188127.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P12. Comprobar el uso del nuevo Access Token
+
+Utiliza el `access_token` devuelto por P09:
+
+``` bash
+curl -i http://localhost:4000/api/sesion/perfil \
+  -H "Authorization: Bearer PEGAR_NUEVO_ACCESS_TOKEN"
+```
+
+![](images/clipboard-3047002131.png)
+
+**Esperado:** `200 OK` si el token nuevo es válido.
+
+## 28.8. Pruebas de autorización JWT + RBAC
+
+La ruta `/api/accounts` utiliza los middlewares `authenticate` y
+`authorize`. Por tanto, no basta con presentar un token válido: el
+usuario debe contar con un permiso activo para el método y la ruta
+solicitados.
+
+### P13. Consultar cuentas sin token
+
+``` bash
+curl -i http://localhost:4000/api/accounts
+```
+
+![](images/clipboard-3184992226.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P14. Consultar cuentas con un token inválido
+
+``` bash
+curl -i http://localhost:4000/api/accounts \
+  -H "Authorization: Bearer token-invalido"
+```
+
+![](images/clipboard-2495514784.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P15. Consultar cuentas con un usuario autorizado
+
+``` bash
+curl -i http://localhost:4000/api/accounts \
+  -H "Authorization: Bearer PEGAR_ACCESS_TOKEN"
+```
+
+![](images/clipboard-1718682362.png)
+
+**Esperado:** `200 OK` si el usuario tiene un permiso activo para
+`GET /api/accounts` y la consulta se ejecuta correctamente.
+
+### P16. Comprobar la denegación por falta de permiso
+
+Inicia sesión con un usuario cuyo rol no tenga concedido el permiso para
+`GET /api/accounts`. Utiliza su `access_token`:
+
+``` bash
+LOGIN_JSON=$(curl -sS -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"Admin123!"}')
+
+ACCESS_TOKEN=$(printf '%s' "$LOGIN_JSON" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).access_token')
+
+echo "===== P18: PERMISOS CON TOKEN VALIDO ====="
+curl -sS -i http://localhost:4000/api/permisos \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+![](images/clipboard-100601899.png)
+
+**Esperado:** `403 Forbidden` cuando el token es válido, el usuario está
+activo y la autorización RBAC deniega la operación.
+
+Si el usuario sí tiene el permiso, esta prueba no demuestra una
+denegación: debe utilizarse una cuenta de prueba con permisos conocidos.
+
+## 28.9. Consultar los permisos del usuario
+
+### P17. Consultar permisos sin token
+
+``` bash
+curl -i http://localhost:4000/api/permisos
+```
+
+![](images/clipboard-3285973070.png)
+
+**Esperado:** `401 Unauthorized`.
+
+### P18. Consultar permisos con un token válido
+
+``` bash
+LOGIN_JSON=$(curl -sS -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"seller","password":"Seller123!"}')
+
+SELLER_TOKEN=$(printf '%s' "$LOGIN_JSON" | node -pe \
+  'JSON.parse(require("fs").readFileSync(0,"utf8")).access_token || ""')
+
+if [ -z "$SELLER_TOKEN" ]; then
+  echo "ERROR: no se pudo obtener el token de SELLER."
+  printf '%s\n' "$LOGIN_JSON"
+else
+  curl -sS -i http://localhost:4000/api/accounts \
+    -H "Authorization: Bearer $SELLER_TOKEN"
+fi
+
+unset LOGIN_JSON SELLER_TOKE
+```
+
+![](images/clipboard-240267607.png)**Esperado:** `200 OK` si el usuario
+está autenticado y activo. La respuesta debe permitir comprobar los
+permisos efectivos que la aplicación reconoce para ese usuario.
+
+## 28.10. Prueba de cierre de sesión
+
+### P19. Cerrar la sesión con el Refresh Token vigente
+
+``` bash
+LOGIN_JSON=$(curl -sS -X POST http://localhost:4000/api/sesion/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"admin","password":"Admin123!"}')
+
+REFRESH_TOKEN=$(printf '%s' "$LOGIN_JSON" | node -pe \
+  'JSON.parse(require("fs").readFileSync(0,"utf8")).refresh_token || ""')
+
+if [ -z "$REFRESH_TOKEN" ]; then
+  echo "ERROR: no se pudo obtener el refresh token."
+  printf '%s\n' "$LOGIN_JSON"
+else
+  echo "P19. POST /api/sesion/logout:"
+  curl -sS -i -X POST http://localhost:4000/api/sesion/logout \
+    -H "Content-Type: application/json" \
+    -d "{\"refresh_token\":\"$REFRESH_TOKEN\"}"
+fi
+
+unset LOGIN_JSON REFRESH_TOKEN
+```
+
+![](images/clipboard-1662616293.png)
+
+**Esperado:** `200 OK` y un mensaje de confirmación, según la
+implementación actual.
+
+## 28.11. Registro de resultados
+
+Marca cada casilla después de ejecutar la prueba y comprobar que el
+resultado obtenido coincide con el esperado.
+
+### Checklist de pruebas de acceso
+
+-   [x] **P01. Socios sin token:** esperado `200`.
+-   [x] **P02. Socios con token inválido:** la ruta continúa siendo
+    pública.
+-   [x] **P03. Login válido:** esperado `200`.
+-   [x] **P04. Login inválido:** esperado `401`.
+-   [x] **P05. Login incompleto:** esperado `400`.
+-   [x] **P06. Perfil sin token:** esperado `401`.
+-   [x] **P07. Perfil con token inválido:** esperado `401`.
+-   [x] **P08. Perfil con token válido:** esperado `200`.
+-   [x] **P09. Refresh válido:** esperado `200`.
+-   [x] **P10. Refresh sin token:** esperado `400`.
+-   [x] **P11. Refresh inexistente:** esperado `401`.
+-   [x] **P12. Perfil con nuevo Access Token:** esperado `200`.
+-   [x] **P13. Cuentas sin token:** esperado `401`.
+-   [x] **P14. Cuentas con token inválido:** esperado `401`.
+-   [x] **P15. Cuentas con permiso:** esperado `200`.
+-   [x] **P16. Cuentas sin permiso:** esperado `403`.
+-   [x] **P17. Permisos sin token:** esperado `401`.
+-   [x] **P18. Permisos con token válido:** esperado `200`.
+-   [x] **P19. Cierre de sesión:** esperado `200`.
+
+**Criterio de cumplimiento:** marca una casilla únicamente después de
+ejecutar la prueba y verificar su respuesta. Si el resultado difiere del
+esperado, deja la casilla sin marcar hasta investigar y corregir el
+problema.
