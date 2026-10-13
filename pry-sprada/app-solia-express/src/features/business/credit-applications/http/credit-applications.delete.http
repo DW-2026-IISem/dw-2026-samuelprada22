@@ -1,0 +1,12 @@
+### Feature CreditApplication — DELETE físico / DELETE lógico (status = cancelled)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name deleteCreditApplicationPhysical
+DELETE {{baseUrl}}/api/credit-applications/{{id}}
+
+###
+
+# @name deleteCreditApplicationLogical
+PATCH {{baseUrl}}/api/credit-applications/{{id}}/deactivate
