@@ -1,0 +1,15 @@
+### Feature Rate — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+
+# @name createRate
+POST {{baseUrl}}/api/rates
+Content-Type: application/json
+
+{
+  "name": "Tasa crédito ordinario",
+  "percentage": 1.5,
+  "type": "monthly",
+  "description": "Tasa mensual para créditos ordinarios",
+  "status": "active"
+}
