@@ -1,0 +1,31 @@
+### Feature Credit — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateCreditPut
+PUT {{baseUrl}}/api/credits/{{id}}
+Content-Type: application/json
+
+{
+  "credit_application_id": 1,
+  "rate_id": 1,
+  "date": "2026-10-01T12:00:00.000Z",
+  "approved_amount": 7500000,
+  "term": 36,
+  "interest_rate": 1.5,
+  "status": "active",
+  "observations": "Crédito actualizado"
+}
+
+###
+
+# @name updateCreditPatch
+PATCH {{baseUrl}}/api/credits/{{id}}
+Content-Type: application/json
+
+{
+  "approved_amount": 6000000,
+  "term": 24,
+  "observations": "Monto y plazo actualizados"
+}
