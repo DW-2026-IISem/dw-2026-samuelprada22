@@ -1,0 +1,16 @@
+### Feature InstallmentPayment — CREATE
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+
+# @name createInstallmentPayment
+POST {{baseUrl}}/api/installment-payments
+Content-Type: application/json
+
+{
+  "installment_id": 1,
+  "payment_date": "2026-10-04",
+  "amount": 250000.00,
+  "reference": "PAGO-CUOTA-001",
+  "method": "transfer",
+  "status": "active"
+}

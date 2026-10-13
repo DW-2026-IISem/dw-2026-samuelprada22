@@ -1,0 +1,28 @@
+### Feature InstallmentPayment — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateInstallmentPaymentPut
+PUT {{baseUrl}}/api/installment-payments/{{id}}
+Content-Type: application/json
+
+{
+  "installment_id": 1,
+  "payment_date": "2026-10-04",
+  "amount": 275000.00,
+  "reference": "PAGO-CUOTA-001-ACT",
+  "method": "transfer",
+  "status": "active"
+}
+
+###
+
+# @name updateInstallmentPaymentPatch
+PATCH {{baseUrl}}/api/installment-payments/{{id}}
+Content-Type: application/json
+
+{
+  "amount": 280000.00,
+  "reference": "PAGO-CUOTA-001-CORREGIDO"
+}
