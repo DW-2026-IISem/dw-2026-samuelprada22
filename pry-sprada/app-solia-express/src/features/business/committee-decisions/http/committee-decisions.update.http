@@ -1,0 +1,27 @@
+### Feature CommitteeDecision — UPDATE (PUT) / UPDATE (PATCH)
+### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+@baseUrl = http://localhost:4000
+@id = 1
+
+# @name updateCommitteeDecisionPut
+PUT {{baseUrl}}/api/committee-decisions/{{id}}
+Content-Type: application/json
+
+{
+  "credit_application_id": 1,
+  "decision": "approved",
+  "decision_date": "2026-10-04",
+  "comments": "Decisión actualizada por el comité.",
+  "decided_by": 1,
+  "status": "active"
+}
+
+###
+
+# @name updateCommitteeDecisionPatch
+PATCH {{baseUrl}}/api/committee-decisions/{{id}}
+Content-Type: application/json
+
+{
+  "comments": "Comentario actualizado parcialmente."
+}
