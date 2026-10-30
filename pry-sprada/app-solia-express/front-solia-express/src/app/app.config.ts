@@ -10,6 +10,7 @@ import {
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import { environment } from '../environments/environment';
 
 import { routes } from './app.routes';
 
@@ -23,8 +24,9 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
     ),
 
-    // PrimeNG 21: tema Aura. El modo oscuro se activa con la clase .app-dark.
+    // PrimeNG 22: configure the Aura theme and license.
     providePrimeNG({
+      license: environment.primeUiLicense || undefined,
       ripple: true,
       inputVariant: 'outlined',
       theme: {
