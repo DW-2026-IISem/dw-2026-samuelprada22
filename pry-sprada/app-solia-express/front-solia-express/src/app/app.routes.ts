@@ -27,6 +27,14 @@ export const routes: Routes = [
             (m) => m.AccountList,
           ),
       },
+      {
+        path: 'movements',
+        title: 'Movimientos · Solia Express',
+        loadComponent: () =>
+          import('./features/movements/movement-list/movement-list').then(
+            (m) => m.MovementList,
+          ),
+      },
     ],
   },
   {

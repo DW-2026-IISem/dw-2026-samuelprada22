@@ -1,0 +1,177 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+
+  @if (accountsLoading()) {
+    <p-message severity="info" class="w-full">
+      Cargando cuentas activas...
+    </p-message>
+  }
+
+  @if (accountsError()) {
+    <p-message severity="error" class="w-full">
+      No se pudieron cargar las cuentas. Verifica la conexión y la autenticación con el backend.
+    </p-message>
+  }
+
+  @if (!accountsLoading() && !accountsError() && accounts().length === 0) {
+    <p-message severity="warn" class="w-full">
+      No hay cuentas activas disponibles para registrar movimientos.
+    </p-message>
+  }
+
+  <div class="flex flex-col gap-2">
+    <label for="movement-account" class="font-medium text-slate-700">
+      Cuenta <span class="text-red-500">*</span>
+    </label>
+
+    <p-select
+      inputId="movement-account"
+      formControlName="account_id"
+      [options]="accounts()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Selecciona una cuenta"
+      [loading]="accountsLoading()"
+      [disabled]="saving() || accountsLoading() || accountsError()"
+      [showClear]="true"
+      appendTo="body"
+      class="w-full"
+    />
+
+    @if (form.controls.account_id.touched && form.controls.account_id.invalid) {
+      <small class="text-red-600">Debes seleccionar una cuenta activa.</small>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="movement-type" class="font-medium text-slate-700">
+      Tipo de movimiento <span class="text-red-500">*</span>
+    </label>
+
+    <p-select
+      inputId="movement-type"
+      formControlName="type"
+      [options]="types"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Selecciona el tipo"
+      [disabled]="saving()"
+      appendTo="body"
+      class="w-full"
+    />
+
+    @if (form.controls.type.touched && form.controls.type.invalid) {
+      <small class="text-red-600">Debes seleccionar un tipo de movimiento.</small>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="movement-date" class="font-medium text-slate-700">
+        Fecha <span class="text-red-500">*</span>
+      </label>
+
+      <input
+        id="movement-date"
+        pInputText
+        type="date"
+        formControlName="date"
+        class="w-full"
+        [disabled]="saving()"
+        [invalid]="form.controls.date.touched && form.controls.date.invalid"
+      />
+
+      @if (form.controls.date.touched && form.controls.date.invalid) {
+        <small class="text-red-600">La fecha es obligatoria.</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="movement-amount" class="font-medium text-slate-700">
+        Importe (COP) <span class="text-red-500">*</span>
+      </label>
+
+      <input
+        id="movement-amount"
+        pInputText
+        type="number"
+        formControlName="amount"
+        min="0.01"
+        step="0.01"
+        placeholder="Ej. 50000"
+        class="w-full"
+        [disabled]="saving()"
+        [invalid]="form.controls.amount.touched && form.controls.amount.invalid"
+      />
+
+      @if (form.controls.amount.touched && form.controls.amount.hasError('required')) {
+        <small class="text-red-600">El importe es obligatorio.</small>
+      }
+
+      @if (form.controls.amount.touched && form.controls.amount.hasError('min')) {
+        <small class="text-red-600">El importe debe ser mayor que cero.</small>
+      }
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="movement-reference" class="font-medium text-slate-700">
+      Referencia
+    </label>
+
+    <input
+      id="movement-reference"
+      pInputText
+      type="number"
+      formControlName="reference_id"
+      min="0"
+      step="1"
+      placeholder="Identificador de referencia (opcional)"
+      class="w-full"
+      [disabled]="saving()"
+    />
+
+    @if (form.controls.reference_id.touched && form.controls.reference_id.hasError('min')) {
+      <small class="text-red-600">La referencia debe ser un número positivo.</small>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="movement-observations" class="font-medium text-slate-700">
+      Observaciones
+    </label>
+
+    <textarea
+      id="movement-observations"
+      pTextarea
+      formControlName="observations"
+      rows="3"
+      placeholder="Observaciones opcionales del movimiento"
+      class="w-full"
+      [disabled]="saving()"
+    ></textarea>
+  </div>
+
+  <div class="flex justify-end gap-2 pt-2">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      outlined
+      [disabled]="saving()"
+      (click)="cancelled.emit()"
+    >
+      <span pButtonLabel>Cancelar</span>
+    </button>
+
+    <button
+      pButton
+      type="submit"
+      [loading]="saving()"
+      [disabled]="saving() || accountsLoading() || accountsError() || accounts().length === 0"
+    >
+      <i pButtonIcon class="pi pi-check"></i>
+      <span pButtonLabel>Guardar movimiento</span>
+    </button>
+  </div>
+
+</form>
