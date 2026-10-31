@@ -1,0 +1,26 @@
+<aside class="flex h-full min-h-0 flex-col bg-white">
+  <p class="px-5 pb-3 pt-6 text-xs font-semibold tracking-wider text-slate-400">
+    MENÚ PRINCIPAL
+  </p>
+
+  <nav aria-label="Navegación principal" class="flex-1 space-y-1 px-3">
+    @for (item of items(); track item.label) {
+      <a
+        [routerLink]="item.routerLink"
+        routerLinkActive="bg-blue-50 text-blue-700"
+        [routerLinkActiveOptions]="{ exact: item.routerLink === '/' }"
+        (click)="navigated.emit()"
+        class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-600 transition-colors hover:bg-slate-100"
+      >
+        @if (item.icon) {
+          <i [class]="item.icon" aria-hidden="true"></i>
+        }
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="border-t border-slate-100 px-5 py-4 text-xs text-slate-400">
+    Gestión financiera solidaria
+  </div>
+</aside>

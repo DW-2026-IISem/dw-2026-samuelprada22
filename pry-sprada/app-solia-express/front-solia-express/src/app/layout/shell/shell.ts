@@ -1,0 +1,64 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+} from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { MenuItem } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DrawerModule } from 'primeng/drawer';
+import { ToastModule } from 'primeng/toast';
+import { watchMediaQuery } from '../../core/utils/media-query';
+import { Aside } from '../aside/aside';
+import { Footer } from '../footer/footer';
+import { Header } from '../header/header';
+
+@Component({
+  selector: 'app-shell',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    Header,
+    Aside,
+    Footer,
+    ConfirmDialogModule,
+    DrawerModule,
+    ToastModule,
+  ],
+  templateUrl: './shell.html',
+  styleUrl: './shell.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class Shell {
+  private readonly isDesktop = watchMediaQuery('(min-width: 1024px)');
+
+  readonly sidebarCollapsed = signal(false);
+  readonly mobileOpen = signal(false);
+
+  readonly items: MenuItem[] = [
+    { label: 'Inicio', icon: 'pi pi-home', routerLink: '/' },
+    { label: 'Socios', icon: 'pi pi-users', routerLink: '/members' },
+    { label: 'Cuentas', icon: 'pi pi-wallet', routerLink: '/accounts' },
+    {
+      label: 'Movimientos',
+      icon: 'pi pi-arrow-right-arrow-left',
+      routerLink: '/movements',
+    },
+    { label: 'Créditos', icon: 'pi pi-money-bill', routerLink: '/credits' },
+    {
+      label: 'Cuotas',
+      icon: 'pi pi-calendar',
+      routerLink: '/installments',
+    },
+    { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
+  ];
+
+  protected onMenuToggle(): void {
+    if (this.isDesktop()) {
+      this.sidebarCollapsed.update((collapsed) => !collapsed);
+      return;
+    }
+
+    this.mobileOpen.set(true);
+  }
+}
