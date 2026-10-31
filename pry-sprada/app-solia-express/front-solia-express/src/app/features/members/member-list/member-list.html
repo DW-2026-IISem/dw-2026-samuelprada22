@@ -1,0 +1,185 @@
+<app-page-header
+  title="Socios"
+  subtitle="Consulta y administra los socios del Fondo Solidario."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+
+  <button pButton type="button" (click)="openCreate()">
+    <i pButtonIcon class="pi pi-plus"></i>
+    <span pButtonLabel>Nuevo socio</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">Listado de socios</h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} resultado(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="member-search" class="sr-only">Buscar socios</label>
+      <input
+        id="member-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por ID, nombre o descripción"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando socios...</span>
+    </div>
+  } @else if (error()) {
+    <p class="py-6 text-center text-slate-500">
+      No se pudo cargar el listado de socios.
+    </p>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-users'"
+      [title]="filter().trim() ? 'Sin coincidencias' : 'No hay socios registrados'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Crea un socio para comenzar a gestionar el Fondo Solidario.'"
+    >
+      @if (!filter().trim()) {
+        <button pButton type="button" (click)="openCreate()">
+          <i pButtonIcon class="pi pi-plus"></i>
+          <span pButtonLabel>Crear socio</span>
+        </button>
+      }
+    </app-empty-state>
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Socio</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-right">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-member>
+        <tr>
+          <td>{{ member.id }}</td>
+          <td>
+            <span class="font-medium text-slate-900">
+              {{ member.name }}
+            </span>
+          </td>
+          <td>
+            <span class="text-slate-600">
+              {{ member.description || '—' }}
+            </span>
+          </td>
+          <td>
+            <app-status-tag
+              [status]="member.isActive ? 'active' : 'inactive'"
+            />
+          </td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                text
+                rounded
+                pTooltip="Editar socio"
+                aria-label="Editar socio"
+                (click)="openEdit(member)"
+              >
+                <i pButtonIcon class="pi pi-pencil"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="warn"
+                text
+                rounded
+                pTooltip="Desactivar socio"
+                aria-label="Desactivar socio"
+                [disabled]="!member.isActive"
+                (click)="deactivate(member)"
+              >
+                <i pButtonIcon class="pi pi-ban"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="danger"
+                text
+                rounded
+                pTooltip="Eliminar socio permanentemente"
+                aria-label="Eliminar socio permanentemente"
+                (click)="remove(member)"
+              >
+                <i pButtonIcon class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="py-6 text-center text-slate-500">
+            No hay socios para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  [header]="title()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [style]="{ width: 'min(34rem, calc(100vw - 2rem))' }"
+>
+  <app-member-form
+    [member]="editing()"
+    [resetKey]="resetKey()"
+    [saving]="saving()"
+    (saved)="save($event)"
+    (cancelled)="dialogVisible.set(false)"
+  />
+</p-dialog>
