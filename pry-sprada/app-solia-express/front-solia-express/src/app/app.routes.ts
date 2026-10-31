@@ -19,6 +19,14 @@ export const routes: Routes = [
             (m) => m.MemberList,
           ),
       },
+      {
+        path: 'accounts',
+        title: 'Cuentas · Solia Express',
+        loadComponent: () =>
+          import('./features/accounts/account-list/account-list').then(
+            (m) => m.AccountList,
+          ),
+      },
     ],
   },
   {
