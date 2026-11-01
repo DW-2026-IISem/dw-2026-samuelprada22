@@ -1,0 +1,137 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+
+  <div class="flex flex-col gap-2">
+    <label for="member_id" class="font-medium">Socio solicitante *</label>
+
+    <p-select
+      inputId="member_id"
+      formControlName="member_id"
+      [options]="members()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Seleccione un socio"
+      [loading]="membersLoading()"
+      [disabled]="saving() || membersLoading() || membersError()"
+      [showClear]="true"
+      styleClass="w-full"
+    />
+
+    @if (form.controls.member_id.touched && form.controls.member_id.invalid) {
+      <p-message severity="error" size="small" variant="simple">
+        Seleccione un socio válido.
+      </p-message>
+    }
+
+    @if (membersError()) {
+      <p-message severity="error" size="small">
+        No fue posible cargar los socios. Intente nuevamente.
+      </p-message>
+    }
+
+    @if (!membersLoading() && !membersError() && members().length === 0) {
+      <p-message severity="warn" size="small">
+        No hay socios activos disponibles.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="reference_id" class="font-medium">
+      Referencia (opcional)
+    </label>
+
+    <p-inputnumber
+      inputId="reference_id"
+      formControlName="reference_id"
+      [useGrouping]="false"
+      [min]="1"
+      [maxFractionDigits]="0"
+      placeholder="Ingrese el identificador de referencia"
+      [disabled]="saving()"
+      styleClass="w-full"
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="date" class="font-medium">Fecha de solicitud *</label>
+
+    <p-datepicker
+      inputId="date"
+      formControlName="date"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [showButtonBar]="true"
+      appendTo="body"
+      placeholder="Seleccione la fecha"
+      [disabled]="saving()"
+      styleClass="w-full"
+    />
+
+    @if (form.controls.date.touched && form.controls.date.invalid) {
+      <p-message severity="error" size="small" variant="simple">
+        La fecha de solicitud es obligatoria.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="amount" class="font-medium">Importe solicitado (COP) *</label>
+
+    <p-inputnumber
+      inputId="amount"
+      formControlName="amount"
+      mode="currency"
+      currency="COP"
+      locale="es-CO"
+      [min]="0.01"
+      [minFractionDigits]="0"
+      [maxFractionDigits]="2"
+      placeholder="Ingrese el importe solicitado"
+      [disabled]="saving()"
+      styleClass="w-full"
+    />
+
+    @if (form.controls.amount.touched && form.controls.amount.invalid) {
+      <p-message severity="error" size="small" variant="simple">
+        El importe debe ser mayor que cero.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="observations" class="font-medium">
+      Observaciones
+    </label>
+
+    <textarea
+      pTextarea
+      id="observations"
+      formControlName="observations"
+      rows="4"
+      [autoResize]="true"
+      placeholder="Describa información adicional de la solicitud"
+      [disabled]="saving()"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-2">
+    <p-button
+      type="button"
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="saving()"
+      (onClick)="cancelled.emit()"
+    />
+
+    <p-button
+      type="submit"
+      label="Guardar solicitud"
+      icon="pi pi-check"
+      [loading]="saving()"
+      [disabled]="saving() || membersLoading() || membersError() || members().length === 0"
+    />
+  </div>
+
+</form>

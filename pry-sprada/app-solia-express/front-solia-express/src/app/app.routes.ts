@@ -35,6 +35,14 @@ export const routes: Routes = [
             (m) => m.MovementList,
           ),
       },
+      {
+        path: 'credit-applications',
+        title: 'Solicitudes de crédito · Solia Express',
+        loadComponent: () =>
+          import('./features/credit-applications/credit-application-list/credit-application-list').then(
+            (m) => m.CreditApplicationList,
+          ),
+      },
     ],
   },
   {
