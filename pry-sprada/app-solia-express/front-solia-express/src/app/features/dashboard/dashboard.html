@@ -1,0 +1,93 @@
+<app-page-header
+  title="Dashboard"
+  subtitle="Resumen general de la actividad del FondoSolidario."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+</app-page-header>
+
+@if (loading()) {
+  <div class="flex items-center justify-center gap-3 py-16 text-slate-500">
+    <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+    <span>Cargando indicadores del FondoSolidario...</span>
+  </div>
+} @else {
+  @if (error()) {
+    <p-message severity="error" class="mb-4 w-full">
+      {{ error() }}
+    </p-message>
+  } @else if (hasPartialError()) {
+    <p-message severity="warn" class="mb-4 w-full">
+      No fue posible consultar todos los módulos. Algunos indicadores pueden
+      estar incompletos.
+    </p-message>
+  }
+
+  <section
+    aria-label="Indicadores del FondoSolidario"
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+  >
+    <a routerLink="/members" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Total de socios</span>
+        <i class="pi pi-users text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ memberCount() }}</p>
+      <p class="mt-2 text-sm text-slate-500">Consultar socios</p>
+    </a>
+
+    <a routerLink="/accounts" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Total de cuentas</span>
+        <i class="pi pi-wallet text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ accountCount() }}</p>
+      <p class="mt-2 text-sm text-slate-500">Consultar cuentas</p>
+    </a>
+
+    <a routerLink="/movements" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Total de movimientos</span>
+        <i class="pi pi-arrow-right-arrow-left text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ movementCount() }}</p>
+      <p class="mt-2 text-sm text-slate-500">Consultar movimientos</p>
+    </a>
+
+    <a routerLink="/credit-applications" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Solicitudes de crédito</span>
+        <i class="pi pi-file-edit text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ creditApplicationCount() }}</p>
+      <p class="mt-2 text-sm text-slate-500">Consultar solicitudes</p>
+    </a>
+
+    <a routerLink="/credits" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Créditos registrados</span>
+        <i class="pi pi-money-bill text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ creditCount() }}</p>
+      <p class="mt-2 text-sm text-slate-500">Consultar créditos</p>
+    </a>
+
+    <a routerLink="/credits" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Monto total aprobado</span>
+        <i class="pi pi-chart-line text-xl text-primary-600" aria-hidden="true"></i>
+      </div>
+      <p class="mt-4 text-2xl font-semibold tracking-tight text-slate-900">{{ formatAmount(approvedAmount()) }}</p>
+      <p class="mt-2 text-sm text-slate-500">Importe acumulado de créditos</p>
+    </a>
+  </section>
+}

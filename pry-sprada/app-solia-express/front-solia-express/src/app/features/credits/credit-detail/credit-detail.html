@@ -1,0 +1,176 @@
+<app-page-header
+  [title]="credit() ? 'Crédito #' + credit()!.id : 'Detalle del crédito'"
+  subtitle="Información financiera y datos relacionados del crédito."
+>
+  <a
+    pButton
+    severity="secondary"
+    outlined
+    routerLink="/credits"
+  >
+    <i pButtonIcon class="pi pi-arrow-left"></i>
+    <span pButtonLabel>Volver a créditos</span>
+  </a>
+</app-page-header>
+
+@if (loading()) {
+  <div class="flex items-center justify-center gap-3 py-16 text-slate-500">
+    <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+    <span>Cargando información del crédito...</span>
+  </div>
+} @else if (error()) {
+  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <app-empty-state
+      icon="pi pi-exclamation-circle"
+      title="No se pudo cargar el crédito"
+      [message]="error()!"
+    >
+      <a pButton severity="secondary" routerLink="/credits">
+        <span pButtonLabel>Regresar al listado</span>
+      </a>
+    </app-empty-state>
+  </section>
+} @else if (credit(); as item) {
+  @if (relatedDataWarning()) {
+    <p-message severity="warn" class="mb-4 w-full">
+      Algunos datos relacionados no están disponibles. Se muestran los identificadores cuando corresponde.
+    </p-message>
+  }
+
+  <section class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-slate-500">Estado del crédito</p>
+        <div class="mt-2">
+          <p-tag
+            [value]="statusLabel(item.status)"
+            [severity]="statusSeverity(item.status)"
+          />
+        </div>
+      </div>
+
+      <div class="sm:text-right">
+        <p class="text-sm text-slate-500">Importe aprobado</p>
+        <p class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+          {{ formatAmount(item.approved_amount) }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-5 text-lg font-semibold text-slate-900">
+        Información del crédito
+      </h2>
+
+      <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm text-slate-500">Identificador</dt>
+          <dd class="mt-1 font-medium text-slate-900">#{{ item.id }}</dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Fecha</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ item.date | date: 'dd/MM/yyyy' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Plazo</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ item.term }} meses
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Tasa de interés</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ formatPercentage(item.interest_rate) }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">ID de solicitud</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            #{{ item.credit_application_id }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">ID de tasa</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            #{{ item.rate_id }}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="mt-6 border-t border-slate-100 pt-5">
+        <h3 class="text-sm font-semibold text-slate-700">
+          Observaciones
+        </h3>
+
+        <p class="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+          {{ item.observations || 'Sin observaciones registradas.' }}
+        </p>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-5 text-lg font-semibold text-slate-900">
+        Datos relacionados
+      </h2>
+
+      <div class="space-y-5">
+        <div>
+          <p class="text-sm text-slate-500">Socio</p>
+          <p class="mt-1 font-medium text-slate-900">
+            {{ member()?.name || 'No disponible' }}
+          </p>
+          @if (application()) {
+            <p class="mt-1 text-xs text-slate-500">
+              Socio #{{ application()!.member_id }}
+            </p>
+          }
+        </div>
+
+        <div class="border-t border-slate-100 pt-4">
+          <p class="text-sm text-slate-500">Solicitud de crédito</p>
+          <p class="mt-1 font-medium text-slate-900">
+            Solicitud #{{ item.credit_application_id }}
+          </p>
+          @if (application(); as request) {
+            <p class="mt-1 text-sm text-slate-600">
+              Importe solicitado: {{ formatAmount(request.amount) }}
+            </p>
+            <p class="mt-1 text-sm text-slate-600">
+              Estado: {{ request.status }}
+            </p>
+            @if (request.reference_id !== null) {
+              <p class="mt-1 text-sm text-slate-600">
+                Referencia: #{{ request.reference_id }}
+              </p>
+            }
+          }
+        </div>
+
+        <div class="border-t border-slate-100 pt-4">
+          <p class="text-sm text-slate-500">Tasa aplicada</p>
+          <p class="mt-1 font-medium text-slate-900">
+            {{ rate()?.name || 'No disponible' }}
+          </p>
+          @if (rate(); as interestRate) {
+            <p class="mt-1 text-sm text-slate-600">
+              {{ formatPercentage(interestRate.percentage) }}
+              · {{ interestRate.type === 'monthly' ? 'Mensual' : 'Anual' }}
+            </p>
+            <p class="mt-1 text-sm text-slate-600">
+              Estado: {{ interestRate.status === 'active' ? 'Activa' : 'Inactiva' }}
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+}

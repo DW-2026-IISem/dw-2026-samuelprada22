@@ -1,0 +1,207 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+
+  @if (applicationsError()) {
+    <p-message severity="error" [closable]="false">
+      No fue posible cargar las solicitudes de crédito.
+    </p-message>
+  }
+
+  @if (ratesError()) {
+    <p-message severity="error" [closable]="false">
+      No fue posible cargar las tasas de interés.
+    </p-message>
+  }
+
+  <div class="flex flex-col gap-2">
+    <label for="credit_application_id" class="font-medium">
+      Solicitud de crédito *
+    </label>
+
+    <p-select
+      inputId="credit_application_id"
+      formControlName="credit_application_id"
+      [options]="applications()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Seleccione una solicitud aprobada"
+      [loading]="applicationsLoading()"
+      [disabled]="applicationsLoading() || applicationsError() || saving()"
+      class="w-full"
+    />
+
+    @if (form.controls.credit_application_id.touched &&
+         form.controls.credit_application_id.invalid) {
+      <p-message severity="error" [closable]="false">
+        Seleccione una solicitud de crédito válida.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="rate_id" class="font-medium">
+      Tasa de interés *
+    </label>
+
+    <p-select
+      inputId="rate_id"
+      formControlName="rate_id"
+      [options]="rates()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Seleccione una tasa"
+      [loading]="ratesLoading()"
+      [disabled]="ratesLoading() || ratesError() || saving()"
+      class="w-full"
+    >
+      <ng-template #selectedItem let-rate>
+        @if (rate) {
+          {{ rate.name }} — {{ rate.percentage }}%
+          ({{ rate.type === 'monthly' ? 'Mensual' : 'Anual' }})
+        }
+      </ng-template>
+
+      <ng-template #item let-rate>
+        {{ rate.name }} — {{ rate.percentage }}%
+        ({{ rate.type === 'monthly' ? 'Mensual' : 'Anual' }})
+      </ng-template>
+    </p-select>
+
+    @if (form.controls.rate_id.touched &&
+         form.controls.rate_id.invalid) {
+      <p-message severity="error" [closable]="false">
+        Seleccione una tasa de interés válida.
+      </p-message>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="date" class="font-medium">
+        Fecha de otorgamiento *
+      </label>
+
+      <p-datepicker
+        inputId="date"
+        formControlName="date"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.date.touched &&
+           form.controls.date.invalid) {
+        <p-message severity="error" [closable]="false">
+          La fecha es obligatoria.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="approved_amount" class="font-medium">
+        Importe aprobado *
+      </label>
+
+      <p-inputnumber
+        inputId="approved_amount"
+        formControlName="approved_amount"
+        mode="currency"
+        currency="COP"
+        locale="es-CO"
+        [min]="0.01"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.approved_amount.touched &&
+           form.controls.approved_amount.invalid) {
+        <p-message severity="error" [closable]="false">
+          El importe aprobado debe ser mayor que cero.
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="term" class="font-medium">
+        Plazo (meses) *
+      </label>
+
+      <p-inputnumber
+        inputId="term"
+        formControlName="term"
+        [min]="1"
+        [maxFractionDigits]="0"
+        [useGrouping]="false"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.term.touched &&
+           form.controls.term.invalid) {
+        <p-message severity="error" [closable]="false">
+          El plazo debe ser un número entero mayor que cero.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="interest_rate" class="font-medium">
+        Porcentaje de interés (%)
+      </label>
+
+      <p-inputnumber
+        inputId="interest_rate"
+        formControlName="interest_rate"
+        suffix="%"
+        [min]="0"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [disabled]="true"
+        styleClass="w-full"
+      />
+
+      <small class="text-surface-500">
+        Este porcentaje se obtiene de la tasa seleccionada.
+      </small>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="observations" class="font-medium">
+      Observaciones
+    </label>
+
+    <textarea
+      pTextarea
+      id="observations"
+      formControlName="observations"
+      rows="3"
+      [disabled]="saving()"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-2">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      type="button"
+      [disabled]="saving()"
+      (onClick)="cancelled.emit()"
+    />
+
+    <p-button
+      label="Guardar crédito"
+      icon="pi pi-check"
+      type="submit"
+      [loading]="saving()"
+      [disabled]="applicationsLoading() || ratesLoading() ||
+                  applicationsError() || ratesError()"
+    />
+  </div>
+</form>

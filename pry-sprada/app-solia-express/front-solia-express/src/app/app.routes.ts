@@ -9,7 +9,11 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'members',
+        title: 'Dashboard · Solia Express',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard').then(
+            (m) => m.Dashboard,
+          ),
       },
       {
         path: 'members',
@@ -41,6 +45,22 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/credit-applications/credit-application-list/credit-application-list').then(
             (m) => m.CreditApplicationList,
+          ),
+      },
+      {
+        path: 'credits',
+        title: 'Créditos · Solia Express',
+        loadComponent: () =>
+          import('./features/credits/credit-list/credit-list').then(
+            (m) => m.CreditList,
+          ),
+      },
+      {
+        path: 'credits/:id',
+        title: 'Detalle del crédito · Solia Express',
+        loadComponent: () =>
+          import('./features/credits/credit-detail/credit-detail').then(
+            (m) => m.CreditDetail,
           ),
       },
     ],
