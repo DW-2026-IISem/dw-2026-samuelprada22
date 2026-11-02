@@ -1,9 +1,11 @@
 ### Feature InstallmentPayment — CREATE
-### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+### Leyenda: CON AUTH (JWT + RBAC; requiere token válido)
 @baseUrl = http://localhost:4000
+@token = REEMPLAZAR_POR_TOKEN_VALIDO
 
 # @name createInstallmentPayment
 POST {{baseUrl}}/api/installment-payments
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -12,5 +14,4 @@ Content-Type: application/json
   "amount": 250000.00,
   "reference": "PAGO-CUOTA-001",
   "method": "transfer",
-  "status": "active"
 }

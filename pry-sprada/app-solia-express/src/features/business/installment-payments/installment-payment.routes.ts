@@ -58,17 +58,6 @@ export class InstallmentPaymentRoutes {
         )
       );
 
-    // delete físico
-    app
-      .route("/api/installment-payments/:id")
-      .delete(
-        authenticate,
-        authorize,
-        this.installmentPaymentController.deletePhysical.bind(
-          this.installmentPaymentController
-        )
-      );
-
     // delete lógico
     app
       .route("/api/installment-payments/:id/deactivate")

@@ -3,6 +3,10 @@ import {
   InstallmentPayment,
   InstallmentPaymentI,
 } from "./installment-payment.model";
+import {
+  InstallmentPaymentError,
+  InstallmentPaymentService,
+} from "./installment-payment.service";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -10,27 +14,40 @@ function paramId(req: Request): number {
   return Number(value);
 }
 
+function handleError(
+  res: Response,
+  error: unknown,
+  message: string
+): void {
+  if (error instanceof InstallmentPaymentError) {
+    res.status(error.statusCode).json({
+      error: error.message,
+    });
+    return;
+  }
+
+  res.status(500).json({
+    error: message,
+    detail: String(error),
+  });
+}
+
 export class InstallmentPaymentController {
   // ================== READ ==================
   public async getAll(req: Request, res: Response) {
     try {
-      const installment_payments = await InstallmentPayment.findAll({
-        where: { status: "active" },
-      });
+      // Incluye pagos activos y cancelados para conservar el historial.
+      const installment_payments = await InstallmentPayment.findAll();
 
       res.status(200).json({ installment_payments });
     } catch (error) {
-      res.status(500).json({
-        error: "Error fetching installment payments",
-        detail: String(error),
-      });
+      handleError(res, error, "Error fetching installment payments");
     }
   }
 
   public async getOne(req: Request, res: Response) {
     try {
       const id = paramId(req);
-
       const installment_payment =
         await InstallmentPayment.findByPk(id);
 
@@ -43,10 +60,7 @@ export class InstallmentPaymentController {
 
       res.status(200).json({ installment_payment });
     } catch (error) {
-      res.status(500).json({
-        error: "Error fetching installment payment",
-        detail: String(error),
-      });
+      handleError(res, error, "Error fetching installment payment");
     }
   }
 
@@ -56,21 +70,11 @@ export class InstallmentPaymentController {
       const body = req.body as InstallmentPaymentI;
 
       const installment_payment =
-        await InstallmentPayment.create({
-          installment_id: body.installment_id,
-          payment_date: body.payment_date ?? new Date(),
-          amount: body.amount,
-          reference: body.reference ?? null,
-          method: body.method,
-          status: body.status ?? "active",
-        });
+        await InstallmentPaymentService.create(body);
 
       res.status(201).json({ installment_payment });
     } catch (error) {
-      res.status(500).json({
-        error: "Error creating installment payment",
-        detail: String(error),
-      });
+      handleError(res, error, "Error creating installment payment");
     }
   }
 
@@ -81,30 +85,11 @@ export class InstallmentPaymentController {
       const body = req.body as InstallmentPaymentI;
 
       const installment_payment =
-        await InstallmentPayment.findByPk(id);
-
-      if (!installment_payment) {
-        res.status(404).json({
-          error: "Installment payment not found",
-        });
-        return;
-      }
-
-      await installment_payment.update({
-        installment_id: body.installment_id,
-        payment_date: body.payment_date,
-        amount: body.amount,
-        reference: body.reference ?? null,
-        method: body.method,
-        status: body.status ?? installment_payment.status,
-      });
+        await InstallmentPaymentService.update(id, body, true);
 
       res.status(200).json({ installment_payment });
     } catch (error) {
-      res.status(500).json({
-        error: "Error updating installment payment (PUT)",
-        detail: String(error),
-      });
+      handleError(res, error, "Error updating installment payment (PUT)");
     }
   }
 
@@ -114,84 +99,27 @@ export class InstallmentPaymentController {
       const body = req.body as Partial<InstallmentPaymentI>;
 
       const installment_payment =
-        await InstallmentPayment.findByPk(id);
-
-      if (!installment_payment) {
-        res.status(404).json({
-          error: "Installment payment not found",
-        });
-        return;
-      }
-
-      await installment_payment.update(body);
+        await InstallmentPaymentService.update(id, body);
 
       res.status(200).json({ installment_payment });
     } catch (error) {
-      res.status(500).json({
-        error: "Error updating installment payment (PATCH)",
-        detail: String(error),
-      });
+      handleError(res, error, "Error updating installment payment (PATCH)");
     }
   }
 
-  // ================== DELETE ==================
-  /** Eliminación física */
-  public async deletePhysical(req: Request, res: Response) {
-    try {
-      const id = paramId(req);
-
-      const installment_payment =
-        await InstallmentPayment.findByPk(id);
-
-      if (!installment_payment) {
-        res.status(404).json({
-          error: "Installment payment not found",
-        });
-        return;
-      }
-
-      await installment_payment.destroy();
-
-      res.status(200).json({
-        message: "Installment payment permanently deleted",
-        id,
-      });
-    } catch (error) {
-      res.status(500).json({
-        error: "Error deleting installment payment",
-        detail: String(error),
-      });
-    }
-  }
-
-  /** Eliminación lógica → status = cancelled */
+  /** Cancelación lógica: status = cancelled */
   public async deleteLogical(req: Request, res: Response) {
     try {
       const id = paramId(req);
-
       const installment_payment =
-        await InstallmentPayment.findByPk(id);
-
-      if (!installment_payment) {
-        res.status(404).json({
-          error: "Installment payment not found",
-        });
-        return;
-      }
-
-      await installment_payment.update({
-        status: "cancelled",
-      });
+        await InstallmentPaymentService.cancel(id);
 
       res.status(200).json({
-        message: "Installment payment cancelled (logical delete)",
+        message: "Installment payment cancelled",
         installment_payment,
       });
     } catch (error) {
-      res.status(500).json({
-        error: "Error cancelling installment payment",
-        detail: String(error),
-      });
+      handleError(res, error, "Error cancelling installment payment");
     }
   }
 }

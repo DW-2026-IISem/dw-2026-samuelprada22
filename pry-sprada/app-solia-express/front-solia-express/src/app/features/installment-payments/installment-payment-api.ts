@@ -40,7 +40,4 @@ export class InstallmentPaymentApi {
     return this.http.patch(`${this.base}/${id}/deactivate`, {});
   }
 
-  remove(id: number): Observable<unknown> {
-    return this.http.delete(`${this.base}/${id}`);
-  }
 }

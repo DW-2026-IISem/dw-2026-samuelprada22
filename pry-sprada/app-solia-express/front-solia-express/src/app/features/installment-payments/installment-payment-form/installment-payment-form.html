@@ -1,0 +1,175 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="flex flex-col gap-4"
+>
+  @if (installmentsError() && !payment()) {
+    <p-message severity="error" [closable]="false">
+      No fue posible cargar las cuotas pendientes.
+    </p-message>
+  }
+
+  <p-message severity="warn" [closable]="false">
+    El backend registra el pago, pero actualmente no actualiza automáticamente
+    el valor abonado ni el saldo de la cuota. Verifica esta limitación antes
+    de utilizar el registro como comprobante de saldo.
+  </p-message>
+
+  @if (!payment()) {
+    <div class="flex flex-col gap-2">
+      <label for="installment_id" class="font-medium">
+        Cuota pendiente *
+      </label>
+
+      <p-select
+        inputId="installment_id"
+        formControlName="installment_id"
+        [options]="installments()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione una cuota"
+        [loading]="installmentsLoading()"
+        [disabled]="installmentsLoading() || installmentsError() || saving()"
+        class="w-full"
+      />
+
+      @if (
+        form.controls.installment_id.touched &&
+        form.controls.installment_id.invalid
+      ) {
+        <p-message severity="error" [closable]="false">
+          Seleccione una cuota válida.
+        </p-message>
+      }
+
+      @if (!installmentsLoading() && installments().length === 0 &&
+           !installmentsError()) {
+        <p-message severity="info" [closable]="false">
+          No hay cuotas pendientes disponibles.
+        </p-message>
+      }
+    </div>
+  } @else {
+    <div class="flex flex-col gap-1">
+      <span class="text-sm text-surface-500">Cuota asociada</span>
+      <span class="font-medium">
+        Cuota #{{ payment()!.installment_id }}
+      </span>
+      <small class="text-surface-500">
+        La cuota asociada no se puede cambiar al editar un pago.
+      </small>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="payment_date" class="font-medium">
+        Fecha del pago *
+      </label>
+
+      <p-datepicker
+        inputId="payment_date"
+        formControlName="payment_date"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (
+        form.controls.payment_date.touched &&
+        form.controls.payment_date.invalid
+      ) {
+        <p-message severity="error" [closable]="false">
+          La fecha del pago es obligatoria.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="method" class="font-medium">
+        Método de pago *
+      </label>
+
+      <p-select
+        inputId="method"
+        formControlName="method"
+        [options]="methods"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione un método"
+        [disabled]="saving()"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="amount" class="font-medium">
+      Importe del pago *
+    </label>
+
+    <p-inputnumber
+      inputId="amount"
+      formControlName="amount"
+      mode="currency"
+      currency="COP"
+      locale="es-CO"
+      [min]="0.01"
+      [minFractionDigits]="0"
+      [maxFractionDigits]="2"
+      [disabled]="editing() || saving()"
+      styleClass="w-full"
+    />
+
+    @if (form.controls.amount.touched && form.controls.amount.invalid) {
+      <p-message severity="error" [closable]="false">
+        El importe debe ser mayor que cero.
+      </p-message>
+    }
+
+    @if (editing()) {
+      <small class="text-surface-500">
+        El importe no se puede modificar después del registro.
+      </small>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="reference" class="font-medium">
+      Referencia
+    </label>
+
+    <input
+      pInputText
+      id="reference"
+      formControlName="reference"
+      placeholder="Número de transferencia o comprobante"
+      [disabled]="saving()"
+      class="w-full"
+    />
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-2">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      type="button"
+      [disabled]="saving()"
+      (onClick)="cancelled.emit()"
+    />
+
+    <p-button
+      [label]="editing() ? 'Guardar cambios' : 'Registrar pago'"
+      icon="pi pi-check"
+      type="submit"
+      [loading]="saving()"
+      [disabled]="
+        saving() ||
+        installmentsLoading() ||
+        (!editing() && (installmentsError() || installments().length === 0))
+      "
+    />
+  </div>
+</form>

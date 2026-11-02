@@ -1,10 +1,12 @@
 ### Feature InstallmentPayment — UPDATE (PUT) / UPDATE (PATCH)
-### Leyenda: SIN AUTH (sin middleware JWT / sin autenticación)
+### Leyenda: CON AUTH (JWT + RBAC; requiere token válido)
 @baseUrl = http://localhost:4000
 @id = 1
+@token = REEMPLAZAR_POR_TOKEN_VALIDO
 
 # @name updateInstallmentPaymentPut
 PUT {{baseUrl}}/api/installment-payments/{{id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -13,13 +15,13 @@ Content-Type: application/json
   "amount": 275000.00,
   "reference": "PAGO-CUOTA-001-ACT",
   "method": "transfer",
-  "status": "active"
 }
 
 ###
 
 # @name updateInstallmentPaymentPatch
 PATCH {{baseUrl}}/api/installment-payments/{{id}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

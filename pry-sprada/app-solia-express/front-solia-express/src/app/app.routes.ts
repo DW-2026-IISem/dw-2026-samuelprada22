@@ -79,6 +79,14 @@ export const routes: Routes = [
             (m) => m.InstallmentDetail,
           ),
       },
+      {
+        path: 'installment-payments',
+        title: 'Pagos de cuotas · Solia Express',
+        loadComponent: () =>
+          import('./features/installment-payments/installment-payment-list/installment-payment-list').then(
+            (m) => m.InstallmentPaymentList,
+          ),
+      },
     ],
   },
   {

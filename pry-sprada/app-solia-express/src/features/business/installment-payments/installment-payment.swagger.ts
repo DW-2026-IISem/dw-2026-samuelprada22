@@ -164,24 +164,6 @@ export const installmentPaymentSwagger = {
           "404": { description: "No encontrado" },
         },
       },
-      delete: {
-        tags: ["InstallmentPayments"],
-        summary: "Eliminar pago de cuota (físico)",
-        description: "JWT + RBAC — borra la fila",
-        security: bearerSecurity,
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "integer" },
-          },
-        ],
-        responses: {
-          "200": { description: "Eliminado" },
-          "404": { description: "No encontrado" },
-        },
-      },
     },
     "/api/installment-payments/{id}/deactivate": {
       patch: {

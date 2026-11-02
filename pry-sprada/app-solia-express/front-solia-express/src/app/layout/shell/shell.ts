@@ -55,6 +55,11 @@ export class Shell {
       icon: 'pi pi-calendar',
       routerLink: '/installments',
     },
+    {
+      label: 'Pagos de cuotas',
+      icon: 'pi pi-receipt',
+      routerLink: '/installment-payments',
+    },
     { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
   ];
 
