@@ -63,6 +63,22 @@ export const routes: Routes = [
             (m) => m.CreditDetail,
           ),
       },
+      {
+        path: 'installments',
+        title: 'Cuotas · Solia Express',
+        loadComponent: () =>
+          import('./features/installments/installment-list/installment-list').then(
+            (m) => m.InstallmentList,
+          ),
+      },
+      {
+        path: 'installments/:id',
+        title: 'Detalle de la cuota · Solia Express',
+        loadComponent: () =>
+          import('./features/installments/installment-detail/installment-detail').then(
+            (m) => m.InstallmentDetail,
+          ),
+      },
     ],
   },
   {

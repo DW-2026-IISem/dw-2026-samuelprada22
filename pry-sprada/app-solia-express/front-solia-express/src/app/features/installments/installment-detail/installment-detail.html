@@ -1,0 +1,166 @@
+<app-page-header
+  [title]="installment() ? 'Cuota #' + installment()!.number : 'Detalle de la cuota'"
+  subtitle="Información financiera y datos del crédito asociado."
+>
+  <a
+    pButton
+    severity="secondary"
+    outlined
+    routerLink="/installments"
+  >
+    <i pButtonIcon class="pi pi-arrow-left"></i>
+    <span pButtonLabel>Volver a cuotas</span>
+  </a>
+</app-page-header>
+
+@if (loading()) {
+  <div class="flex items-center justify-center gap-3 py-16 text-slate-500">
+    <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+    <span>Cargando información de la cuota...</span>
+  </div>
+} @else if (error()) {
+  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <app-empty-state
+      icon="pi pi-exclamation-circle"
+      title="No se pudo cargar la cuota"
+      [message]="error()!"
+    >
+      <a pButton severity="secondary" routerLink="/installments">
+        <span pButtonLabel>Regresar al listado</span>
+      </a>
+    </app-empty-state>
+  </section>
+} @else if (installment(); as item) {
+  @if (relatedDataWarning()) {
+    <p-message severity="warn" class="mb-4 w-full">
+      No fue posible cargar los datos del crédito asociado. Se muestra el identificador del crédito.
+    </p-message>
+  }
+
+  <section class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-slate-500">Estado de la cuota</p>
+        <div class="mt-2">
+          <p-tag
+            [value]="statusLabel(item.status)"
+            [severity]="statusSeverity(item.status)"
+          />
+        </div>
+      </div>
+
+      <div class="sm:text-right">
+        <p class="text-sm text-slate-500">Total de la cuota</p>
+        <p class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+          {{ formatAmount(item.total_amount) }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-5 text-lg font-semibold text-slate-900">
+        Información de la cuota
+      </h2>
+
+      <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div>
+          <dt class="text-sm text-slate-500">Identificador</dt>
+          <dd class="mt-1 font-medium text-slate-900">#{{ item.id }}</dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Número de cuota</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ item.number }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Fecha de vencimiento</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ item.due_date | date: 'dd/MM/yyyy' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Crédito asociado</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            #{{ item.credit_id }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Capital</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ formatAmount(item.principal_amount) }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Interés</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ formatAmount(item.interest_amount) }}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm text-slate-500">Total</dt>
+          <dd class="mt-1 font-medium text-slate-900">
+            {{ formatAmount(item.total_amount) }}
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <h2 class="mb-5 text-lg font-semibold text-slate-900">
+        Estado financiero
+      </h2>
+
+      <div class="space-y-5">
+        <div>
+          <p class="text-sm text-slate-500">Valor abonado</p>
+          <p class="mt-1 text-xl font-semibold text-slate-900">
+            {{ formatAmount(item.paid_amount) }}
+          </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-4">
+          <p class="text-sm text-slate-500">Saldo pendiente</p>
+          <p class="mt-1 text-xl font-semibold text-slate-900">
+            {{ formatAmount(balance) }}
+          </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-4">
+          <p class="text-sm text-slate-500">Crédito relacionado</p>
+
+          @if (credit(); as relatedCredit) {
+            <p class="mt-1 font-medium text-slate-900">
+              Crédito #{{ relatedCredit.id }}
+            </p>
+            <p class="mt-1 text-sm text-slate-600">
+              Importe aprobado:
+              {{ formatAmount(relatedCredit.approved_amount) }}
+            </p>
+            <p class="mt-1 text-sm text-slate-600">
+              Plazo: {{ relatedCredit.term }} meses
+            </p>
+            <p class="mt-1 text-sm text-slate-600">
+              Estado: {{ relatedCredit.status }}
+            </p>
+          } @else {
+            <p class="mt-1 font-medium text-slate-900">
+              Crédito #{{ item.credit_id }}
+            </p>
+            <p class="mt-1 text-sm text-slate-500">
+              Datos relacionados no disponibles.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+}

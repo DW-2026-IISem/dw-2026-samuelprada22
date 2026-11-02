@@ -1,0 +1,183 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+
+  @if (creditsError()) {
+    <p-message severity="error" [closable]="false">
+      No fue posible cargar los créditos.
+    </p-message>
+  }
+
+  @if (installment() && installment()!.paid_amount &&
+       +installment()!.paid_amount > 0) {
+    <p-message severity="warn" [closable]="false">
+      Esta cuota tiene abonos registrados. No se permite modificar sus importes.
+    </p-message>
+  }
+
+  <div class="flex flex-col gap-2">
+    <label for="credit_id" class="font-medium">
+      Crédito *
+    </label>
+
+    <p-select
+      inputId="credit_id"
+      formControlName="credit_id"
+      [options]="credits()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Seleccione un crédito activo"
+      [loading]="creditsLoading()"
+      [disabled]="creditsLoading() || creditsError() || saving()"
+      class="w-full"
+    />
+
+    @if (form.controls.credit_id.touched &&
+         form.controls.credit_id.invalid) {
+      <p-message severity="error" [closable]="false">
+        Seleccione un crédito válido.
+      </p-message>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="number" class="font-medium">
+        Número de cuota *
+      </label>
+
+      <p-inputnumber
+        inputId="number"
+        formControlName="number"
+        [min]="1"
+        [maxFractionDigits]="0"
+        [useGrouping]="false"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.number.touched &&
+           form.controls.number.invalid) {
+        <p-message severity="error" [closable]="false">
+          El número de cuota debe ser un entero positivo.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="due_date" class="font-medium">
+        Fecha de vencimiento *
+      </label>
+
+      <p-datepicker
+        inputId="due_date"
+        formControlName="due_date"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.due_date.touched &&
+           form.controls.due_date.invalid) {
+        <p-message severity="error" [closable]="false">
+          La fecha de vencimiento es obligatoria.
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="flex flex-col gap-2">
+      <label for="principal_amount" class="font-medium">
+        Capital *
+      </label>
+
+      <p-inputnumber
+        inputId="principal_amount"
+        formControlName="principal_amount"
+        mode="currency"
+        currency="COP"
+        locale="es-CO"
+        [min]="0"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.principal_amount.touched &&
+           form.controls.principal_amount.invalid) {
+        <p-message severity="error" [closable]="false">
+          El capital no puede ser negativo.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="interest_amount" class="font-medium">
+        Intereses *
+      </label>
+
+      <p-inputnumber
+        inputId="interest_amount"
+        formControlName="interest_amount"
+        mode="currency"
+        currency="COP"
+        locale="es-CO"
+        [min]="0"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [disabled]="saving()"
+        styleClass="w-full"
+      />
+
+      @if (form.controls.interest_amount.touched &&
+           form.controls.interest_amount.invalid) {
+        <p-message severity="error" [closable]="false">
+          Los intereses no pueden ser negativos.
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label class="font-medium" for="total_amount">
+      Total de la cuota
+    </label>
+
+    <p-inputnumber
+      inputId="total_amount"
+      [ngModel]="totalAmount"
+      [ngModelOptions]="{ standalone: true }"
+      mode="currency"
+      currency="COP"
+      locale="es-CO"
+      [minFractionDigits]="0"
+      [maxFractionDigits]="2"
+      [disabled]="true"
+      styleClass="w-full"
+    />
+
+    <small class="text-surface-500">
+      Se calcula automáticamente sumando capital e intereses.
+    </small>
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-2">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      type="button"
+      [disabled]="saving()"
+      (onClick)="cancelled.emit()"
+    />
+
+    <p-button
+      label="Guardar cuota"
+      icon="pi pi-check"
+      type="submit"
+      [loading]="saving()"
+      [disabled]="creditsLoading() || creditsError()"
+    />
+  </div>
+</form>
