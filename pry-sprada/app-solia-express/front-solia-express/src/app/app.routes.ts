@@ -48,6 +48,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'committee-decisions',
+        title: 'Decisiones del comité · Solia Express',
+        loadComponent: () =>
+          import('./features/committee-decisions/committee-decision-list/committee-decision-list').then(
+            (m) => m.CommitteeDecisionList,
+          ),
+      },
+      {
         path: 'credits',
         title: 'Créditos · Solia Express',
         loadComponent: () =>

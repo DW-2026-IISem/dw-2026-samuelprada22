@@ -19,14 +19,15 @@ export interface CommitteeDecision extends Timestamps {
   status: CommitteeDecisionStatus;
 }
 
+/** Payload used to register a committee decision. */
 export interface CommitteeDecisionPayload {
   credit_application_id: number;
   decision: CommitteeDecisionType;
   decision_date?: string | null;
   comments?: string | null;
   decided_by?: number | null;
-  status?: CommitteeDecisionStatus;
 }
 
-/** Payload used to edit a committee decision without changing record status. */
-export type UpdateCommitteeDecisionPayload = Omit<CommitteeDecisionPayload, 'status'>;
+/** Payload used to edit a decision without changing its status. */
+export type UpdateCommitteeDecisionPayload =
+  Partial<CommitteeDecisionPayload>;

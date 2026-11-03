@@ -1,0 +1,142 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="flex flex-col gap-5"
+>
+  <div class="flex flex-col gap-2">
+    <label for="credit-application-id" class="font-medium">
+      Solicitud de crédito *
+    </label>
+
+    <p-select
+      inputId="credit-application-id"
+      formControlName="credit_application_id"
+      [options]="applications()"
+      [optionLabel]="'id'"
+      optionValue="id"
+      [placeholder]="'Seleccione una solicitud'"
+      [disabled]="saving() || !!decision()"
+      [showClear]="true"
+      styleClass="w-full"
+    >
+      <ng-template #selectedItem let-application>
+        @if (application) {
+          {{ applicationLabel(application) }}
+        }
+      </ng-template>
+
+      <ng-template #item let-application>
+        {{ applicationLabel(application) }}
+      </ng-template>
+    </p-select>
+
+    @if (
+      form.controls.credit_application_id.touched &&
+      form.controls.credit_application_id.invalid
+    ) {
+      <p-message severity="error" size="small" variant="simple">
+        Seleccione una solicitud de crédito válida.
+      </p-message>
+    }
+
+    @if (applications().length === 0) {
+      <p-message severity="warn" size="small">
+        No hay solicitudes pendientes disponibles.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="committee-decision" class="font-medium">
+      Decisión del comité *
+    </label>
+
+    <p-select
+      inputId="committee-decision"
+      formControlName="decision"
+      [options]="decisionOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Seleccione una decisión"
+      [disabled]="saving()"
+      styleClass="w-full"
+    />
+
+    @if (
+      form.controls.decision.touched &&
+      form.controls.decision.invalid
+    ) {
+      <p-message severity="error" size="small" variant="simple">
+        Seleccione una decisión.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="decision-date" class="font-medium">
+      Fecha de decisión
+    </label>
+
+    <p-datepicker
+      inputId="decision-date"
+      formControlName="decision_date"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [showButtonBar]="true"
+      appendTo="body"
+      placeholder="Seleccione la fecha (opcional)"
+      [disabled]="saving()"
+      styleClass="w-full"
+    />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="decision-comments" class="font-medium">
+      Comentarios
+    </label>
+
+    <textarea
+      id="decision-comments"
+      pTextarea
+      formControlName="comments"
+      rows="4"
+      [autoResize]="true"
+      maxlength="2000"
+      placeholder="Ingrese las observaciones o justificación del comité"
+      [disabled]="saving()"
+      class="w-full"
+    ></textarea>
+
+    @if (
+      form.controls.comments.touched &&
+      form.controls.comments.hasError('maxlength')
+    ) {
+      <p-message severity="error" size="small" variant="simple">
+        Los comentarios no pueden superar 2000 caracteres.
+      </p-message>
+    }
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      outlined
+      [disabled]="saving()"
+      (click)="cancelled.emit()"
+    >
+      <span pButtonLabel>Cancelar</span>
+    </button>
+
+    <button
+      pButton
+      type="submit"
+      [loading]="saving()"
+      [disabled]="saving() || applications().length === 0"
+    >
+      <i pButtonIcon class="pi pi-check"></i>
+      <span pButtonLabel>Guardar decisión</span>
+    </button>
+  </div>
+</form>

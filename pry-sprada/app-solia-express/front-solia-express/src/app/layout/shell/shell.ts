@@ -49,6 +49,11 @@ export class Shell {
       icon: 'pi pi-file-edit',
       routerLink: '/credit-applications',
     },
+    {
+      label: 'Decisiones del comité',
+      icon: 'pi pi-check-square',
+      routerLink: '/committee-decisions',
+    },
     { label: 'Créditos', icon: 'pi pi-money-bill', routerLink: '/credits' },
     {
       label: 'Cuotas',

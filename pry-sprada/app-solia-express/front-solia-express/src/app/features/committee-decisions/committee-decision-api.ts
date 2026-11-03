@@ -14,7 +14,8 @@ export class CommitteeDecisionApi {
   private readonly base = `${environment.apiUrl}/committee-decisions`;
 
   list(): Observable<CommitteeDecision[]> {
-    return this.http.get<{ committee_decisions: CommitteeDecision[] }>(this.base)
+    return this.http
+      .get<{ committee_decisions: CommitteeDecision[] }>(this.base)
       .pipe(map((response) => response.committee_decisions));
   }
 
@@ -30,17 +31,19 @@ export class CommitteeDecisionApi {
       .pipe(map((response) => response.committee_decision));
   }
 
-  update(id: number, payload: Partial<UpdateCommitteeDecisionPayload>): Observable<CommitteeDecision> {
+  update(
+    id: number,
+    payload: UpdateCommitteeDecisionPayload,
+  ): Observable<CommitteeDecision> {
     return this.http
-      .patch<{ committee_decision: CommitteeDecision }>(`${this.base}/${id}`, payload)
+      .patch<{ committee_decision: CommitteeDecision }>(
+        `${this.base}/${id}`,
+        payload,
+      )
       .pipe(map((response) => response.committee_decision));
   }
 
   deactivate(id: number): Observable<unknown> {
     return this.http.patch(`${this.base}/${id}/deactivate`, {});
-  }
-
-  remove(id: number): Observable<unknown> {
-    return this.http.delete(`${this.base}/${id}`);
   }
 }

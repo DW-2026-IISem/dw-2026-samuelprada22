@@ -1,0 +1,233 @@
+<app-page-header
+  title="Decisiones del comité"
+  subtitle="Consulta y administra las decisiones sobre las solicitudes de crédito del Fondo Solidario."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+
+  <button
+    pButton
+    type="button"
+    [disabled]="loading() || pendingApplications().length === 0"
+    (click)="openCreate()"
+  >
+    <i pButtonIcon class="pi pi-plus"></i>
+    <span pButtonLabel>Nueva decisión</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+@if (applicationsError() && !error()) {
+  <p-message severity="warn" class="mb-4 w-full">
+    No se pudieron cargar las solicitudes. No será posible registrar nuevas decisiones.
+  </p-message>
+}
+
+@if (membersError() && !error()) {
+  <p-message severity="warn" class="mb-4 w-full">
+    No se pudieron cargar los nombres de los socios. Se mostrarán sus identificadores.
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">
+        Registro de decisiones
+      </h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} resultado(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="committee-decision-search" class="sr-only">
+        Buscar decisiones
+      </label>
+      <input
+        id="committee-decision-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por solicitud, socio, decisión o comentario"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando decisiones del comité...</span>
+    </div>
+  } @else if (error()) {
+    <app-empty-state
+      icon="pi pi-exclamation-circle"
+      title="No se pudieron cargar las decisiones"
+      message="Verifica la conexión con el servidor e inténtalo nuevamente."
+    >
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        (click)="load()"
+      >
+        <i pButtonIcon class="pi pi-refresh"></i>
+        <span pButtonLabel>Reintentar</span>
+      </button>
+    </app-empty-state>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-check-square'"
+      [title]="filter().trim() ? 'Sin coincidencias' : 'No hay decisiones registradas'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Registra una decisión para una solicitud de crédito pendiente.'"
+    >
+      @if (!filter().trim() && pendingApplications().length > 0) {
+        <button pButton type="button" (click)="openCreate()">
+          <i pButtonIcon class="pi pi-plus"></i>
+          <span pButtonLabel>Registrar decisión</span>
+        </button>
+      }
+    </app-empty-state>
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} decisiones"
+      [tableStyle]="{ 'min-width': '68rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Solicitud</th>
+          <th scope="col">Socio</th>
+          <th scope="col" class="text-right">Importe solicitado</th>
+          <th scope="col">Decisión</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Comentarios</th>
+          <th scope="col" class="text-right">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-decision>
+        <tr>
+          <td>{{ decision.id }}</td>
+
+          <td>
+            <span class="font-medium text-slate-900">
+              {{ applicationLabel(decision.credit_application_id) }}
+            </span>
+          </td>
+
+          <td>{{ memberName(decision.credit_application_id) }}</td>
+
+          <td class="text-right font-medium">
+            {{ applicationAmount(decision.credit_application_id) }}
+          </td>
+
+          <td>
+            <span
+              class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+              [class]="{
+                'bg-slate-100 text-slate-700': decision.decision === 'pending',
+                'bg-green-100 text-green-800': decision.decision === 'approved',
+                'bg-red-100 text-red-800': decision.decision === 'rejected',
+                'bg-amber-100 text-amber-800': decision.decision === 'observed'
+              }"
+            >
+              {{ decisionLabel(decision.decision) }}
+            </span>
+          </td>
+
+          <td>{{ formatDate(decision.decision_date) }}</td>
+
+          <td>
+            <span class="text-slate-600">
+              {{ decision.comments || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <div class="flex justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                text
+                rounded
+                pTooltip="Editar decisión"
+                aria-label="Editar decisión"
+                (click)="openEdit(decision)"
+              >
+                <i pButtonIcon class="pi pi-pencil"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="warn"
+                text
+                rounded
+                pTooltip="Cancelar decisión"
+                aria-label="Cancelar decisión"
+                (click)="deactivate(decision)"
+              >
+                <i pButtonIcon class="pi pi-ban"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="8" class="py-6 text-center text-slate-500">
+            No hay decisiones para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  [header]="title()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }"
+>
+  <app-committee-decision-form
+    [decision]="editing()"
+    [applications]="formApplications()"
+    [resetKey]="resetKey()"
+    [saving]="saving()"
+    (saved)="save($event)"
+    (cancelled)="dialogVisible.set(false)"
+  />
+</p-dialog>
