@@ -71,6 +71,7 @@ export class Shell {
       routerLink: '/rates',
     },
     { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
+    { label: 'Auditoría', icon: 'pi pi-history', routerLink: '/audits' },
   ];
 
   protected onMenuToggle(): void {

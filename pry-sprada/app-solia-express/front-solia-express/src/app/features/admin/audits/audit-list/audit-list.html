@@ -1,0 +1,174 @@
+<app-page-header
+  title="Auditoría"
+  subtitle="Consulta el historial de operaciones realizadas en el sistema FondoSolidario."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">Registro de auditoría</h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} registro(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="audit-search" class="sr-only">Buscar registros de auditoría</label>
+      <input
+        id="audit-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por ID, usuario, acción o entidad"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando registros de auditoría...</span>
+    </div>
+  } @else if (error()) {
+    <p class="py-6 text-center text-slate-500">
+      No se pudo cargar el historial de auditoría.
+    </p>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-history'"
+      [title]="filter().trim() ? 'Sin coincidencias' : 'No hay registros de auditoría'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Todavía no existen operaciones registradas para mostrar.'"
+    />
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [tableStyle]="{ 'min-width': '58rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Fecha y hora</th>
+          <th scope="col">Usuario ID</th>
+          <th scope="col">Acción</th>
+          <th scope="col">Entidad</th>
+          <th scope="col">Registro ID</th>
+          <th scope="col" class="text-right">Detalle</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-audit>
+        <tr>
+          <td class="font-medium tabular-nums">{{ audit.id }}</td>
+          <td>
+            {{ audit.createdAt ? (audit.createdAt | date: 'dd/MM/yyyy HH:mm:ss') : '—' }}
+          </td>
+          <td>{{ audit.actor_user_id }}</td>
+          <td>{{ audit.action }}</td>
+          <td>{{ audit.entity }}</td>
+          <td>{{ audit.entity_id }}</td>
+          <td>
+            <div class="flex justify-end">
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                text
+                rounded
+                aria-label="Ver detalle del registro de auditoría"
+                (click)="openDetail(audit)"
+              >
+                <i pButtonIcon class="pi pi-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="py-6 text-center text-slate-500">
+            No hay registros para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  header="Detalle del registro de auditoría"
+  [visible]="detailVisible()"
+  (visibleChange)="detailVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(46rem, calc(100vw - 2rem))' }"
+>
+  @if (detailLoading()) {
+    <div class="flex items-center justify-center gap-3 py-8 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando detalle...</span>
+    </div>
+  } @else if (detailError()) {
+    <p-message severity="error" class="w-full">
+      {{ detailError() }}
+    </p-message>
+  } @else if (selectedAudit(); as audit) {
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm text-slate-500">ID</dt>
+        <dd class="font-medium text-slate-900">{{ audit.id }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Usuario ID</dt>
+        <dd class="font-medium text-slate-900">{{ audit.actor_user_id }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Acción</dt>
+        <dd class="font-medium text-slate-900">{{ audit.action }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Entidad</dt>
+        <dd class="font-medium text-slate-900">{{ audit.entity }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Registro afectado</dt>
+        <dd class="font-medium text-slate-900">{{ audit.entity_id }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Fecha y hora</dt>
+        <dd class="font-medium text-slate-900">
+          {{ audit.createdAt ? (audit.createdAt | date: 'dd/MM/yyyy HH:mm:ss') : '—' }}
+        </dd>
+      </div>
+    </dl>
+
+    <div class="mt-6">
+      <h3 class="mb-2 text-sm font-semibold text-slate-700">Datos del evento</h3>
+      <pre class="audit-data">{{ formatData(audit.data) }}</pre>
+    </div>
+  }
+</p-dialog>

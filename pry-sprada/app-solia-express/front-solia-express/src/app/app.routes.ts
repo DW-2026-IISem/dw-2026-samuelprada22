@@ -103,6 +103,14 @@ export const routes: Routes = [
             (m) => m.RateList,
           ),
       },
+      {
+        path: 'audits',
+        title: 'Auditoría · Solia Express',
+        loadComponent: () =>
+          import('./features/admin/audits/audit-list/audit-list').then(
+            (m) => m.AuditList,
+          ),
+      },
     ],
   },
   {
