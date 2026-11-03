@@ -60,6 +60,11 @@ export class Shell {
       icon: 'pi pi-receipt',
       routerLink: '/installment-payments',
     },
+    {
+      label: 'Tasas',
+      icon: 'pi pi-percentage',
+      routerLink: '/rates',
+    },
     { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
   ];
 

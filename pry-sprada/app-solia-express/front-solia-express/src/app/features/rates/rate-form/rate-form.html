@@ -1,0 +1,163 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="space-y-4"
+>
+  <div>
+    <label
+      for="rate-name"
+      class="mb-1 block text-sm font-medium text-slate-700"
+    >
+      Nombre de la tasa <span class="text-red-500">*</span>
+    </label>
+
+    <input
+      id="rate-name"
+      pInputText
+      formControlName="name"
+      placeholder="Ej. Tasa mensual ordinaria"
+      maxlength="120"
+      class="w-full"
+    />
+
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple"
+        styleClass="mt-1"
+      >
+        El nombre es obligatorio y debe tener máximo 120 caracteres.
+      </p-message>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div>
+      <label
+        for="rate-percentage"
+        class="mb-1 block text-sm font-medium text-slate-700"
+      >
+        Porcentaje <span class="text-red-500">*</span>
+      </label>
+
+      <p-inputnumber
+        inputId="rate-percentage"
+        formControlName="percentage"
+        suffix="%"
+        [min]="0"
+        [max]="999.99"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [useGrouping]="false"
+        styleClass="w-full"
+      />
+
+      @if (
+        form.controls.percentage.touched &&
+        form.controls.percentage.invalid
+      ) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple"
+          styleClass="mt-1"
+        >
+          El porcentaje debe estar entre 0 y 999,99.
+        </p-message>
+      }
+    </div>
+
+    <div>
+      <label
+        for="rate-type"
+        class="mb-1 block text-sm font-medium text-slate-700"
+      >
+        Periodicidad <span class="text-red-500">*</span>
+      </label>
+
+      <p-select
+        inputId="rate-type"
+        formControlName="type"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [fluid]="true"
+      />
+
+      @if (form.controls.type.touched && form.controls.type.invalid) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple"
+          styleClass="mt-1"
+        >
+          Selecciona la periodicidad de la tasa.
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <div>
+    <label
+      for="rate-description"
+      class="mb-1 block text-sm font-medium text-slate-700"
+    >
+      Descripción
+    </label>
+
+    <textarea
+      id="rate-description"
+      pTextarea
+      formControlName="description"
+      rows="3"
+      maxlength="255"
+      placeholder="Descripción o condiciones de aplicación de la tasa"
+      class="w-full"
+    ></textarea>
+
+    @if (
+      form.controls.description.touched &&
+      form.controls.description.hasError('maxlength')
+    ) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple"
+        styleClass="mt-1"
+      >
+        La descripción debe tener máximo 255 caracteres.
+      </p-message>
+    }
+  </div>
+
+  @if (rate()) {
+    <p-message severity="info" [closable]="false">
+      La periodicidad y el porcentaje se pueden modificar aquí.
+      Para desactivar una tasa utiliza la acción correspondiente del listado.
+    </p-message>
+  }
+
+  <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      outlined
+      [disabled]="saving()"
+      (click)="cancelled.emit()"
+    >
+      <span pButtonLabel>Cancelar</span>
+    </button>
+
+    <button
+      pButton
+      type="submit"
+      [loading]="saving()"
+      [disabled]="saving()"
+    >
+      <i pButtonIcon class="pi pi-check"></i>
+      <span pButtonLabel>Guardar tasa</span>
+    </button>
+  </div>
+</form>

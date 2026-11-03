@@ -87,6 +87,14 @@ export const routes: Routes = [
             (m) => m.InstallmentPaymentList,
           ),
       },
+      {
+        path: 'rates',
+        title: 'Tasas · Solia Express',
+        loadComponent: () =>
+          import('./features/rates/rate-list/rate-list').then(
+            (m) => m.RateList,
+          ),
+      },
     ],
   },
   {

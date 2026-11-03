@@ -4,7 +4,7 @@ import { Status, Timestamps, Money } from './api.model';
 /**
  * Interest rate entity returned by the backend.
  * Table: rates
- * Endpoint: /api/tasas
+ * Endpoint: /api/rates
  */
 export interface Rate extends Timestamps {
   id: number;

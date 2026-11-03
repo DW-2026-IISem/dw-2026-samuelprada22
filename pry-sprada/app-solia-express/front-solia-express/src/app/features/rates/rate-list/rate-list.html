@@ -1,0 +1,199 @@
+<app-page-header
+  title="Tasas"
+  subtitle="Consulta y administra las tasas de interés del Fondo Solidario."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+
+  <button pButton type="button" (click)="openCreate()">
+    <i pButtonIcon class="pi pi-plus"></i>
+    <span pButtonLabel>Nueva tasa</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">Listado de tasas</h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} resultado(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="rate-search" class="sr-only">Buscar tasas</label>
+      <input
+        id="rate-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por ID, nombre, porcentaje o periodicidad"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando tasas...</span>
+    </div>
+  } @else if (error()) {
+    <app-empty-state
+      icon="pi pi-exclamation-circle"
+      title="No se pudieron cargar las tasas"
+      message="Verifica la conexión con el servidor e inténtalo nuevamente."
+    >
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        (click)="load()"
+      >
+        <i pButtonIcon class="pi pi-refresh"></i>
+        <span pButtonLabel>Reintentar</span>
+      </button>
+    </app-empty-state>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-percentage'"
+      [title]="filter().trim() ? 'Sin coincidencias' : 'No hay tasas registradas'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Registra una tasa para comenzar a configurar los intereses del Fondo Solidario.'"
+    >
+      @if (!filter().trim()) {
+        <button pButton type="button" (click)="openCreate()">
+          <i pButtonIcon class="pi pi-plus"></i>
+          <span pButtonLabel>Registrar tasa</span>
+        </button>
+      }
+    </app-empty-state>
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} tasas"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Porcentaje</th>
+          <th scope="col">Periodicidad</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-right">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-rate>
+        <tr>
+          <td>{{ rate.id }}</td>
+
+          <td>
+            <span class="font-medium text-slate-900">
+              {{ rate.name }}
+            </span>
+          </td>
+
+          <td class="font-semibold">
+            {{ formatPercentage(rate.percentage) }}
+          </td>
+
+          <td>{{ typeLabel(rate.type) }}</td>
+
+          <td>
+            <span class="text-slate-600">
+              {{ rate.description || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <app-status-tag [status]="rate.status" />
+          </td>
+
+          <td>
+            <div class="flex justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                text
+                rounded
+                pTooltip="Editar tasa"
+                aria-label="Editar tasa"
+                (click)="openEdit(rate)"
+              >
+                <i pButtonIcon class="pi pi-pencil"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="warn"
+                text
+                rounded
+                pTooltip="Desactivar tasa"
+                aria-label="Desactivar tasa"
+                [disabled]="rate.status !== 'active'"
+                (click)="deactivate(rate)"
+              >
+                <i pButtonIcon class="pi pi-ban"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="py-6 text-center text-slate-500">
+            No hay tasas para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  [header]="title()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }"
+>
+  <app-rate-form
+    [rate]="editing()"
+    [resetKey]="resetKey()"
+    [saving]="saving()"
+    (saved)="save($event)"
+    (cancelled)="dialogVisible.set(false)"
+  />
+</p-dialog>
