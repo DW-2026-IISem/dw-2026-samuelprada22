@@ -18,7 +18,27 @@
     </div>
   </div>
 
-  <div class="ml-auto hidden text-sm text-slate-500 sm:block">
-    Panel de administración
+  <div class="ml-auto flex min-w-0 items-center gap-3">
+    <div class="hidden text-right sm:block">
+      <p class="max-w-48 truncate text-sm font-medium text-slate-800">
+        {{ user()?.username || 'Usuario' }}
+      </p>
+      <p class="max-w-48 truncate text-xs text-slate-500">
+        {{ user()?.email || 'Panel de administración' }}
+      </p>
+    </div>
+
+    @if (authEnabled()) {
+      <button
+        type="button"
+        class="flex h-10 shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2"
+        aria-label="Cerrar sesión"
+        title="Cerrar sesión"
+        (click)="logoutRequested.emit()"
+      >
+        <i class="pi pi-sign-out" aria-hidden="true"></i>
+        <span class="hidden sm:inline">Salir</span>
+      </button>
+    }
   </div>
 </header>

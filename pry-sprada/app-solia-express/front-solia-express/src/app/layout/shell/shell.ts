@@ -1,13 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   signal,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DrawerModule } from 'primeng/drawer';
 import { ToastModule } from 'primeng/toast';
+import { AuthSession } from '../../core/services/auth-session';
 import { watchMediaQuery } from '../../core/utils/media-query';
 import { Aside } from '../aside/aside';
 import { Footer } from '../footer/footer';
@@ -30,6 +32,10 @@ import { Header } from '../header/header';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {
+  private readonly router = inject(Router);
+
+  readonly authSession = inject(AuthSession);
+
   private readonly isDesktop = watchMediaQuery('(min-width: 1024px)');
 
   readonly sidebarCollapsed = signal(false);
@@ -73,6 +79,12 @@ export class Shell {
     { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
     { label: 'Auditoría', icon: 'pi pi-history', routerLink: '/audits' },
   ];
+
+  protected logout(): void {
+    this.authSession.logout().subscribe(() => {
+      void this.router.navigateByUrl('/login');
+    });
+  }
 
   protected onMenuToggle(): void {
     if (this.isDesktop()) {

@@ -44,6 +44,12 @@ export interface PermissionsResponse {
   permissions: EffectivePermission[];
 }
 
+/** Complete authenticated context loaded after login or profile refresh. */
+export interface AccessPayload {
+  user: AuthUser;
+  permissions: EffectivePermission[];
+}
+
 /** Payload used to refresh or log out a session. */
 export interface RefreshTokenPayload {
   refresh_token: string;

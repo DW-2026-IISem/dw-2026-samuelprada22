@@ -1,8 +1,26 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    title: 'Iniciar sesión · Solia Express',
+    loadComponent: () =>
+      import('./features/auth/login/login').then(
+        (m) => m.Login,
+      ),
+  },
+  {
+    path: 'construir',
+    title: 'Prototipo de navegación · Solia Express',
+    loadComponent: () =>
+      import('./features/construir/construir').then(
+        (m) => m.Construir,
+      ),
+  },
+  {
     path: '',
+    canActivateChild: [authGuard],
     loadComponent: () =>
       import('./layout/shell/shell').then((m) => m.Shell),
     children: [

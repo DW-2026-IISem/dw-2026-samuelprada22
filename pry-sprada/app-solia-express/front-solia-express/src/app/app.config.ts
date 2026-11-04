@@ -1,24 +1,33 @@
-import { provideHttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
 
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
+
 import {
   provideRouter,
   withComponentInputBinding,
   withInMemoryScrolling,
 } from '@angular/router';
+
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { environment } from '../environments/environment';
 
 import { routes } from './app.routes';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(),
+    provideHttpClient(
+      withInterceptors([authInterceptor]),
+    ),
+
     provideBrowserGlobalErrorListeners(),
 
     provideRouter(
@@ -27,7 +36,6 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
     ),
 
-    // PrimeNG 22: configure the Aura theme and license.
     providePrimeNG({
       license: environment.primeUiLicense || undefined,
       ripple: true,
