@@ -5,7 +5,7 @@
   <p-button
     label="Registrar pago"
     icon="pi pi-plus"
-    (onClick)="openCreate()"
+    *appHasPermission="'POST /api/installment-payments'" (onClick)="openCreate()"
   />
 </app-page-header>
 
@@ -64,7 +64,7 @@
       <p-button
         label="Registrar pago"
         icon="pi pi-plus"
-        (onClick)="openCreate()"
+        *appHasPermission="'POST /api/installment-payments'" (onClick)="openCreate()"
       />
     </app-empty-state>
   } @else {
@@ -136,7 +136,7 @@
                     pTooltip="Editar datos del pago"
                     tooltipPosition="top"
                     ariaLabel="Editar pago"
-                    (onClick)="openEdit(payment)"
+                    *appHasPermission="'PATCH /api/installment-payments/:id'" (onClick)="openEdit(payment)"
                   />
                 } @else {
                   <span class="text-sm text-surface-500">Sin acciones</span>

@@ -14,7 +14,7 @@
     <span pButtonLabel>Actualizar</span>
   </button>
 
-  <button pButton type="button" (click)="openCreate()">
+  <button pButton type="button" *appHasPermission="'POST /api/members'" (click)="openCreate()">
     <i pButtonIcon class="pi pi-plus"></i>
     <span pButtonLabel>Nuevo socio</span>
   </button>
@@ -67,7 +67,7 @@
         : 'Crea un socio para comenzar a gestionar el Fondo Solidario.'"
     >
       @if (!filter().trim()) {
-        <button pButton type="button" (click)="openCreate()">
+        <button pButton type="button" *appHasPermission="'POST /api/members'" (click)="openCreate()">
           <i pButtonIcon class="pi pi-plus"></i>
           <span pButtonLabel>Crear socio</span>
         </button>
@@ -117,7 +117,7 @@
                 rounded
                 pTooltip="Editar socio"
                 aria-label="Editar socio"
-                (click)="openEdit(member)"
+                *appHasPermission="'PATCH /api/members/:id'" (click)="openEdit(member)"
               >
                 <i pButtonIcon class="pi pi-pencil"></i>
               </button>
@@ -131,7 +131,7 @@
                 pTooltip="Desactivar socio"
                 aria-label="Desactivar socio"
                 [disabled]="!member.isActive"
-                (click)="deactivate(member)"
+                *appHasPermission="'PATCH /api/members/:id/deactivate'" (click)="deactivate(member)"
               >
                 <i pButtonIcon class="pi pi-ban"></i>
               </button>
@@ -144,7 +144,7 @@
                 rounded
                 pTooltip="Eliminar socio permanentemente"
                 aria-label="Eliminar socio permanentemente"
-                (click)="remove(member)"
+                *appHasPermission="'DELETE /api/members/:id'" (click)="remove(member)"
               >
                 <i pButtonIcon class="pi pi-trash"></i>
               </button>

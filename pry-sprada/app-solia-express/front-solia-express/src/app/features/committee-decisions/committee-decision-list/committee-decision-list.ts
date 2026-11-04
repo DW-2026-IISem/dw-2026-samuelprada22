@@ -23,6 +23,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { toApiMessage } from '../../../core/utils/api-error';
 import { filterRows } from '../../../core/utils/filter-rows';
 
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 
@@ -38,6 +39,7 @@ import { CommitteeDecisionForm } from '../committee-decision-form/committee-deci
     ButtonModule,
     DialogModule,
     EmptyState,
+    HasPermissionDirective,
     InputTextModule,
     MessageModule,
     PageHeader,

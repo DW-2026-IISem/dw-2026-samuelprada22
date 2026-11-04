@@ -14,7 +14,7 @@
     <span pButtonLabel>Actualizar</span>
   </button>
 
-  <button pButton type="button" (click)="openCreate()">
+  <button pButton type="button" *appHasPermission="'POST /api/credit-applications'" (click)="openCreate()">
     <i pButtonIcon class="pi pi-plus"></i>
     <span pButtonLabel>Nueva solicitud</span>
   </button>
@@ -78,7 +78,7 @@
         : 'Todavía no existen solicitudes de crédito para mostrar.'"
     >
       @if (!filter().trim()) {
-        <button pButton type="button" (click)="openCreate()">
+        <button pButton type="button" *appHasPermission="'POST /api/credit-applications'" (click)="openCreate()">
           <i pButtonIcon class="pi pi-plus"></i>
           <span pButtonLabel>Registrar solicitud</span>
         </button>
@@ -145,7 +145,7 @@
                 pTooltip="Editar solicitud"
                 aria-label="Editar solicitud"
                 [disabled]="application.status !== 'pending'"
-                (click)="openEdit(application)"
+                *appHasPermission="'PATCH /api/credit-applications/:id'" (click)="openEdit(application)"
               >
                 <i pButtonIcon class="pi pi-pencil"></i>
               </button>
@@ -159,7 +159,7 @@
                 pTooltip="Cancelar solicitud"
                 aria-label="Cancelar solicitud"
                 [disabled]="application.status !== 'pending'"
-                (click)="cancelApplication(application)"
+                *appHasPermission="'PATCH /api/credit-applications/:id/deactivate'" (click)="cancelApplication(application)"
               >
                 <i pButtonIcon class="pi pi-ban"></i>
               </button>

@@ -14,7 +14,7 @@
     <span pButtonLabel>Actualizar</span>
   </button>
 
-  <button pButton type="button" (click)="openCreate()">
+  <button pButton type="button" *appHasPermission="'POST /api/movements'" (click)="openCreate()">
     <i pButtonIcon class="pi pi-plus"></i>
     <span pButtonLabel>Nuevo movimiento</span>
   </button>
@@ -73,7 +73,7 @@
         : 'Todavía no existen movimientos para mostrar en el sistema.'"
     >
       @if (!filter().trim()) {
-        <button pButton type="button" (click)="openCreate()">
+        <button pButton type="button" *appHasPermission="'POST /api/movements'" (click)="openCreate()">
           <i pButtonIcon class="pi pi-plus"></i>
           <span pButtonLabel>Registrar movimiento</span>
         </button>
@@ -131,7 +131,7 @@
                 rounded
                 aria-label="Editar movimiento"
                 pTooltip="Editar movimiento"
-                (click)="openEdit(movement)"
+                *appHasPermission="'PATCH /api/movements/:id'" (click)="openEdit(movement)"
               >
                 <i pButtonIcon class="pi pi-pencil"></i>
               </button>

@@ -18,7 +18,7 @@
     pButton
     type="button"
     [disabled]="loading() || pendingApplications().length === 0"
-    (click)="openCreate()"
+    *appHasPermission="'POST /api/committee-decisions'" (click)="openCreate()"
   >
     <i pButtonIcon class="pi pi-plus"></i>
     <span pButtonLabel>Nueva decisión</span>
@@ -100,7 +100,7 @@
         : 'Registra una decisión para una solicitud de crédito pendiente.'"
     >
       @if (!filter().trim() && pendingApplications().length > 0) {
-        <button pButton type="button" (click)="openCreate()">
+        <button pButton type="button" *appHasPermission="'POST /api/committee-decisions'" (click)="openCreate()">
           <i pButtonIcon class="pi pi-plus"></i>
           <span pButtonLabel>Registrar decisión</span>
         </button>
@@ -178,7 +178,7 @@
                 rounded
                 pTooltip="Editar decisión"
                 aria-label="Editar decisión"
-                (click)="openEdit(decision)"
+                *appHasPermission="'PATCH /api/committee-decisions/:id'" (click)="openEdit(decision)"
               >
                 <i pButtonIcon class="pi pi-pencil"></i>
               </button>
@@ -191,7 +191,7 @@
                 rounded
                 pTooltip="Cancelar decisión"
                 aria-label="Cancelar decisión"
-                (click)="deactivate(decision)"
+                *appHasPermission="'PATCH /api/committee-decisions/:id/deactivate'" (click)="deactivate(decision)"
               >
                 <i pButtonIcon class="pi pi-ban"></i>
               </button>

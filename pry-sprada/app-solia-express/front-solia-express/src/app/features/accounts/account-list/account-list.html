@@ -14,7 +14,7 @@
     <span pButtonLabel>Actualizar</span>
   </button>
 
-  <button pButton type="button" (click)="openCreate()">
+  <button pButton type="button" *appHasPermission="'POST /api/accounts'" (click)="openCreate()">
     <i pButtonIcon class="pi pi-plus"></i>
     <span pButtonLabel>Nueva cuenta</span>
   </button>
@@ -73,7 +73,7 @@
         : 'Crea una cuenta y asígnala a uno de los socios registrados.'"
     >
       @if (!filter().trim()) {
-        <button pButton type="button" (click)="openCreate()">
+        <button pButton type="button" *appHasPermission="'POST /api/accounts'" (click)="openCreate()">
           <i pButtonIcon class="pi pi-plus"></i>
           <span pButtonLabel>Crear cuenta</span>
         </button>
@@ -126,7 +126,7 @@
                 rounded
                 pTooltip="Editar cuenta"
                 aria-label="Editar cuenta"
-                (click)="openEdit(account)"
+                *appHasPermission="'PATCH /api/accounts/:id'" (click)="openEdit(account)"
               >
                 <i pButtonIcon class="pi pi-pencil"></i>
               </button>
@@ -140,7 +140,7 @@
                 pTooltip="Desactivar cuenta"
                 aria-label="Desactivar cuenta"
                 [disabled]="account.status !== 'active'"
-                (click)="deactivate(account)"
+                *appHasPermission="'PATCH /api/accounts/:id/deactivate'" (click)="deactivate(account)"
               >
                 <i pButtonIcon class="pi pi-ban"></i>
               </button>
@@ -153,7 +153,7 @@
                 rounded
                 pTooltip="Eliminar cuenta permanentemente"
                 aria-label="Eliminar cuenta permanentemente"
-                (click)="remove(account)"
+                *appHasPermission="'DELETE /api/accounts/:id'" (click)="remove(account)"
               >
                 <i pButtonIcon class="pi pi-trash"></i>
               </button>
