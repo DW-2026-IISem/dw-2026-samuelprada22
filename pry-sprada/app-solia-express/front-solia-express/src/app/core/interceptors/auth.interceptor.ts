@@ -53,7 +53,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       return session.refresh().pipe(
         catchError((refreshError: unknown) => {
           session.clear();
-          void router.navigate(['/login'], {
+          void router.navigate(['/iniciar-sesion'], {
             queryParams: { returnUrl: router.url },
           });
 
@@ -73,7 +73,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
                 retryError.status === 401
               ) {
                 session.clear();
-                void router.navigate(['/login'], {
+                void router.navigate(['/iniciar-sesion'], {
                   queryParams: { returnUrl: router.url },
                 });
               }

@@ -5,6 +5,14 @@
 
   <nav aria-label="Navegación principal" class="flex-1 space-y-1 px-3">
     @for (item of items(); track item.label) {
+      @if (item.routerLink === '/admin/usuarios') {
+        <div class="mx-2 mb-2 mt-5 border-t border-slate-200 pt-4">
+          <p class="px-1 pb-2 text-[10px] font-semibold tracking-widest text-slate-400">
+            ADMINISTRACIÓN Y AUTENTICACIÓN
+          </p>
+        </div>
+      }
+
       <a
         [routerLink]="item.routerLink"
         routerLinkActive="bg-blue-50 text-blue-700"

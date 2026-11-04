@@ -36,58 +36,180 @@
     aria-label="Indicadores del FondoSolidario"
     class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
   >
-    <a routerLink="/members" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    @if (canViewMembers()) {
+    <!-- Socios -->
+    <a
+      routerLink="/socios"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Total de socios</span>
         <i class="pi pi-users text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ memberCount() }}</p>
-      <p class="mt-2 text-sm text-slate-500">Consultar socios</p>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        {{ memberCount() }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ activeMemberCount() }} activos ·
+        {{ memberCount() - activeMemberCount() }} inactivos
+      </p>
     </a>
 
-    <a routerLink="/accounts" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    }
+    @if (canViewAccounts()) {
+    <!-- Cuentas -->
+    <a
+      routerLink="/cuentas"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Total de cuentas</span>
         <i class="pi pi-wallet text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ accountCount() }}</p>
-      <p class="mt-2 text-sm text-slate-500">Consultar cuentas</p>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        {{ accountCount() }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ activeAccountCount() }} activas ·
+        {{ accountCount() - activeAccountCount() }} inactivas
+      </p>
     </a>
 
-    <a routerLink="/movements" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    }
+    @if (canViewMovements()) {
+    <!-- Movimientos -->
+    <a
+      routerLink="/movimientos"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Total de movimientos</span>
         <i class="pi pi-arrow-right-arrow-left text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ movementCount() }}</p>
-      <p class="mt-2 text-sm text-slate-500">Consultar movimientos</p>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        {{ movementCount() }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ activeMovementCount() }} activos
+      </p>
     </a>
 
-    <a routerLink="/credit-applications" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    }
+    @if (canViewApplications()) {
+    <!-- Solicitudes -->
+    <a
+      routerLink="/solicitudes-credito"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Solicitudes de crédito</span>
         <i class="pi pi-file-edit text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ creditApplicationCount() }}</p>
-      <p class="mt-2 text-sm text-slate-500">Consultar solicitudes</p>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        {{ creditApplicationCount() }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ pendingCreditApplicationCount() }} pendientes de decisión
+      </p>
     </a>
 
-    <a routerLink="/credits" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    }
+    @if (canViewCredits()) {
+    <!-- Créditos -->
+    <a
+      routerLink="/creditos"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Créditos registrados</span>
         <i class="pi pi-money-bill text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">{{ creditCount() }}</p>
-      <p class="mt-2 text-sm text-slate-500">Consultar créditos</p>
+      <p class="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        {{ creditCount() }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        {{ activeCreditCount() }} vigentes
+      </p>
     </a>
 
-    <a routerLink="/credits" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+    }
+    @if (canViewCredits()) {
+    <!-- Monto aprobado -->
+    <a
+      routerLink="/creditos"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300 hover:shadow-md"
+    >
       <div class="flex items-center justify-between">
         <span class="text-sm font-medium text-slate-500">Monto total aprobado</span>
         <i class="pi pi-chart-line text-xl text-primary-600" aria-hidden="true"></i>
       </div>
-      <p class="mt-4 text-2xl font-semibold tracking-tight text-slate-900">{{ formatAmount(approvedAmount()) }}</p>
-      <p class="mt-2 text-sm text-slate-500">Importe acumulado de créditos</p>
+      <p class="mt-4 text-2xl font-semibold tracking-tight text-slate-900">
+        {{ formatAmount(approvedAmount()) }}
+      </p>
+      <p class="mt-2 text-sm text-slate-500">
+        Importe acumulado de créditos
+      </p>
     </a>
+    }
   </section>
+
+  @if (canViewMovements()) {
+  <!-- Actividad reciente -->
+  <section class="mt-8 rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">
+          Movimientos recientes
+        </h2>
+        <p class="mt-1 text-sm text-slate-500">
+          Últimas operaciones registradas en las cuentas.
+        </p>
+      </div>
+
+      <a
+        routerLink="/movimientos"
+        class="text-sm font-medium text-primary-600 hover:text-primary-700"
+      >
+        Ver todos
+        <i class="pi pi-arrow-up-right ml-1" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    @if (movements().length > 0) {
+      <div class="divide-y divide-slate-100">
+        @for (movement of movements(); track movement.id) {
+          <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <i class="pi pi-arrow-right-arrow-left" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0">
+                <p class="truncate font-medium text-slate-900">
+                  {{ movement.type }}
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                  Cuenta #{{ movement.account_id }} ·
+                  {{ movement.date | date: 'dd/MM/yyyy' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <p class="font-semibold text-slate-900">
+                {{ formatAmount(toNumber(movement.amount)) }}
+              </p>
+              <p class="mt-1 text-xs text-slate-500">
+                {{ movement.status === 'active' ? 'Activo' : 'Inactivo' }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="px-5 py-10 text-center text-sm text-slate-500">
+        No hay movimientos registrados para mostrar.
+      </div>
+    }
+  </section>
+  }
 }

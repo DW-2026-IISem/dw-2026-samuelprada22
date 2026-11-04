@@ -1,0 +1,198 @@
+<app-page-header
+  title="Roles"
+  subtitle="Administra los perfiles de acceso y responsabilidades del sistema."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+
+  <button
+    pButton
+    type="button"
+    *appHasPermission="'POST /api/roles'"
+    (click)="openCreate()"
+  >
+    <i pButtonIcon class="pi pi-plus"></i>
+    <span pButtonLabel>Nuevo rol</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">
+        Listado de roles
+      </h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} resultado(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="role-search" class="sr-only">Buscar roles</label>
+      <input
+        id="role-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por ID, nombre o descripción"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando roles...</span>
+    </div>
+  } @else if (error()) {
+    <p class="py-6 text-center text-slate-500">
+      No se pudo cargar el listado de roles.
+    </p>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-shield'"
+      [title]="filter().trim() ? 'Sin coincidencias' : 'No hay roles registrados'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Registra un rol para organizar los permisos de acceso al sistema.'"
+    >
+      @if (!filter().trim()) {
+        <button
+          pButton
+          type="button"
+          *appHasPermission="'POST /api/roles'"
+          (click)="openCreate()"
+        >
+          <i pButtonIcon class="pi pi-plus"></i>
+          <span pButtonLabel>Crear rol</span>
+        </button>
+      }
+    </app-empty-state>
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-right">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-role>
+        <tr>
+          <td>{{ role.id }}</td>
+          <td>
+            <span class="font-medium text-slate-900">
+              {{ role.name }}
+            </span>
+          </td>
+          <td>
+            <span class="text-slate-600">
+              {{ role.description || '—' }}
+            </span>
+          </td>
+          <td>
+            <app-status-tag [status]="role.status" />
+          </td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                text
+                rounded
+                pTooltip="Editar rol"
+                aria-label="Editar rol"
+                *appHasPermission="'PATCH /api/roles/:id'"
+                (click)="openEdit(role)"
+              >
+                <i pButtonIcon class="pi pi-pencil"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="warn"
+                text
+                rounded
+                pTooltip="Desactivar rol"
+                aria-label="Desactivar rol"
+                [disabled]="role.status !== 'active'"
+                *appHasPermission="'PATCH /api/roles/:id/deactivate'"
+                (click)="deactivate(role)"
+              >
+                <i pButtonIcon class="pi pi-ban"></i>
+              </button>
+
+              <button
+                pButton
+                type="button"
+                severity="danger"
+                text
+                rounded
+                pTooltip="Eliminar rol permanentemente"
+                aria-label="Eliminar rol permanentemente"
+                *appHasPermission="'DELETE /api/roles/:id'"
+                (click)="remove(role)"
+              >
+                <i pButtonIcon class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="py-6 text-center text-slate-500">
+            No hay roles para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  [header]="title()"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [style]="{ width: 'min(34rem, calc(100vw - 2rem))' }"
+>
+  <app-role-form
+    [role]="editing()"
+    [resetKey]="resetKey()"
+    [saving]="saving()"
+    (saved)="save($event)"
+    (cancelled)="dialogVisible.set(false)"
+  />
+</p-dialog>

@@ -1,4 +1,5 @@
 import { Timestamps } from './api.model';
+import type { CreditApplication } from './credit-application.model';
 
 export type CommitteeDecisionType =
   | 'pending'

@@ -1,0 +1,190 @@
+<app-page-header
+  title="Concesiones de roles"
+  subtitle="Administra los permisos de acceso que tiene cada rol sobre los recursos de Solia Express."
+>
+  <button
+    pButton
+    type="button"
+    severity="secondary"
+    outlined
+    [disabled]="loading()"
+    (click)="load()"
+  >
+    <i pButtonIcon class="pi pi-refresh"></i>
+    <span pButtonLabel>Actualizar</span>
+  </button>
+
+  <button
+    pButton
+    type="button"
+    *appHasPermission="'POST /api/concesiones-rol'"
+    (click)="openCreate()"
+  >
+    <i pButtonIcon class="pi pi-plus"></i>
+    <span pButtonLabel>Conceder permiso</span>
+  </button>
+</app-page-header>
+
+@if (error()) {
+  <p-message severity="error" class="mb-4 w-full">
+    {{ error() }}
+  </p-message>
+}
+
+<section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+  <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-slate-900">
+        Permisos concedidos
+      </h2>
+      <p class="text-sm text-slate-500">
+        {{ visibleRows().length }} resultado(s)
+      </p>
+    </div>
+
+    <div class="w-full sm:max-w-sm">
+      <label for="resource-role-search" class="sr-only">
+        Buscar concesiones
+      </label>
+      <input
+        id="resource-role-search"
+        pInputText
+        type="search"
+        placeholder="Buscar por rol, método o ruta"
+        [value]="filter()"
+        (input)="filter.set($any($event.target).value)"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center gap-3 py-12 text-slate-500">
+      <i class="pi pi-spin pi-spinner text-xl" aria-hidden="true"></i>
+      <span>Cargando concesiones...</span>
+    </div>
+  } @else if (error()) {
+    <p class="py-6 text-center text-slate-500">
+      No se pudo cargar el listado de concesiones.
+    </p>
+  } @else if (visibleRows().length === 0) {
+    <app-empty-state
+      [icon]="filter().trim() ? 'pi pi-search' : 'pi pi-key'"
+      [title]="filter().trim()
+        ? 'Sin coincidencias'
+        : 'No hay permisos concedidos'"
+      [message]="filter().trim()
+        ? 'Prueba con otro término de búsqueda.'
+        : 'Concede un recurso a un rol para habilitar sus operaciones.'"
+    >
+      @if (!filter().trim()) {
+        <button
+          pButton
+          type="button"
+          *appHasPermission="'POST /api/concesiones-rol'"
+          (click)="openCreate()"
+        >
+          <i pButtonIcon class="pi pi-plus"></i>
+          <span pButtonLabel>Conceder primer permiso</span>
+        </button>
+      }
+    </app-empty-state>
+  } @else {
+    <p-table
+      [value]="visibleRows()"
+      [tableStyle]="{ 'min-width': '58rem' }"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Método</th>
+          <th scope="col">Recurso</th>
+          <th scope="col">Fecha de concesión</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-right">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-grant>
+        <tr>
+          <td>{{ grant.id }}</td>
+          <td>
+            <span class="font-medium text-slate-900">
+              {{ grant.role?.name ?? 'Rol #' + grant.role_id }}
+            </span>
+          </td>
+          <td>
+            <span class="font-mono text-xs font-semibold text-slate-700">
+              {{ grant.resource?.method ?? '—' }}
+            </span>
+          </td>
+          <td>
+            <div class="min-w-0">
+              <span class="break-all font-mono text-sm text-slate-700">
+                {{ grant.resource?.path ?? 'Recurso #' + grant.resource_id }}
+              </span>
+              @if (grant.resource?.description) {
+                <p class="mt-1 text-xs text-slate-500">
+                  {{ grant.resource.description }}
+                </p>
+              }
+            </div>
+          </td>
+          <td class="text-slate-600">
+            {{ formatDate(grant.createdAt) }}
+          </td>
+          <td>
+            <app-status-tag [status]="grant.status" />
+          </td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button
+                pButton
+                type="button"
+                severity="warn"
+                text
+                rounded
+                pTooltip="Revocar permiso"
+                aria-label="Revocar permiso"
+                [disabled]="grant.status !== 'active'"
+                *appHasPermission="'PATCH /api/concesiones-rol/:id/deactivate'"
+                (click)="deactivate(grant)"
+              >
+                <i pButtonIcon class="pi pi-ban"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="py-6 text-center text-slate-500">
+            No hay concesiones para mostrar.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</section>
+
+<p-dialog
+  header="Conceder recurso a un rol"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [style]="{ width: 'min(36rem, calc(100vw - 2rem))' }"
+>
+  <app-resource-role-form
+    [resetKey]="resetKey()"
+    [saving]="saving()"
+    (saved)="save($event)"
+    (cancelled)="dialogVisible.set(false)"
+  />
+</p-dialog>

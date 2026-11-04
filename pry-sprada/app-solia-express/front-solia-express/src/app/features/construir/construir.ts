@@ -23,18 +23,18 @@ export class Construir {
 
   readonly items: MenuItem[] = [
     { label: 'Inicio', icon: 'pi pi-home', routerLink: '/' },
-    { label: 'Socios', icon: 'pi pi-users', routerLink: '/members' },
-    { label: 'Cuentas', icon: 'pi pi-wallet', routerLink: '/accounts' },
+    { label: 'Socios', icon: 'pi pi-users', routerLink: '/socios' },
+    { label: 'Cuentas', icon: 'pi pi-wallet', routerLink: '/cuentas' },
     {
       label: 'Movimientos',
       icon: 'pi pi-arrow-right-arrow-left',
-      routerLink: '/movements',
+      routerLink: '/movimientos',
     },
-    { label: 'Créditos', icon: 'pi pi-money-bill', routerLink: '/credits' },
+    { label: 'Créditos', icon: 'pi pi-money-bill', routerLink: '/creditos' },
     {
       label: 'Cuotas',
       icon: 'pi pi-calendar',
-      routerLink: '/installments',
+      routerLink: '/cuotas',
     },
     { label: 'Usuarios', icon: 'pi pi-user', routerLink: '/users' },
   ];

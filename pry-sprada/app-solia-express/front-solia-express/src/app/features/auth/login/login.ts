@@ -88,9 +88,9 @@ export class Login {
       returnUrl &&
       returnUrl.startsWith('/') &&
       !returnUrl.startsWith('//') &&
-      returnUrl !== '/login' &&
-      !returnUrl.startsWith('/login?') &&
-      !returnUrl.startsWith('/login#')
+      returnUrl !== '/iniciar-sesion' &&
+      !returnUrl.startsWith('/iniciar-sesion?') &&
+      !returnUrl.startsWith('/iniciar-sesion#')
     ) {
       return returnUrl;
     }

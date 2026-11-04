@@ -1,7 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ConfirmationService } from 'primeng/api';
-import { catchError, forkJoin, of } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -16,7 +15,6 @@ import {
   CreditApplicationPayload,
   CreditApplicationStatus,
 } from '../../../core/models/credit-application.model';
-import { Member } from '../../../core/models/member.model';
 import { NotificationService } from '../../../core/services/notification';
 import { toApiMessage } from '../../../core/utils/api-error';
 import { filterRows } from '../../../core/utils/filter-rows';
@@ -25,7 +23,6 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 
-import { MemberApi } from '../../members/member-api';
 import { CreditApplicationApi } from '../credit-application-api';
 import { CreditApplicationForm } from '../credit-application-form/credit-application-form';
 
@@ -51,17 +48,14 @@ import { CreditApplicationForm } from '../credit-application-form/credit-applica
 })
 export class CreditApplicationList {
   private readonly api = inject(CreditApplicationApi);
-  private readonly memberApi = inject(MemberApi);
   private readonly notify = inject(NotificationService);
   private readonly confirmation = inject(ConfirmationService);
 
   readonly rows = signal<CreditApplication[]>([]);
-  readonly members = signal<Member[]>([]);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
-  readonly membersError = signal(false);
   readonly filter = signal('');
 
   readonly dialogVisible = signal(false);
@@ -76,7 +70,12 @@ export class CreditApplicationList {
 
   readonly memberName = computed(() => {
     const map = new Map(
-      this.members().map((member) => [member.id, member.name]),
+      this.rows()
+        .filter((application) => application.member?.name)
+        .map((application) => [
+          application.member_id,
+          application.member!.name,
+        ]),
     );
 
     return (id: number) => map.get(id) ?? `Socio #${id}`;
@@ -103,25 +102,13 @@ export class CreditApplicationList {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.membersError.set(false);
-
-    forkJoin({
-      applications: this.api.list(),
-      members: this.memberApi.list().pipe(
-        catchError(() => {
-          this.membersError.set(true);
-          return of([] as Member[]);
-        }),
-      ),
-    }).subscribe({
-      next: ({ applications, members }) => {
+    this.api.list().subscribe({
+      next: (applications) => {
         this.rows.set(applications);
-        this.members.set(members);
         this.loading.set(false);
       },
       error: (error: unknown) => {
         this.rows.set([]);
-        this.members.set([]);
         this.error.set(toApiMessage(error));
         this.loading.set(false);
       },

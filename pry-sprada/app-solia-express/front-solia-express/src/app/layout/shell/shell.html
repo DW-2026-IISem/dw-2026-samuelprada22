@@ -10,7 +10,7 @@
     @if (!sidebarCollapsed()) {
       <aside class="hidden w-72 shrink-0 lg:block">
         <app-aside
-          [items]="items"
+          [items]="items()"
           (navigated)="mobileOpen.set(false)"
         />
       </aside>
@@ -34,7 +34,7 @@
   styleClass="w-72"
 >
   <app-aside
-    [items]="items"
+    [items]="items()"
     (navigated)="mobileOpen.set(false)"
   />
 </p-drawer>

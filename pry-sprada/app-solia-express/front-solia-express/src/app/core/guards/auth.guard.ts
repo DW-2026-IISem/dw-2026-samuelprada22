@@ -20,7 +20,7 @@ export const authGuard: CanActivateChildFn = (_route, state) => {
     map(() => true),
     catchError(() =>
       of(
-        router.createUrlTree(['/login'], {
+        router.createUrlTree(['/iniciar-sesion'], {
           queryParams: { returnUrl: state.url },
         }),
       ),

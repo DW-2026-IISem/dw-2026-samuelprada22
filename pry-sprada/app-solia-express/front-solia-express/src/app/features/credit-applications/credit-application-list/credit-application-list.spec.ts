@@ -4,8 +4,8 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
-import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { environment } from '../../../../environments/environment';
@@ -13,32 +13,17 @@ import {
   CreditApplication,
   CreditApplicationPayload,
 } from '../../../core/models/credit-application.model';
-import { Member } from '../../../core/models/member.model';
 import { NotificationService } from '../../../core/services/notification';
 import { MemberApi } from '../../members/member-api';
 import { CreditApplicationList } from './credit-application-list';
 
 const BASE = `${environment.apiUrl}/credit-applications`;
 
-const MEMBERS: Member[] = [
-  {
-    id: 10,
-    name: 'Ana',
-    description: 'Socio principal',
-    isActive: true,
-  },
-  {
-    id: 20,
-    name: 'Samuel',
-    description: null,
-    isActive: true,
-  },
-];
-
 const APPLICATIONS: CreditApplication[] = [
   {
     id: 1,
     member_id: 10,
+    member: { id: 10, name: 'Ana' },
     reference_id: 100,
     date: '2026-10-20T00:00:00.000Z',
     amount: 500000,
@@ -48,6 +33,7 @@ const APPLICATIONS: CreditApplication[] = [
   {
     id: 2,
     member_id: 20,
+    member: { id: 20, name: 'Samuel' },
     reference_id: null,
     date: '2026-10-21T00:00:00.000Z',
     amount: '750000.00',
@@ -57,6 +43,7 @@ const APPLICATIONS: CreditApplication[] = [
   {
     id: 3,
     member_id: 10,
+    member: { id: 10, name: 'Ana' },
     reference_id: null,
     date: '2026-10-22T00:00:00.000Z',
     amount: 300000,
@@ -77,7 +64,6 @@ describe('CreditApplicationList', () => {
 
   let confirmationService: ConfirmationService;
   let pendingConfirmation: any;
-  let memberApi: { list: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     notifications = {
@@ -95,10 +81,6 @@ describe('CreditApplicationList', () => {
       return confirmationService;
     });
 
-    memberApi = {
-      list: vi.fn(() => of(MEMBERS)),
-    };
-
     await TestBed.configureTestingModule({
       imports: [CreditApplicationList],
       providers: [
@@ -114,7 +96,9 @@ describe('CreditApplicationList', () => {
         },
         {
           provide: MemberApi,
-          useValue: memberApi,
+          useValue: {
+            list: vi.fn(() => of([])),
+          },
         },
       ],
     }).compileComponents();
@@ -144,7 +128,7 @@ describe('CreditApplicationList', () => {
     });
   }
 
-  it('should load credit applications and members from their services', async () => {
+  it('should load credit applications with their associated member names', async () => {
     const { list } = await createList();
 
     expect(list.loading()).toBe(true);
@@ -152,7 +136,6 @@ describe('CreditApplicationList', () => {
     loadApplications();
 
     expect(list.rows()).toEqual(APPLICATIONS);
-    expect(list.members()).toEqual(MEMBERS);
     expect(list.loading()).toBe(false);
     expect(list.error()).toBeNull();
     expect(list.memberName()(10)).toBe('Ana');
@@ -176,25 +159,18 @@ describe('CreditApplicationList', () => {
     );
   });
 
-  it('should use the member identifier when the member name is unavailable', async () => {
-    memberApi.list.mockReturnValue(of([]));
-
+  it('should use the member identifier when the application has no associated member', async () => {
     const { list } = await createList();
-    loadApplications();
 
-    expect(list.memberName()(10)).toBe('Socio #10');
-  });
+    http.expectOne(BASE).flush({
+      credit_applications: [
+        {
+          ...APPLICATIONS[0],
+          member: undefined,
+        },
+      ],
+    });
 
-  it('should show a warning when members cannot be loaded', async () => {
-    memberApi.list.mockReturnValue(
-      throwError(() => new Error('Members unavailable')),
-    );
-
-    const { list } = await createList();
-    loadApplications();
-
-    expect(list.members()).toEqual([]);
-    expect(list.membersError()).toBe(true);
     expect(list.memberName()(10)).toBe('Socio #10');
   });
 

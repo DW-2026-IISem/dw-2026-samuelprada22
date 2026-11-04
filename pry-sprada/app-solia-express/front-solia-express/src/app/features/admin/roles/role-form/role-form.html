@@ -1,0 +1,116 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="space-y-4"
+>
+  <div>
+    <label
+      for="role-name"
+      class="mb-1 block text-sm font-medium text-slate-700"
+    >
+      Nombre del rol <span class="text-red-500">*</span>
+    </label>
+
+    <input
+      id="role-name"
+      pInputText
+      formControlName="name"
+      placeholder="Ej. ANALISTA_CREDITO"
+      autocomplete="off"
+      maxlength="80"
+      class="w-full"
+    />
+
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple"
+        styleClass="mt-1"
+      >
+        El nombre del rol es obligatorio y debe tener máximo 80 caracteres.
+      </p-message>
+    }
+  </div>
+
+  <div>
+    <label
+      for="role-description"
+      class="mb-1 block text-sm font-medium text-slate-700"
+    >
+      Descripción
+    </label>
+
+    <textarea
+      id="role-description"
+      pTextarea
+      formControlName="description"
+      rows="3"
+      maxlength="255"
+      placeholder="Describe las responsabilidades del rol"
+      class="w-full"
+    ></textarea>
+
+    @if (
+      form.controls.description.touched &&
+      form.controls.description.invalid
+    ) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple"
+        styleClass="mt-1"
+      >
+        La descripción no puede superar los 255 caracteres.
+      </p-message>
+    }
+  </div>
+
+  <div>
+    <label
+      for="role-status"
+      class="mb-1 block text-sm font-medium text-slate-700"
+    >
+      Estado inicial
+    </label>
+
+    <p-select
+      inputId="role-status"
+      formControlName="status"
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      [fluid]="true"
+    />
+
+    @if (role()) {
+      <p class="mt-1 text-xs text-slate-500">
+        El estado de un rol existente se modifica mediante la operación
+        de desactivación.
+      </p>
+    }
+  </div>
+
+  <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      outlined
+      [disabled]="saving()"
+      (click)="cancelled.emit()"
+    >
+      <span pButtonLabel>Cancelar</span>
+    </button>
+
+    <button
+      pButton
+      type="submit"
+      [loading]="saving()"
+      [disabled]="saving()"
+    >
+      <i pButtonIcon class="pi pi-check"></i>
+      <span pButtonLabel>Guardar</span>
+    </button>
+  </div>
+</form>

@@ -10,6 +10,10 @@ export type CreditApplicationStatus =
 export interface CreditApplication extends Timestamps {
   id: number;
   member_id: number;
+  member?: {
+    id: number;
+    name: string;
+  };
   reference_id: number | null;
   date: string;
   amount: Money;
