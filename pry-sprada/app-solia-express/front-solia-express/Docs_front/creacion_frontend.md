@@ -4623,7 +4623,9 @@ curl -i http://localhost:4000/api/accounts | head -c 300
 
 ![](images/clipboard-3250247262.png)
 
-En la UI, crea un tipo y verifica que aparezca en `curl` y en la tabla sin recargar la página (la lista se recarga tras el `POST`).
+En la UI, crea un tipo y verifica que aparezca en `curl` y en la tabla sin recargar la página (la lista se
+
+recarga tras el `POST`).
 
 # Fase I: Business — ISS-05 — Gestión de movimientos financieros
 
@@ -5690,6 +5692,12 @@ readonly approvedAmount = computed(
 ![](images/clipboard-3914787755.png)
 
 ![](images/clipboard-3161158037.png)
+
+![](images/clipboard-2494920305.png)
+
+![](images/clipboard-4259112533.png)
+
+![](images/clipboard-3404791926.png)
 
 **Siguiente:** ISS-08 completa el detalle de Installments.
 
