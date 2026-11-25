@@ -3002,7 +3002,7 @@ No hay pantallas de negocio todavía y no se ha hecho ni una petición HTTP real
 
 ------------------------------------------------------------------------
 
-# ISS-03 · CRUD de clientes con Signals
+# ISS-03 · CRUD de Members con Signals
 
 ## 3.1 Generar componentes con CLI
 
@@ -4190,6 +4190,14 @@ curl -i http://localhost:4000/api/members/1
 
 ![](images/clipboard-1476383045.png)
 
+![](images/clipboard-4212314416.png)
+
+![](images/clipboard-3651786562.png)
+
+![](images/clipboard-2263246505.png)
+
+![](images/clipboard-1302843569.png)
+
 En DevTools → Network, la petición `PATCH /api/clientes/1` debe llevar el cuerpo correcto y responder 200. Sin cabecera `Authorization`: en Fase I no existe todavía.
 
 Si usas el backend consolidado, la misma llamada responde `401 {"error":"Missing Bearer token"}`. No añadas el token a mano para «hacer pasar» la Fase I: el objetivo es que el CRUD esté terminado y probado antes de abrir la Fase II. El token, el interceptor y el login son ISS-08.
@@ -4606,6 +4614,14 @@ curl -i http://localhost:4000/api/accounts | head -c 300
 ```
 
 ![](images/clipboard-960500455.png)
+
+![](images/clipboard-3417346660.png)
+
+![](images/clipboard-292564136.png)
+
+![](images/clipboard-429880335.png)
+
+![](images/clipboard-3250247262.png)
 
 En la UI, crea un tipo y verifica que aparezca en `curl` y en la tabla sin recargar la página (la lista se recarga tras el `POST`).
 
@@ -6291,7 +6307,7 @@ El servicio centraliza las peticiones HTTP al backend.
 Endpoints disponibles:
 
 | Método | Endpoint                                   | Operación              |
-|-----------------|------------------------------------|-------------------|
+|------------------|-----------------------------------|-------------------|
 | GET    | `/api/installment-payments`                | Listar pagos activos   |
 | GET    | `/api/installment-payments/:id`            | Consultar un pago      |
 | POST   | `/api/installment-payments`                | Registrar pago         |
@@ -7402,7 +7418,7 @@ Al ingresar a la pantalla, el componente consulta `AuditApi.list()`.
 
 El comportamiento esperado es:
 
--    Activar el indicador de carga.
+-   Activar el indicador de carga.
 
 -   Limpiar el error anterior.
 
@@ -8626,7 +8642,7 @@ EOF
 ## 
 
 | Ruta frontend | Permiso requerido |
-|----|----|
+|------------------------------------|------------------------------------|
 | `/` (Dashboard) | Cualquiera de `GET /api/members`, `GET /api/accounts`, `GET /api/movements`, `GET /api/credit-applications` o `GET /api/credits` |
 | `/members` | `GET /api/members` |
 | `/accounts` | `GET /api/accounts` |
