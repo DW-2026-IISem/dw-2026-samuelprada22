@@ -3,23 +3,46 @@ import { Role } from "./role.model";
 /**
  * Seeder del catálogo de roles (`roles`).
  *
- * Crea los dos roles de referencia del sistema. Es determinista (no usa datos
- * aleatorios) e idempotente: `findOrCreate` por nombre y reactivación si ya
- * existía inactivo.
+ * Define los roles iniciales de FondoSolidario y conserva SELLER
+ * por compatibilidad con instalaciones anteriores.
  *
- * Los roles nacen sin permisos: las concesiones las crea el seeder de
- * `resource_roles` (ADMIN recibe los 58 recursos, SELLER los 7 de operación).
+ * La creación de roles y la asignación de concesiones son procesos separados.
  */
-export const SEED_ROLES = [
+export const FONDSOLIDARIO_ROLES = [
   {
     name: "ADMIN",
     description:
       "Administración del sistema: gestiona usuarios, roles y permisos",
   },
   {
+    name: "CAJERO",
+    description:
+      "Gestiona movimientos y pagos de cuotas",
+  },
+  {
+    name: "ANALISTA_CREDITO",
+    description:
+      "Evalúa y registra solicitudes de crédito",
+  },
+  {
+    name: "COMITE",
+    description:
+      "Consulta solicitudes y registra decisiones del comité",
+  },
+  {
+    name: "AUDITOR",
+    description:
+      "Consulta información operativa y registros de auditoría",
+  },
+] as const;
+
+// Se conserva SELLER para no romper instalaciones anteriores.
+export const SEED_ROLES = [
+  ...FONDSOLIDARIO_ROLES,
+  {
     name: "SELLER",
     description:
-      "Operación de ventas: consulta catálogo y registra ventas",
+      "Rol heredado conservado por compatibilidad",
   },
 ] as const;
 

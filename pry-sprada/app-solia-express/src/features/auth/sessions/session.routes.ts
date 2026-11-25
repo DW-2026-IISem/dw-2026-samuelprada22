@@ -1,6 +1,6 @@
 import { Application } from "express";
 import { SessionController } from "./session.controller";
-import { authenticate } from "../access";
+import { authenticate } from "../access/authenticate.middleware";
 
 /**
  * Rutas del feature Session.
@@ -67,5 +67,49 @@ export class SessionRoutes {
           this.sessionController
         )
       );
+    // ================== SESSION MANAGEMENT (JWT) ==================
+
+    app
+      .route("/api/sesiones/deactivate-all")
+      .patch(
+        authenticate,
+        this.sessionController.deactivateAllSessions.bind(
+          this.sessionController
+        )
+      );
+
+    app
+      .route("/api/sesiones/:id/deactivate")
+      .patch(
+        authenticate,
+        this.sessionController.deactivateSession.bind(
+          this.sessionController
+        )
+      );
+
+    app
+      .route("/api/sesiones")
+      .get(
+        authenticate,
+        this.sessionController.listSessions.bind(
+          this.sessionController
+        )
+      )
+      .delete(
+        authenticate,
+        this.sessionController.purgeSessions.bind(
+          this.sessionController
+        )
+      );
+
+    app
+      .route("/api/sesiones/:id")
+      .get(
+        authenticate,
+        this.sessionController.getSession.bind(
+          this.sessionController
+        )
+      );
+
   }
 }

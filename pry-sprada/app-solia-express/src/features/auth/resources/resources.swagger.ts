@@ -18,7 +18,7 @@ import {
 export const resourcesSwagger = {
   tags: [
     {
-      name: "Recursos",
+      name: "Resources",
       description:
         "Catálogo de puntos de acceso protegibles: par `(method, path)` — **JWT + RBAC**",
     },
@@ -26,8 +26,8 @@ export const resourcesSwagger = {
   paths: {
     "/api/recursos": {
       get: {
-        tags: ["Recursos"],
-        summary: "Listar recursos activos",
+        tags: ["Resources"],
+        summary: "List active resources",
         description: "JWT + RBAC — recurso `GET /api/recursos`.",
         security: bearerSecurity,
         responses: {
@@ -37,8 +37,8 @@ export const resourcesSwagger = {
         },
       },
       post: {
-        tags: ["Recursos"],
-        summary: "Crear recurso",
+        tags: ["Resources"],
+        summary: "Create resource",
         description:
           "JWT + RBAC — recurso `POST /api/recursos`. Alta de un nuevo punto de acceso; concederlo a un rol no requiere desplegar código.",
         security: bearerSecurity,
@@ -58,8 +58,8 @@ export const resourcesSwagger = {
     },
     "/api/recursos/{id}": {
       get: {
-        tags: ["Recursos"],
-        summary: "Obtener recurso por id",
+        tags: ["Resources"],
+        summary: "Get resource by ID",
         description: "JWT + RBAC — recurso `GET /api/recursos/:id`.",
         security: bearerSecurity,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
@@ -72,8 +72,8 @@ export const resourcesSwagger = {
         },
       },
       put: {
-        tags: ["Recursos"],
-        summary: "Reemplazar recurso (PUT)",
+        tags: ["Resources"],
+        summary: "Replace resource (PUT)",
         description: "JWT + RBAC — recurso `PUT /api/recursos/:id`.",
         security: bearerSecurity,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
@@ -92,8 +92,8 @@ export const resourcesSwagger = {
         },
       },
       patch: {
-        tags: ["Recursos"],
-        summary: "Modificar recurso (PATCH)",
+        tags: ["Resources"],
+        summary: "Update resource (PATCH)",
         description: "JWT + RBAC — recurso `PATCH /api/recursos/:id`.",
         security: bearerSecurity,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
@@ -111,8 +111,8 @@ export const resourcesSwagger = {
         },
       },
       delete: {
-        tags: ["Recursos"],
-        summary: "Eliminar recurso (físico)",
+        tags: ["Resources"],
+        summary: "Permanently delete resource",
         description: "JWT + RBAC — recurso `DELETE /api/recursos/:id`.",
         security: bearerSecurity,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
@@ -127,8 +127,8 @@ export const resourcesSwagger = {
     },
     "/api/recursos/{id}/deactivate": {
       patch: {
-        tags: ["Recursos"],
-        summary: "Desactivar recurso (borrado lógico)",
+        tags: ["Resources"],
+        summary: "Deactivate resource (soft delete)",
         description:
           "JWT + RBAC — recurso `PATCH /api/recursos/:id/deactivate`. " +
           "Efecto inmediato: ningún rol puede autorizar ese punto de acceso (eslabón `resources` inactivo -> DENY).",

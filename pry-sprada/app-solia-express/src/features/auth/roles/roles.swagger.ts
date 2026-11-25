@@ -20,14 +20,14 @@ export const rolesSwagger = {
     {
       name: "Roles",
       description:
-        "CRUD de roles (agrupadores de permisos) — JWT + RBAC",
+        "Role CRUD (permission groups) — JWT + RBAC",
     },
   ],
   paths: {
     "/api/roles": {
       get: {
         tags: ["Roles"],
-        summary: "Listar roles activos",
+        summary: "List active roles",
         description:
           "JWT + RBAC — recurso `GET /api/roles`.",
         security: bearerSecurity,
@@ -42,7 +42,7 @@ export const rolesSwagger = {
       },
       post: {
         tags: ["Roles"],
-        summary: "Crear rol",
+        summary: "Create role",
         description:
           "JWT + RBAC — recurso `POST /api/roles`. " +
           "El rol nace sin permisos: se conceden con " +
@@ -75,7 +75,7 @@ export const rolesSwagger = {
     "/api/roles/{id}": {
       get: {
         tags: ["Roles"],
-        summary: "Obtener rol por id",
+        summary: "Get role by ID",
         description:
           "JWT + RBAC — recurso `GET /api/roles/:id`.",
         security: bearerSecurity,
@@ -102,7 +102,7 @@ export const rolesSwagger = {
 
       put: {
         tags: ["Roles"],
-        summary: "Reemplazar rol (PUT)",
+        summary: "Replace role (PUT)",
         description:
           "JWT + RBAC — recurso `PUT /api/roles/:id`.",
         security: bearerSecurity,
@@ -140,7 +140,7 @@ export const rolesSwagger = {
 
       patch: {
         tags: ["Roles"],
-        summary: "Modificar rol (PATCH)",
+        summary: "Update role (PATCH)",
         description:
           "JWT + RBAC — recurso `PATCH /api/roles/:id`.",
         security: bearerSecurity,
@@ -177,7 +177,7 @@ export const rolesSwagger = {
 
       delete: {
         tags: ["Roles"],
-        summary: "Eliminar rol (físico)",
+        summary: "Permanently delete role",
         description:
           "JWT + RBAC — recurso `DELETE /api/roles/:id`.",
         security: bearerSecurity,
@@ -207,7 +207,7 @@ export const rolesSwagger = {
     "/api/roles/{id}/deactivate": {
       patch: {
         tags: ["Roles"],
-        summary: "Desactivar rol (borrado lógico)",
+        summary: "Deactivate role (soft delete)",
         description:
           "JWT + RBAC — recurso " +
           "`PATCH /api/roles/:id/deactivate`. " +

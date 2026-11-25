@@ -14,7 +14,7 @@ import {
 export const roleUsersSwagger = {
   tags: [
     {
-      name: "Asignaciones usuario-rol",
+      name: "User-Role Assignments",
       description:
         "Asignar, retirar y reactivar roles de usuarios (`role_users`) — JWT + RBAC",
     },
@@ -23,8 +23,8 @@ export const roleUsersSwagger = {
   paths: {
     "/api/asignaciones-rol": {
       get: {
-        tags: ["Asignaciones usuario-rol"],
-        summary: "Listar asignaciones activas",
+        tags: ["User-Role Assignments"],
+        summary: "List active assignments",
         description:
           "JWT + RBAC — lista las asignaciones activas usuario-rol.",
         security: bearerSecurity,
@@ -39,8 +39,8 @@ export const roleUsersSwagger = {
       },
 
       post: {
-        tags: ["Asignaciones usuario-rol"],
-        summary: "Asignar rol a usuario",
+        tags: ["User-Role Assignments"],
+        summary: "Assign role to user",
         description:
           "JWT + RBAC — asigna un rol a un usuario. " +
           "Si la asignación existía inactiva, se reactiva. " +
@@ -83,8 +83,8 @@ export const roleUsersSwagger = {
 
     "/api/asignaciones-rol/{id}": {
       get: {
-        tags: ["Asignaciones usuario-rol"],
-        summary: "Obtener asignación por id",
+        tags: ["User-Role Assignments"],
+        summary: "Get assignment by ID",
         description:
           "JWT + RBAC — obtiene una asignación usuario-rol activa.",
         security: bearerSecurity,
@@ -115,8 +115,8 @@ export const roleUsersSwagger = {
 
     "/api/asignaciones-rol/{id}/deactivate": {
       patch: {
-        tags: ["Asignaciones usuario-rol"],
-        summary: "Retirar rol a usuario",
+        tags: ["User-Role Assignments"],
+        summary: "Revoke user role",
         description:
           "JWT + RBAC — desactiva lógicamente la asignación. " +
           "El usuario deja de heredar los permisos del rol.",
@@ -148,8 +148,8 @@ export const roleUsersSwagger = {
 
     "/api/asignaciones-rol/{id}/reactivate": {
       patch: {
-        tags: ["Asignaciones usuario-rol"],
-        summary: "Reactivar asignación",
+        tags: ["User-Role Assignments"],
+        summary: "Reactivate assignment",
         description:
           "JWT + RBAC — reactiva una asignación previamente desactivada.",
         security: bearerSecurity,

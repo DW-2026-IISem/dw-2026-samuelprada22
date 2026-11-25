@@ -11,6 +11,11 @@ import { rateSwagger } from "../features/business/rates/rate.swagger";
 import { committeeDecisionSwagger } from "../features/business/committee-decisions/committee-decision.swagger";
 import { auditSwagger } from "../features/business/audit/audit.swagger";
 import { sessionSwagger } from "../features/auth/sessions/session.swagger";
+import { usersSwagger } from "../features/auth/users/users.swagger";
+import { rolesSwagger } from "../features/auth/roles/roles.swagger";
+import { resourcesSwagger } from "../features/auth/resources/resources.swagger";
+import { roleUsersSwagger } from "../features/auth/role-users/role-users.swagger";
+import { resourceRolesSwagger } from "../features/auth/resource-roles/resource-roles.swagger";
 
 const featureSwaggerModules = [
   membersSwagger,
@@ -24,6 +29,11 @@ const featureSwaggerModules = [
   committeeDecisionSwagger,
   auditSwagger,
   sessionSwagger,
+  usersSwagger,
+  rolesSwagger,
+  resourcesSwagger,
+  roleUsersSwagger,
+  resourceRolesSwagger,
 ];
 
 const swaggerDefinition = {

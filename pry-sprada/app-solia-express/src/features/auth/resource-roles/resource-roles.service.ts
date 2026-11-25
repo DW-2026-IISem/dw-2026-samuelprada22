@@ -145,19 +145,50 @@ export class ResourceRolesService {
     roleId: number,
     resourceIds: number[]
   ): Promise<ReconcileResult> {
-    const role = await this.rolesRepository.findById(roleId);
+    if (!Number.isInteger(roleId) || roleId <= 0) {
+      throw new AppError(400, "Invalid role id");
+    }
 
-    if (!role) {
-      throw new AppError(404, "Role not found");
+    if (!Array.isArray(resourceIds)) {
+      throw new AppError(400, "resource_ids must be an array");
+    }
+
+    if (
+      resourceIds.some(
+        (id) => !Number.isInteger(id) || id <= 0
+      )
+    ) {
+      throw new AppError(
+        400,
+        "Every resource id must be a positive integer"
+      );
     }
 
     const wanted = new Set(resourceIds);
 
     return withTransaction(async (t) => {
-      const existing = await this.repository.findAllByRole(
-        roleId,
-        t
-      );
+      const role = await this.rolesRepository.findById(roleId, t);
+
+      if (!role || role.status !== "active") {
+        throw new AppError(404, "Role not found or inactive");
+      }
+
+      // Validar todos los recursos antes de modificar concesiones.
+      for (const resourceId of wanted) {
+        const resource = await this.resourcesRepository.findById(
+          resourceId,
+          t
+        );
+
+        if (!resource || resource.status !== "active") {
+          throw new AppError(
+            404,
+            `Resource ${resourceId} not found or inactive`
+          );
+        }
+      }
+
+      const existing = await this.repository.findAllByRole(roleId, t);
 
       const byResource = new Map(
         existing.map((row) => [row.resource_id, row])
@@ -184,28 +215,16 @@ export class ResourceRolesService {
         }
 
         if (row.status !== "active") {
-          await this.repository.update(
-            row,
-            { status: "active" },
-            t
-          );
-
+          await this.repository.update(row, { status: "active" }, t);
           activated++;
         }
       }
 
       for (const row of existing) {
-        if (wanted.has(row.resource_id)) {
-          continue;
-        }
+        if (wanted.has(row.resource_id)) continue;
 
         if (row.status === "active") {
-          await this.repository.update(
-            row,
-            { status: "inactive" },
-            t
-          );
-
+          await this.repository.update(row, { status: "inactive" }, t);
           deactivated++;
         }
       }

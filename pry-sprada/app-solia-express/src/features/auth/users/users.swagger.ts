@@ -14,17 +14,17 @@ import {
 export const usersSwagger = {
   tags: [
     {
-      name: "Usuarios",
+      name: "Users",
       description:
-        "CRUD de identidades + cambio de contraseña + permisos efectivos — JWT + RBAC",
+        "Identity CRUD, password changes, and effective permissions — JWT + RBAC",
     },
   ],
 
   paths: {
     "/api/usuarios": {
       get: {
-        tags: ["Usuarios"],
-        summary: "Listar usuarios activos",
+        tags: ["Users"],
+        summary: "List active users",
         description:
           "JWT + RBAC — recurso `GET /api/usuarios`. Nunca devuelve `password`.",
         security: bearerSecurity,
@@ -38,8 +38,8 @@ export const usersSwagger = {
       },
 
       post: {
-        tags: ["Usuarios"],
-        summary: "Crear usuario",
+        tags: ["Users"],
+        summary: "Create user",
         description:
           "JWT + RBAC — recurso `POST /api/usuarios`. El password se hashea con bcrypt.",
         security: bearerSecurity,
@@ -69,8 +69,8 @@ export const usersSwagger = {
 
     "/api/usuarios/{id}": {
       get: {
-        tags: ["Usuarios"],
-        summary: "Obtener usuario por id",
+        tags: ["Users"],
+        summary: "Get user by ID",
         description:
           "JWT + RBAC — recurso `GET /api/usuarios/:id`. 404 si no existe o está inactivo.",
         security: bearerSecurity,
@@ -96,8 +96,8 @@ export const usersSwagger = {
       },
 
       put: {
-        tags: ["Usuarios"],
-        summary: "Reemplazar usuario (PUT)",
+        tags: ["Users"],
+        summary: "Replace user (PUT)",
         description:
           "JWT + RBAC — recurso `PUT /api/usuarios/:id`. No cambia password ni status.",
         security: bearerSecurity,
@@ -137,8 +137,8 @@ export const usersSwagger = {
       },
 
       patch: {
-        tags: ["Usuarios"],
-        summary: "Modificar usuario (PATCH)",
+        tags: ["Users"],
+        summary: "Update user (PATCH)",
         description:
           "JWT + RBAC — recurso `PATCH /api/usuarios/:id`. Actualización parcial.",
         security: bearerSecurity,
@@ -177,8 +177,8 @@ export const usersSwagger = {
       },
 
       delete: {
-        tags: ["Usuarios"],
-        summary: "Eliminar usuario físicamente",
+        tags: ["Users"],
+        summary: "Permanently delete user",
         description:
           "JWT + RBAC — recurso `DELETE /api/usuarios/:id`.",
         security: bearerSecurity,
@@ -207,8 +207,8 @@ export const usersSwagger = {
 
     "/api/usuarios/{id}/deactivate": {
       patch: {
-        tags: ["Usuarios"],
-        summary: "Desactivar usuario",
+        tags: ["Users"],
+        summary: "Deactivate user",
         description:
           "JWT + RBAC — recurso `PATCH /api/usuarios/:id/deactivate`. Borrado lógico.",
         security: bearerSecurity,
@@ -237,8 +237,8 @@ export const usersSwagger = {
 
     "/api/usuarios/{id}/password": {
       patch: {
-        tags: ["Usuarios"],
-        summary: "Cambiar contraseña",
+        tags: ["Users"],
+        summary: "Change password",
         description:
           "JWT + RBAC — recurso `PATCH /api/usuarios/:id/password`. Exige la contraseña actual.",
         security: bearerSecurity,
@@ -280,8 +280,8 @@ export const usersSwagger = {
 
     "/api/usuarios/{id}/permisos": {
       get: {
-        tags: ["Usuarios"],
-        summary: "Permisos efectivos del usuario",
+        tags: ["Users"],
+        summary: "Get user's effective permissions",
         description:
           "JWT + RBAC — recurso `GET /api/usuarios/:id/permisos`. " +
           "Devuelve los pares `(method, path)` vigentes.",

@@ -104,6 +104,67 @@ export class SessionController extends BaseController {
       res.status(200).json({ permissions });
     });
   }
+  // ================== SESSION MANAGEMENT (JWT) ==================
+
+  public async listSessions(req: Request, res: Response): Promise<void> {
+    await this.run(res, async () => {
+      const sessions = await this.service.getMySessions(
+        requireAuthUser(req).id
+      );
+      res.status(200).json({ sessions });
+    });
+  }
+
+  public async getSession(req: Request, res: Response): Promise<void> {
+    await this.run(res, async () => {
+      const id = Number(req.params.id);
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        res.status(400).json({ message: "Invalid session ID" });
+        return;
+      }
+      const session = await this.service.getMySession(
+        requireAuthUser(req).id, id
+      );
+      res.status(200).json({ session });
+    });
+  }
+
+  public async deactivateAllSessions(
+    req: Request, res: Response
+  ): Promise<void> {
+    await this.run(res, async () => {
+      const revoked = await this.service.revokeMySessions(
+        requireAuthUser(req).id
+      );
+      res.status(200).json({ message: "Sessions revoked", revoked });
+    });
+  }
+
+  public async deactivateSession(
+    req: Request, res: Response
+  ): Promise<void> {
+    await this.run(res, async () => {
+      const id = Number(req.params.id);
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        res.status(400).json({ message: "Invalid session ID" });
+        return;
+      }
+      const session = await this.service.revokeMySession(
+        requireAuthUser(req).id, id
+      );
+      res.status(200).json({ message: "Session revoked", session });
+    });
+  }
+
+  public async purgeSessions(req: Request, res: Response): Promise<void> {
+    await this.run(res, async () => {
+      const deleted = await this.service.purgeMySessions(
+        requireAuthUser(req).id
+      );
+      res.status(200).json({ message: "Sessions purged", deleted });
+    });
+  }
+
 }
 
 /** `device_info` de auditoría a partir del encabezado `User-Agent`. */

@@ -3,6 +3,7 @@ import {
   CreditApplication,
   CreditApplicationI,
 } from "./credit-application.model";
+import { Member } from "../members/members.model";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -16,7 +17,13 @@ export class CreditApplicationController {
   public async getAll(req: Request, res: Response) {
     try {
       const credit_applications =
-        await CreditApplication.findAll();
+        await CreditApplication.findAll({
+          include: [{
+            model: Member,
+            as: "member",
+            attributes: ["id", "name"],
+          }],
+        });
 
       res.status(200).json({ credit_applications });
     } catch (error) {
@@ -33,7 +40,13 @@ export class CreditApplicationController {
       const id = paramId(req);
 
       const credit_application =
-        await CreditApplication.findByPk(id);
+        await CreditApplication.findByPk(id, {
+          include: [{
+            model: Member,
+            as: "member",
+            attributes: ["id", "name"],
+          }],
+        });
 
       if (!credit_application) {
         res.status(404).json({

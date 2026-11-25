@@ -1,6 +1,7 @@
 import { Application } from "express";
 import { ResourcesController } from "./resources.controller";
-import { authenticate, authorize } from "../access";
+import { authenticate } from "../access/authenticate.middleware";
+import { authorize } from "../access/authorize.middleware";
 
 /** Rutas del feature Resources — **modalidad 3 (JWT + RBAC)** en todas las operaciones. */
 export class ResourcesRoutes {

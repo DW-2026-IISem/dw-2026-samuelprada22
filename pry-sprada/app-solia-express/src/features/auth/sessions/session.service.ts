@@ -217,6 +217,28 @@ export class SessionService {
     );
   }
 
+  // ================== SESSION MANAGEMENT (JWT) ==================
+
+  public async getMySessions(userId: number) {
+    return this.refreshTokensService.getAllMine(userId);
+  }
+
+  public async getMySession(userId: number, sessionId: number) {
+    return this.refreshTokensService.getMine(userId, sessionId);
+  }
+
+  public async revokeMySession(userId: number, sessionId: number) {
+    return this.refreshTokensService.revokeMine(userId, sessionId);
+  }
+
+  public async revokeMySessions(userId: number) {
+    return this.refreshTokensService.revokeAllMine(userId);
+  }
+
+  public async purgeMySessions(userId: number) {
+    return this.refreshTokensService.purgeMine(userId);
+  }
+
   // ================== HELPERS ==================
 
   /**

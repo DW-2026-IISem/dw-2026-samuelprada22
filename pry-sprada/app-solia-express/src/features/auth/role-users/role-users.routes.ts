@@ -1,9 +1,7 @@
 import { Application } from "express";
 import { RoleUsersController } from "./role-users.controller";
-import {
-  authenticate,
-  authorize,
-} from "../access";
+import { authenticate } from "../access/authenticate.middleware";
+import { authorize } from "../access/authorize.middleware";
 
 export class RoleUsersRoutes {
   public roleUsersController: RoleUsersController =

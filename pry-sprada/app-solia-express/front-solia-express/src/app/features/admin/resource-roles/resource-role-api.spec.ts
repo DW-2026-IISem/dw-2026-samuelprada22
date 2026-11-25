@@ -119,6 +119,36 @@ describe('ResourceRoleApi', () => {
     });
   });
 
+
+  it('should PUT the complete resource selection to the role reconciliation endpoint', () => {
+    const resourceIds = [2, 3, 5];
+    let result: any;
+
+    api.reconcile(1, resourceIds).subscribe((response) => {
+      result = response;
+    });
+
+    const request = http.expectOne(`${BASE}/roles/1`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({
+      resource_ids: resourceIds,
+    });
+
+    const reconciliation = {
+      role_id: 1,
+      activated: 2,
+      deactivated: 1,
+      total_active: 3,
+    };
+
+    request.flush({
+      message: 'Role permissions reconciled successfully',
+      result: reconciliation,
+    });
+
+    expect(result).toEqual(reconciliation);
+  });
+
   it('should use environment.apiUrl and the concesiones-rol endpoint', () => {
     expect(environment.apiUrl.endsWith('/api')).toBe(true);
 

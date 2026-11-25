@@ -1,16 +1,20 @@
 import { Application } from "express";
 import { MembersController } from "./members.controller";
+import { authenticate } from "../../auth/access/authenticate.middleware";
+import { authorize } from "../../auth/access/authorize.middleware";
 
 export class MembersRoutes {
   public membersController: MembersController = new MembersController();
 
   public routes(app: Application): void {
-    // ================== ROUTES WITHOUT AUTHENTICATION / WITHOUT JWT MIDDLEWARE ==================
+    // ================== ROUTES WITH JWT + RBAC ==================
 
     // getAll
     app
       .route("/api/members")
       .get(
+        authenticate,
+        authorize,
         this.membersController.getAll.bind(
           this.membersController
         )
@@ -20,6 +24,8 @@ export class MembersRoutes {
     app
       .route("/api/members/:id")
       .get(
+        authenticate,
+        authorize,
         this.membersController.getOne.bind(
           this.membersController
         )
@@ -29,6 +35,8 @@ export class MembersRoutes {
     app
       .route("/api/members")
       .post(
+        authenticate,
+        authorize,
         this.membersController.create.bind(
           this.membersController
         )
@@ -38,11 +46,15 @@ export class MembersRoutes {
     app
       .route("/api/members/:id")
       .put(
+        authenticate,
+        authorize,
         this.membersController.updatePut.bind(
           this.membersController
         )
       )
       .patch(
+        authenticate,
+        authorize,
         this.membersController.updatePatch.bind(
           this.membersController
         )
@@ -52,6 +64,8 @@ export class MembersRoutes {
     app
       .route("/api/members/:id")
       .delete(
+        authenticate,
+        authorize,
         this.membersController.deletePhysical.bind(
           this.membersController
         )
@@ -61,6 +75,8 @@ export class MembersRoutes {
     app
       .route("/api/members/:id/deactivate")
       .patch(
+        authenticate,
+        authorize,
         this.membersController.deleteLogical.bind(
           this.membersController
         )
@@ -71,6 +87,8 @@ export class MembersRoutes {
     app
       .route("/api/members/:id")
       .delete(
+        authenticate,
+        authorize,
         this.membersController.deletePhysical.bind(
           this.membersController
         )
@@ -80,6 +98,8 @@ export class MembersRoutes {
     app
       .route("/api/members/:id/deactivate")
       .patch(
+        authenticate,
+        authorize,
         this.membersController.deleteLogical.bind(
           this.membersController
         )

@@ -3,6 +3,8 @@ import {
   CommitteeDecision,
   CommitteeDecisionI,
 } from "./committee-decision.model";
+import { CreditApplication } from "../credit-applications/credit-application.model";
+import { Member } from "../members/members.model";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -17,6 +19,15 @@ export class CommitteeDecisionController {
     try {
       const committee_decisions = await CommitteeDecision.findAll({
         where: { status: "active" },
+        include: [{
+          model: CreditApplication,
+          as: "credit_application",
+          include: [{
+            model: Member,
+            as: "member",
+            attributes: ["id", "name"],
+          }],
+        }],
       });
 
       res.status(200).json({ committee_decisions });
@@ -33,7 +44,17 @@ export class CommitteeDecisionController {
       const id = paramId(req);
 
       const committee_decision =
-        await CommitteeDecision.findByPk(id);
+        await CommitteeDecision.findByPk(id, {
+          include: [{
+            model: CreditApplication,
+            as: "credit_application",
+            include: [{
+              model: Member,
+              as: "member",
+              attributes: ["id", "name"],
+            }],
+          }],
+        });
 
       if (!committee_decision) {
         res.status(404).json({

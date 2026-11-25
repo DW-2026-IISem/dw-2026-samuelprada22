@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { Credit, CreditI } from "./credit.model";
+import { CreditApplication } from "../credit-applications/credit-application.model";
+import { Member } from "../members/members.model";
+import { Rate } from "../rates/rate.model";
 
 function paramId(req: Request): number {
   const raw = req.params.id;
@@ -12,7 +15,23 @@ export class CreditController {
 
   public async getAll(req: Request, res: Response) {
     try {
-      const credits = await Credit.findAll();
+      const credits = await Credit.findAll({
+        include: [
+          {
+          model: CreditApplication,
+          as: "creditApplication",
+          include: [{
+            model: Member,
+            as: "member",
+            attributes: ["id", "name"],
+          }],
+        },
+        {
+          model: Rate,
+          as: "rate",
+        },
+        ],
+      });
 
       res.status(200).json({ credits });
     } catch (error) {
@@ -27,7 +46,23 @@ export class CreditController {
     try {
       const id = paramId(req);
 
-      const credit = await Credit.findByPk(id);
+      const credit = await Credit.findByPk(id, {
+        include: [
+          {
+          model: CreditApplication,
+          as: "creditApplication",
+          include: [{
+            model: Member,
+            as: "member",
+            attributes: ["id", "name"],
+          }],
+        },
+        {
+          model: Rate,
+          as: "rate",
+        },
+        ],
+      });
 
       if (!credit) {
         res.status(404).json({

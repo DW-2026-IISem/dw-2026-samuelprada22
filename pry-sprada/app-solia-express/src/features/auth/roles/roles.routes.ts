@@ -1,6 +1,7 @@
 import { Application } from "express";
 import { RolesController } from "./roles.controller";
-import { authenticate, authorize } from "../access";
+import { authenticate } from "../access/authenticate.middleware";
+import { authorize } from "../access/authorize.middleware";
 
 /**
  * Rutas del feature Roles.

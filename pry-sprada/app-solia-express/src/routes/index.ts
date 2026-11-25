@@ -15,6 +15,7 @@ import { UsersRoutes } from "../features/auth/users/users.routes";
 import { RolesRoutes } from "../features/auth/roles/roles.routes";
 import { ResourcesRoutes } from "../features/auth/resources/resources.routes";
 import { RoleUsersRoutes } from "../features/auth/role-users/role-users.routes";
+import { ResourceRolesRoutes } from "../features/auth/resource-roles/resource-roles.routes";
 import { SessionRoutes } from "../features/auth/sessions/session.routes";
 
 export class Routes {
@@ -33,6 +34,7 @@ export class Routes {
   public rolesRoutes = new RolesRoutes();
   public resourcesRoutes = new ResourcesRoutes();
   public roleUsersRoutes = new RoleUsersRoutes();
+  public resourceRolesRoutes = new ResourceRolesRoutes();
   public sessionRoutes = new SessionRoutes();
 
   public routes(app: Application): void {
@@ -51,6 +53,7 @@ export class Routes {
     this.rolesRoutes.routes(app);
     this.resourcesRoutes.routes(app);
     this.roleUsersRoutes.routes(app);
+    this.resourceRolesRoutes.routes(app);
     this.sessionRoutes.routes(app);
   }
 }

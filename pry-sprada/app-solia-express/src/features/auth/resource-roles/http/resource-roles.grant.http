@@ -11,6 +11,11 @@
 @baseUrl = http://localhost:4000
 
 # @name loginAdmin
+### =========================================================
+### 0. AUTENTICACIÓN
+### =========================================================
+
+# @name loginAdmin
 POST {{baseUrl}}/api/sesion/login
 Content-Type: application/json
 
@@ -18,6 +23,8 @@ Content-Type: application/json
   "identifier": "admin",
   "password": "Admin123!"
 }
+
+###
 
 # @name loginSeller
 POST {{baseUrl}}/api/sesion/login
@@ -27,6 +34,8 @@ Content-Type: application/json
   "identifier": "seller",
   "password": "Seller123!"
 }
+
+###
 
 @token = {{loginAdmin.response.body.$.access_token}}
 @sellerToken = {{loginSeller.response.body.$.access_token}}
@@ -40,13 +49,19 @@ Content-Type: application/json
 GET {{baseUrl}}/api/concesiones-rol
 Authorization: Bearer {{token}}
 
+###
+
 ### Filtro: permisos del SELLER
 GET {{baseUrl}}/api/concesiones-rol?role_id={{sellerRoleId}}
 Authorization: Bearer {{token}}
 
+###
+
 ### Filtro inverso: roles que tienen resource_id 1
 GET {{baseUrl}}/api/concesiones-rol?resource_id=1
 Authorization: Bearer {{token}}
+
+###
 
 ### Obtener una concesión por ID
 GET {{baseUrl}}/api/concesiones-rol/1
@@ -55,9 +70,8 @@ Authorization: Bearer {{token}}
 ### =========================================================
 ### 2. ESTADO INICIAL
 ### =========================================================
-### SELLER NO tiene POST /api/members.
-### Debe responder 403.
 
+### SELLER no tiene POST /api/members; se espera 403
 POST {{baseUrl}}/api/members
 Authorization: Bearer {{sellerToken}}
 Content-Type: application/json
@@ -71,10 +85,8 @@ Content-Type: application/json
 ### =========================================================
 ### 3. CONCEDER PERMISO
 ### =========================================================
-### ADMIN concede:
-### SELLER (role_id 2)
-### +
-### POST /api/members (resource_id 3)
+
+### Conceder a SELLER (role_id 2) POST /api/members (resource_id 3)
 
 # @name grantCreate
 POST {{baseUrl}}/api/concesiones-rol
@@ -86,13 +98,15 @@ Content-Type: application/json
   "resource_id": 3
 }
 
+###
+
 @grantId = {{grantCreate.response.body.$.grant.id}}
 
 ### =========================================================
 ### 4. EFECTO INMEDIATO
 ### =========================================================
-### El mismo SELLER ahora debe poder crear un member.
 
+### SELLER ahora debe poder crear un member
 POST {{baseUrl}}/api/members
 Authorization: Bearer {{sellerToken}}
 Content-Type: application/json
@@ -113,8 +127,8 @@ Authorization: Bearer {{token}}
 ### =========================================================
 ### 6. COMPROBAR REVOCACIÓN
 ### =========================================================
-### SELLER debe volver a recibir 403.
 
+### SELLER debe volver a recibir 403
 POST {{baseUrl}}/api/members
 Authorization: Bearer {{sellerToken}}
 Content-Type: application/json
@@ -135,8 +149,6 @@ Authorization: Bearer {{token}}
 ### =========================================================
 ### 8. SELLER NO PUEDE ADMINISTRAR LA MATRIZ
 ### =========================================================
-### Aunque SELLER tenga permisos operativos,
-### no debe poder consultar la matriz de concesiones.
 
 GET {{baseUrl}}/api/concesiones-rol
 Authorization: Bearer {{sellerToken}}

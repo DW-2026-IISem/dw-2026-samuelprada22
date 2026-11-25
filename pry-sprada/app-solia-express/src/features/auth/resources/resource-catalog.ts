@@ -307,11 +307,6 @@ export const RESOURCE_CATALOG: ResourceCatalogItem[] = [
     description: "Actualizar parcialmente un pago de cuota",
   },
   {
-    method: "DELETE",
-    path: "/api/installment-payments/:id",
-    description: "Eliminar físicamente un pago de cuota",
-  },
-  {
     method: "PATCH",
     path: "/api/installment-payments/:id/deactivate",
     description: "Desactivar lógicamente un pago de cuota",
@@ -373,6 +368,198 @@ export const RESOURCE_CATALOG: ResourceCatalogItem[] = [
     method: "POST",
     path: "/api/audits",
     description: "Crear un registro de auditoría",
+  },
+
+  // ADMIN ROUTES PATCH 403
+  // =========================
+  // RESOURCES — ADMINISTRATION
+  // =========================
+  {
+    method: "GET",
+    path: "/api/recursos",
+    description: "Listar recursos",
+  },
+  {
+    method: "GET",
+    path: "/api/recursos/:id",
+    description: "Consultar un recurso por id",
+  },
+  {
+    method: "POST",
+    path: "/api/recursos",
+    description: "Crear un recurso",
+  },
+  {
+    method: "PUT",
+    path: "/api/recursos/:id",
+    description: "Actualizar completamente un recurso",
+  },
+  {
+    method: "PATCH",
+    path: "/api/recursos/:id",
+    description: "Actualizar parcialmente un recurso",
+  },
+  {
+    method: "DELETE",
+    path: "/api/recursos/:id",
+    description: "Eliminar físicamente un recurso",
+  },
+  {
+    method: "PATCH",
+    path: "/api/recursos/:id/deactivate",
+    description: "Desactivar un recurso",
+  },
+
+  // =========================
+  // USERS — ADMINISTRATION
+  // =========================
+  {
+    method: "GET",
+    path: "/api/usuarios",
+    description: "Listar usuarios",
+  },
+  {
+    method: "GET",
+    path: "/api/usuarios/:id",
+    description: "Consultar un usuario por id",
+  },
+  {
+    method: "POST",
+    path: "/api/usuarios",
+    description: "Crear un usuario",
+  },
+  {
+    method: "PUT",
+    path: "/api/usuarios/:id",
+    description: "Actualizar completamente un usuario",
+  },
+  {
+    method: "PATCH",
+    path: "/api/usuarios/:id",
+    description: "Actualizar parcialmente un usuario",
+  },
+  {
+    method: "DELETE",
+    path: "/api/usuarios/:id",
+    description: "Eliminar físicamente un usuario",
+  },
+  {
+    method: "PATCH",
+    path: "/api/usuarios/:id/deactivate",
+    description: "Desactivar un usuario",
+  },
+  {
+    method: "PATCH",
+    path: "/api/usuarios/:id/password",
+    description: "Cambiar la contraseña de un usuario",
+  },
+  {
+    method: "GET",
+    path: "/api/usuarios/:id/permisos",
+    description: "Consultar los permisos efectivos de un usuario",
+  },
+
+  // =========================
+  // ROLES — ADMINISTRATION
+  // =========================
+  {
+    method: "GET",
+    path: "/api/roles",
+    description: "Listar roles",
+  },
+  {
+    method: "POST",
+    path: "/api/roles",
+    description: "Crear un rol",
+  },
+  {
+    method: "GET",
+    path: "/api/roles/:id",
+    description: "Consultar un rol por id",
+  },
+  {
+    method: "PUT",
+    path: "/api/roles/:id",
+    description: "Actualizar completamente un rol",
+  },
+  {
+    method: "PATCH",
+    path: "/api/roles/:id",
+    description: "Actualizar parcialmente un rol",
+  },
+  {
+    method: "DELETE",
+    path: "/api/roles/:id",
+    description: "Eliminar físicamente un rol",
+  },
+  {
+    method: "PATCH",
+    path: "/api/roles/:id/deactivate",
+    description: "Desactivar un rol",
+  },
+
+  // =========================
+  {
+    method: "GET",
+    path: "/api/asignaciones-rol",
+    description: "Listar asignaciones de roles a usuarios",
+  },
+
+  {
+    method: "GET",
+    path: "/api/asignaciones-rol/:id",
+    description: "Consultar una asignación de rol por id",
+  },
+
+  {
+    method: "POST",
+    path: "/api/asignaciones-rol",
+    description: "Asignar un rol a un usuario",
+  },
+
+  {
+    method: "PATCH",
+    path: "/api/asignaciones-rol/:id/deactivate",
+    description: "Desactivar una asignación de rol",
+  },
+
+  {
+    method: "PATCH",
+    path: "/api/asignaciones-rol/:id/reactivate",
+    description: "Reactivar una asignación de rol",
+  },
+
+  // RESOURCE ROLES
+  // =========================
+  {
+    method: "PUT",
+    path: "/api/concesiones-rol/roles/:id",
+    description: "Reconciliar los permisos de un rol",
+  },
+  {
+    method: "GET",
+    path: "/api/concesiones-rol",
+    description: "Listar concesiones de recursos por rol",
+  },
+  {
+    method: "GET",
+    path: "/api/concesiones-rol/:id",
+    description: "Consultar una concesión por id",
+  },
+  {
+    method: "POST",
+    path: "/api/concesiones-rol",
+    description: "Conceder un recurso a un rol",
+  },
+  {
+    method: "PATCH",
+    path: "/api/concesiones-rol/:id/deactivate",
+    description: "Retirar una concesión de recurso a rol",
+  },
+  {
+    method: "PATCH",
+    path: "/api/concesiones-rol/:id/reactivate",
+    description: "Reactivar una concesión de recurso a rol",
   },
 ];
 

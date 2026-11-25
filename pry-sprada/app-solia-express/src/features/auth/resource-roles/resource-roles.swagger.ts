@@ -18,16 +18,51 @@ import {
 export const resourceRolesSwagger = {
   tags: [
     {
-      name: "Concesiones rol-recurso",
+      name: "Role-Resource Grants",
       description:
         "Conceder / retirar / reactivar recursos a un rol: **el permiso** — **JWT + RBAC**",
     },
   ],
   paths: {
+    "/api/concesiones-rol/roles/{id}": {
+      put: {
+        tags: ["Role-Resource Grants"],
+        summary: "Reconcile all permissions for a role",
+        description:
+          "JWT + RBAC — reemplaza el conjunto de concesiones activas del rol " +
+          "por los resource_ids enviados. La operación es transaccional.",
+        security: bearerSecurity,
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "integer" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/ResourceRoleReconcile",
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Permisos del rol reconciliados" },
+          "400": { description: "Identificador o lista de recursos inválidos" },
+          "401": unauthorizedResponse,
+          "403": forbiddenResponse,
+          "404": { description: "Rol o recurso inexistente o inactivo" },
+        },
+      },
+    },
     "/api/concesiones-rol": {
       get: {
-        tags: ["Concesiones rol-recurso"],
-        summary: "Listar concesiones activas",
+        tags: ["Role-Resource Grants"],
+        summary: "List active grants",
         description:
           "JWT + RBAC — recurso `GET /api/concesiones-rol`. " +
           "Filtros opcionales: `?role_id=` (permisos de un rol) y `?resource_id=` (roles que conceden un recurso).",
@@ -43,8 +78,8 @@ export const resourceRolesSwagger = {
         },
       },
       post: {
-        tags: ["Concesiones rol-recurso"],
-        summary: "Conceder recurso a rol (crear permiso)",
+        tags: ["Role-Resource Grants"],
+        summary: "Grant resource to role (create permission)",
         description:
           "JWT + RBAC — recurso `POST /api/concesiones-rol`. " +
           "Cuerpo: `{ role_id, resource_id }`. Idempotente: si la concesión existía retirada, se reactiva. " +
@@ -67,8 +102,8 @@ export const resourceRolesSwagger = {
     },
     "/api/concesiones-rol/{id}": {
       get: {
-        tags: ["Concesiones rol-recurso"],
-        summary: "Obtener concesión por id",
+        tags: ["Role-Resource Grants"],
+        summary: "Get grant by ID",
         description: "JWT + RBAC — recurso `GET /api/concesiones-rol/:id`.",
         security: bearerSecurity,
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
@@ -83,8 +118,8 @@ export const resourceRolesSwagger = {
     },
     "/api/concesiones-rol/{id}/deactivate": {
       patch: {
-        tags: ["Concesiones rol-recurso"],
-        summary: "Retirar permiso (borrado lógico)",
+        tags: ["Role-Resource Grants"],
+        summary: "Revoke permission (soft delete)",
         description:
           "JWT + RBAC — recurso `PATCH /api/concesiones-rol/:id/deactivate`. " +
           "Solo se pierde esa operación; el resto de permisos del rol siguen vigentes.",
@@ -101,7 +136,7 @@ export const resourceRolesSwagger = {
     },
     "/api/concesiones-rol/{id}/reactivate": {
       patch: {
-        tags: ["Concesiones rol-recurso"],
+        tags: ["Role-Resource Grants"],
         summary: "Reactivar permiso",
         description: "JWT + RBAC — recurso `PATCH /api/concesiones-rol/:id/reactivate`.",
         security: bearerSecurity,
@@ -141,6 +176,17 @@ export const resourceRolesSwagger = {
           },
           createdAt: { type: "string", format: "date-time" },
           updatedAt: { type: "string", format: "date-time" },
+        },
+      },
+      ResourceRoleReconcile: {
+        type: "object",
+        required: ["resource_ids"],
+        properties: {
+          resource_ids: {
+            type: "array",
+            items: { type: "integer", minimum: 1 },
+            example: [1, 2, 3],
+          },
         },
       },
       ResourceRoleCreate: {

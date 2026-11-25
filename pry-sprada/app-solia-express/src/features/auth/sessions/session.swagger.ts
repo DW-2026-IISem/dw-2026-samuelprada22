@@ -13,21 +13,21 @@ import {
 export const sessionSwagger = {
   tags: [
     {
-      name: "Sesion",
+      name: "Session",
       description:
-        "Login, renovación, cierre y perfil — OPEN + JWT",
+        "Login, token refresh, logout, and profile — OPEN + JWT",
     },
   ],
 
   paths: {
     "/api/sesion/login": {
       post: {
-        tags: ["Sesion"],
-        summary: "Iniciar sesión (OPEN)",
+        tags: ["Session"],
+        summary: "Log in (OPEN)",
         description:
-          "Valida usuario/correo + contraseña y abre una sesión. " +
-          "Emite un access token JWT y un refresh token persistido como hash. " +
-          "La respuesta es idéntica para usuario inexistente y contraseña incorrecta.",
+          "Validates username/email and password and opens a session. " +
+          "Issues a JWT access token and a refresh token stored as a hash. " +
+          "The response is identical for a nonexistent user and an incorrect password.",
         security: openSecurity,
         requestBody: {
           required: true,
@@ -58,12 +58,12 @@ export const sessionSwagger = {
 
     "/api/sesion/refresh": {
       post: {
-        tags: ["Sesion"],
+        tags: ["Session"],
         summary:
-          "Renovar el access token (OPEN con credencial de sesión)",
+          "Refresh access token (OPEN with session credentials)",
         description:
-          "Rota el refresh token presentado. " +
-          "Si se reutiliza un token ya rotado, se revoca toda la familia.",
+          "Rotates the provided refresh token. " +
+          "If a rotated token is reused, the entire token family is revoked.",
         security: openSecurity,
         requestBody: {
           required: true,
@@ -94,12 +94,12 @@ export const sessionSwagger = {
 
     "/api/sesion/logout": {
       post: {
-        tags: ["Sesion"],
+        tags: ["Session"],
         summary:
-          "Cerrar sesión (OPEN con credencial de sesión)",
+          "Log out (OPEN with session credentials)",
         description:
-          "Revoca el refresh token presentado. " +
-          "La operación es idempotente.",
+          "Revokes the provided refresh token. " +
+          "This operation is idempotent.",
         security: openSecurity,
         requestBody: {
           required: true,
@@ -126,11 +126,11 @@ export const sessionSwagger = {
 
     "/api/sesion/perfil": {
       get: {
-        tags: ["Sesion"],
+        tags: ["Session"],
         summary:
-          "Perfil del usuario autenticado (JWT)",
+          "Get authenticated user profile (JWT)",
         description:
-          "Valida el JWT y comprueba que el usuario continúe activo.",
+          "Validates the JWT and checks that the user is still active.",
         security: bearerSecurity,
         responses: {
           "200": {
@@ -144,17 +144,17 @@ export const sessionSwagger = {
 
     "/api/permisos": {
       get: {
-        tags: ["Sesion"],
+        tags: ["Session"],
         summary:
-          "Mis permisos efectivos (JWT)",
+          "Get my effective permissions (JWT)",
         description:
-          "Devuelve los permisos efectivos del usuario autenticado " +
-          "usando la misma consulta que utiliza el middleware authorize.",
+          "Returns the authenticated user's effective permissions " +
+          "using the same query as the authorize middleware.",
         security: bearerSecurity,
         responses: {
           "200": {
             description:
-              "Permisos efectivos del usuario",
+              "Get user's effective permissions",
           },
           "401": unauthorizedResponse,
         },
@@ -172,7 +172,7 @@ export const sessionSwagger = {
             type: "string",
             example: "admin",
             description:
-              "username o email",
+              "Username or email",
           },
           password: {
             type: "string",
@@ -199,7 +199,7 @@ export const sessionSwagger = {
           access_token: {
             type: "string",
             description:
-              "JWT firmado con HS256",
+              "JWT signed with HS256",
           },
           token_type: {
             type: "string",
@@ -209,12 +209,12 @@ export const sessionSwagger = {
             type: "integer",
             example: 900,
             description:
-              "Segundos de vida del access token",
+              "Access token lifetime in seconds",
           },
           refresh_token: {
             type: "string",
             description:
-              "Token opaco",
+              "Opaque token",
           },
           refresh_expires_in: {
             type: "integer",

@@ -1,7 +1,9 @@
 ### Feature RoleUsers — ASIGNAR ROL A USUARIO (modalidad JWT + RBAC)
 ### Primer eslabón de la cadena: sin asignación activa NO hay permisos.
+
 @baseUrl = http://localhost:4000
 
+### 0. AUTENTICACIÓN — ADMIN
 # @name loginAdmin
 POST {{baseUrl}}/api/sesion/login
 Content-Type: application/json
@@ -11,22 +13,35 @@ Content-Type: application/json
   "password": "Admin123!"
 }
 
-@token = {{loginAdmin.response.body.$.access_token}}
+###
+@adminToken = {{loginAdmin.response.body.$.access_token}}
 
-### getAll — asignaciones activas
+### AUTENTICACIÓN — SELLER
+# @name loginSeller
+POST {{baseUrl}}/api/sesion/login
+Content-Type: application/json
+
+{
+  "identifier": "seller",
+  "password": "Seller123!"
+}
+
+###
+@sellerToken = {{loginSeller.response.body.$.access_token}}
+
+### 1. GET ALL — asignaciones activas
 GET {{baseUrl}}/api/asignaciones-rol
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 
-### getOne
+### 2. GET ONE — consultar asignación
 GET {{baseUrl}}/api/asignaciones-rol/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 
-### ASIGNAR ROL A USUARIO
-# seller = user_id 2
-# ADMIN = role_id 1
+### 3. ASIGNAR ADMIN AL USUARIO 2
+# Ejecutar solo si la asignación todavía no existe.
 # @name assignCreate
 POST {{baseUrl}}/api/asignaciones-rol
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
@@ -34,11 +49,17 @@ Content-Type: application/json
   "role_id": 1
 }
 
-@assignmentId = {{assignCreate.response.body.$.assignment.id}}
+###
+# Después de ejecutar assignCreate, copia el ID numérico
+# de la respuesta 201 y asígnalo a @assignmentId.
+# Ejemplo de formato: @assignmentId = 12
+# No uses un ID hasta comprobarlo en la respuesta.
+@assignmentId = REEMPLAZAR_CON_ID_REAL
 
-### 409 — ese rol ya está asignado a ese usuario
+### 4. 409 — duplicar asignación
+# Ejecutar después de que assignCreate haya creado la asignación.
 POST {{baseUrl}}/api/asignaciones-rol
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
@@ -46,9 +67,9 @@ Content-Type: application/json
   "role_id": 1
 }
 
-### 404 — usuario o rol inexistente/inactivo
+### 5. 404 — usuario inexistente
 POST {{baseUrl}}/api/asignaciones-rol
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
 {
@@ -56,14 +77,19 @@ Content-Type: application/json
   "role_id": 2
 }
 
-### RETIRAR ROL
+### 6. DESACTIVAR ASIGNACIÓN — usa el ID real de assignCreate
 PATCH {{baseUrl}}/api/asignaciones-rol/{{assignmentId}}/deactivate
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 
-### Comprobar permisos efectivos
+### 7. CONSULTAR PERMISOS EFECTIVOS DEL USUARIO 2
 GET {{baseUrl}}/api/usuarios/2/permisos
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
 
-### REACTIVAR ASIGNACIÓN
+### 8. REACTIVAR ASIGNACIÓN — después de desactivarla correctamente
 PATCH {{baseUrl}}/api/asignaciones-rol/{{assignmentId}}/reactivate
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+
+### 9. PRUEBA DE ACCESO COMO SELLER — ejecuta loginSeller primero
+# Sustituye /api/roles por una ruta que SELLER no tenga autorizada.
+GET {{baseUrl}}/api/roles
+Authorization: Bearer {{sellerToken}}

@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import {
   ResourceRole,
   ResourceRolePayload,
+  ReconcileResourceRoleResult,
 } from '../../../core/models/resource-role.model';
 
 @Injectable({ providedIn: 'root' })
@@ -25,6 +26,19 @@ export class ResourceRoleApi {
   create(payload: ResourceRolePayload): Observable<ResourceRole> {
     return this.http.post<{ grant: ResourceRole }>(this.base, payload)
       .pipe(map((response) => response.grant));
+  }
+
+
+  reconcile(
+    roleId: number,
+    resourceIds: number[],
+  ): Observable<ReconcileResourceRoleResult> {
+    return this.http.put<{
+      message: string;
+      result: ReconcileResourceRoleResult;
+    }>(`${this.base}/roles/${roleId}`, {
+      resource_ids: resourceIds,
+    }).pipe(map((response) => response.result));
   }
 
   deactivate(id: number): Observable<unknown> {

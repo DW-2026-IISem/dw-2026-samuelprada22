@@ -1,6 +1,7 @@
 import { Application } from "express";
 import { UsersController } from "./users.controller";
-import { authenticate, authorize } from "../access";
+import { authenticate } from "../access/authenticate.middleware";
+import { authorize } from "../access/authorize.middleware";
 
 /**
  * Rutas del feature Users — modalidad JWT + RBAC.

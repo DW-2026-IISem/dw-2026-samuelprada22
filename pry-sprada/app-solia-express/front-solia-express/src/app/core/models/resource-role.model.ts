@@ -26,3 +26,10 @@ export interface ResourceRolePayload {
   role_id: number;
   resource_id: number;
 }
+
+export interface ReconcileResourceRoleResult {
+  role_id: number;
+  activated: number;
+  deactivated: number;
+  total_active: number;
+}

@@ -3,6 +3,8 @@
 ### Un id de sesión ajeno responde 404 (no se filtra su existencia).
 @baseUrl = http://localhost:4000
 
+
+### Iniciar sesión y generar el token
 # @name loginSeller
 POST {{baseUrl}}/api/sesion/login
 Content-Type: application/json
@@ -12,7 +14,9 @@ Content-Type: application/json
   "password": "Seller123!"
 }
 
+### Guardar el token de acceso automáticamente
 @token = {{loginSeller.response.body.$.access_token}}
+
 
 ### Listar mis sesiones activas (nunca expone `token_hash`)
 GET {{baseUrl}}/api/sesiones

@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../../shared/http/base-controller";
-import { CreateResourceRoleDto } from "./dto";
+import {
+  CreateResourceRoleDto,
+  ReconcileResourceRoleDto,
+} from "./dto";
 import { ResourceRolesService } from "./resource-roles.service";
 
 export class ResourceRolesController extends BaseController {
@@ -37,6 +40,21 @@ export class ResourceRolesController extends BaseController {
       res.status(201).json({
         message: "Resource granted to role",
         grant,
+      });
+    });
+  }
+
+  public async reconcileRole(req: Request, res: Response): Promise<void> {
+    await this.run(res, async () => {
+      const payload = req.body as ReconcileResourceRoleDto;
+      const result = await this.service.reconcileRole(
+        this.paramId(req),
+        payload?.resource_ids as number[]
+      );
+
+      res.status(200).json({
+        message: "Role permissions reconciled successfully",
+        result,
       });
     });
   }
